@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Restaurant QR Ordering System
 
 Full-stack restaurant ordering app with separate links for customer, waiter, kitchen and admin.
@@ -60,3 +61,6 @@ Open:
 
 - `database_schema.sql` is still available as the Supabase/Postgres schema reference for a future database-backed version.
 - Current runtime persistence remains file-based through `data_store.json`.
+=======
+A
+>>>>>>> 187b7007d60c950776c6ebfd6095b7c4504ace4c
