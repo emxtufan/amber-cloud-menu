@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { 
-  ShieldAlert, TrendingUp, BarChart3, QrCode, FileSpreadsheet, Plus, Edit, Trash, Check, X, Shield, Coffee, Grid 
+  ShieldAlert, TrendingUp, BarChart3, QrCode, FileSpreadsheet, Plus, Edit, Trash, Check, X, Shield, Coffee, Grid, Star 
 } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { api } from '../services/api.js';
-import { AccessControlSummary, Order, Table, Category, Product, ProductOptionGroup, RestaurantSettings, SystemStats } from '../types.js';
+import { AccessControlSummary, Order, Review, Table, Category, Product, ProductOptionGroup, RestaurantSettings, SystemStats } from '../types.js';
 import { formatCad, formatDateTime, generateQrSvg, getOrderSourceLabel, getOrderStatusLabel, getPaymentMethodLabel, getTableAreaLabel, getTableQrLabel } from '../utils.js';
 
 type AnalyticsRange = 'today' | 'day' | 'week' | 'month';
@@ -218,6 +218,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true });
   const [accessControl, setAccessControl] = useState<AccessControlSummary>({
     adminUsername: 'admin',
@@ -238,7 +239,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
   const [isConfirmingAction, setIsConfirmingAction] = useState(false);
 
   // Sub-navigation tabs
-  const [activeTab, setActiveTab] = useState<'analytics' | 'menu' | 'qr' | 'settings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'menu' | 'qr' | 'reviews' | 'settings'>('analytics');
 
   // Menu Creation/Editing form states
   const [isEditingProduct, setIsEditingProduct] = useState<string | null>(null); // 'new' or id
@@ -346,14 +347,30 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
     });
   };
 
+  const upsertReview = (incoming: Review) => {
+    setReviews((current) => {
+      const index = current.findIndex((review) => review.id === incoming.id);
+      if (index === -1) {
+        return [incoming, ...current].sort(
+          (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+        );
+      }
+
+      const next = [...current];
+      next[index] = incoming;
+      return next.sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+    });
+  };
+
   const loadAdminDb = async () => {
     try {
-      const [st, tb, ct, pr, od, sg] = await Promise.all([
+      const [st, tb, ct, pr, od, rv, sg] = await Promise.all([
         api.getStats(),
         api.getTables(),
         api.getCategories(),
         api.getProducts(),
         api.getOrders(),
+        api.getReviews(),
         api.getSettings()
       ]);
       setStats(st);
@@ -361,6 +378,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       setCategories(ct);
       setProducts(pr);
       setOrders(od);
+      setReviews(rv);
       setSettings(sg);
       const accessSummary = await api.getAccessControlSummary();
       setAccessControl(accessSummary);
@@ -415,6 +433,9 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
     const unsubSettings = api.subscribe('settings-update', (nextSettings: RestaurantSettings) => {
       setSettings(nextSettings);
     });
+    const unsubReview = api.subscribe('new-review', (review: Review) => {
+      upsertReview(review);
+    });
 
     return () => {
       unsubOrder();
@@ -424,6 +445,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       unsubTableDelete();
       unsubMenu();
       unsubSettings();
+      unsubReview();
     };
   }, []);
 
@@ -900,6 +922,51 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
         }),
     [orders]
   );
+  const renderReviewsSection = () => (
+    <section className="bg-card border border-white/5 rounded-[24px] p-5 flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-display font-bold text-white uppercase tracking-wider">Recenzii clienti</h3>
+          <p className="text-xs text-muted font-mono mt-1">Feedback-ul trimis din telefon apare aici si ramane salvat pentru admin.</p>
+        </div>
+        <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-primary">
+          {reviews.length} total
+        </span>
+      </div>
+
+      {reviews.length === 0 ? (
+        <div className="rounded-[20px] border border-white/8 bg-background px-4 py-8 text-center text-sm text-muted">
+          Nu exista inca recenzii trimise de clienti.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          {reviews.map((review) => (
+            <div key={review.id} className="rounded-[20px] border border-white/8 bg-background p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-display font-bold text-white truncate">
+                    {review.productName || 'Recenzie generala'}
+                  </p>
+                  <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.16em] text-muted">
+                    {review.customerName || 'Client anonim'} • {formatDateTime(review.createdAt)}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-warning/20 bg-warning/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-warning">
+                  {review.rating}/5 stele
+                </span>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-white/80">
+                {review.comment?.trim() || 'Clientul a trimis doar rating, fara comentariu.'}
+              </p>
+              <p className="mt-3 text-[10px] font-mono uppercase tracking-[0.16em] text-primary">
+                Comanda {review.orderId}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 
   const groupedTablesByArea = useMemo(() => {
     const groups = new Map<string, Table[]>();
@@ -1022,6 +1089,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       { id: 'analytics', label: 'Indicatori', icon: BarChart3 },
       { id: 'menu', label: 'Produse si categorii', icon: Grid },
       { id: 'qr', label: 'Generator QR', icon: QrCode },
+      { id: 'reviews', label: 'Feedback clienti', icon: Star },
       { id: 'settings', label: 'Configurare meniu', icon: Shield }
     ].map(tab => {
       const Icon = tab.icon;
@@ -1451,6 +1519,50 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
                 </div>
               )}
             </div>
+          </section>
+
+          <section className="bg-card border border-white/5 rounded-[24px] p-5 flex flex-col gap-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-display font-bold text-white uppercase tracking-wider">Recenzii clienti</h3>
+                <p className="text-xs text-muted font-mono mt-1">Feedback-ul trimis din telefon apare aici si ramane salvat pentru admin.</p>
+              </div>
+              <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-primary">
+                {reviews.length} total
+              </span>
+            </div>
+
+            {reviews.length === 0 ? (
+              <div className="rounded-[20px] border border-white/8 bg-background px-4 py-8 text-center text-sm text-muted">
+                Nu exista inca recenzii trimise de clienti.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                {reviews.map((review) => (
+                  <div key={review.id} className="rounded-[20px] border border-white/8 bg-background p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-display font-bold text-white truncate">
+                          {review.productName || 'Recenzie generala'}
+                        </p>
+                        <p className="mt-1 text-[10px] font-mono uppercase tracking-[0.16em] text-muted">
+                          {review.customerName || 'Client anonim'} • {formatDateTime(review.createdAt)}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full border border-warning/20 bg-warning/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-warning">
+                        {review.rating}/5 stele
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-white/80">
+                      {review.comment?.trim() || 'Clientul a trimis doar rating, fara comentariu.'}
+                    </p>
+                    <p className="mt-3 text-[10px] font-mono uppercase tracking-[0.16em] text-primary">
+                      Comanda {review.orderId}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
         </div>
@@ -2105,6 +2217,22 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
           </div>
         </div>
       </div>
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2">
+            <div>
+              <h3 className="text-sm font-display font-bold text-white uppercase tracking-wider">Feedback clienti</h3>
+              <p className="text-xs text-muted font-mono mt-1">Toate recenziile trimise de pe telefonul clientului.</p>
+            </div>
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-primary">
+              {reviews.length} recenzii
+            </span>
+          </div>
+
+          {renderReviewsSection()}
+        </div>
       )}
 
       {activeTab === 'settings' && (

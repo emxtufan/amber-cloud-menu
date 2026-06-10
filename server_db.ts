@@ -310,15 +310,15 @@ export class DatabaseEngine {
   }
 
   private static writeLocalSnapshot() {
-    // if (!this.data) {
-    //   return;
-    // }
+    if (!this.data) {
+      return;
+    }
 
-    // try {
-    //   fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
-    // } catch (error) {
-    //   console.error('Critical database write error:', error);
-    // }
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+    } catch (error) {
+      console.error('Critical database write error:', error);
+    }
   }
 
   private static async readRemoteSnapshot(): Promise<Partial<DatabaseSchema> | null> {

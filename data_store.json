@@ -1,13 +1,19 @@
 {
   "settings": {
-    "customerOrderingEnabled": true,
-    "waiterPin": "1234"
+    "customerOrderingEnabled": true
+  },
+  "accessControl": {
+    "adminUsername": "admin",
+    "adminPasswordHash": "65ba14f5957fc36479a62e1715ed2595:2ea0787d10d875f04b2a05a14de7312d75798979c09ca3de3e8fb2131fadfd8faf0e4291a438db1455ce102e7077a96289ab006aa4ed6bc7f8f61004b63e0335",
+    "waiterPinHash": "23adf136073eefad8e9205259e345391:4562f89a06b3f8d5da18cfb02f84c9a8c9b70d51e5056342f7533c3d2def1eee1d4570d9cdb92f07f1da9b882c8656a07a9fd15932192264f0ae57935542963f",
+    "kitchenPinHash": "cbe3845d393b275b7b732d2dd35956ad:c2289e207af324d9b098c803f6c32c29863e875b60ec506864b3357f7d59b347ce470853c569b8a746b88adee0a6c65b1abf140c0534a44976d417e716c67657"
   },
   "tables": [
     {
       "id": "1",
       "number": 1,
-      "status": "AVAILABLE",
+      "status": "PREPARING",
+      "activeSessionId": "session-table-1-1781107729413",
       "area": "INTERIOR"
     },
     {
@@ -65,11 +71,798 @@
       "area": "INTERIOR"
     }
   ],
-  "categories": [],
-  "products": [],
+  "categories": [
+    {
+      "id": "cat-1781093057400",
+      "name": "Narghilea",
+      "icon": "💨",
+      "slug": "narghilea",
+      "active": true
+    },
+    {
+      "id": "cat-1781093063227",
+      "name": "Pizza",
+      "icon": "🍕",
+      "slug": "pizza",
+      "active": true
+    },
+    {
+      "id": "cat-1781093068080",
+      "name": "Burgeri",
+      "icon": "🍔",
+      "slug": "burgeri",
+      "active": true
+    },
+    {
+      "id": "cat-1781093078378",
+      "name": "Paste",
+      "icon": "🍝",
+      "slug": "paste",
+      "active": true
+    },
+    {
+      "id": "cat-1781093098883",
+      "name": "Salate",
+      "icon": "🥗",
+      "slug": "salate",
+      "active": true
+    },
+    {
+      "id": "cat-1781093120056",
+      "name": "Desert",
+      "icon": "🍰",
+      "slug": "desert",
+      "active": true
+    },
+    {
+      "id": "cat-1781093322312",
+      "name": "Coffee by Lavazza",
+      "icon": "☕",
+      "slug": "coffee-by-lavazza",
+      "active": true
+    },
+    {
+      "id": "cat-1781093347906",
+      "name": "Bauturi Racoritoare",
+      "icon": "🥤",
+      "slug": "bauturi-racoritoare",
+      "active": true
+    },
+    {
+      "id": "cat-1781093360229",
+      "name": "Bere",
+      "icon": "🍺",
+      "slug": "bere",
+      "active": true
+    },
+    {
+      "id": "cat-1781093373385",
+      "name": "Vinuri",
+      "icon": "🍷",
+      "slug": "vinuri",
+      "active": true
+    },
+    {
+      "id": "cat-1781093404449",
+      "name": "Limonade",
+      "icon": "🍋",
+      "slug": "limonade",
+      "active": true
+    },
+    {
+      "id": "cat-1781093447328",
+      "name": "Bauturi Spirtoase",
+      "icon": "🥂",
+      "slug": "bauturi-spirtoase",
+      "active": true
+    },
+    {
+      "id": "cat-1781093471703",
+      "name": "Cocktails",
+      "icon": "🍹",
+      "slug": "cocktails",
+      "active": true
+    },
+    {
+      "id": "cat-1781093578680",
+      "name": "Gustari",
+      "icon": "🍿",
+      "slug": "gustari",
+      "active": true
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-1781093779291",
+      "name": "Narghilea Premium",
+      "description": "Descoperă o selecție atent aleasă de arome premium pentru narghilea, de la combinații fructate și răcoritoare până la mixuri exotice și intense. Fie că preferi gusturile clasice sau experiențe noi și surprinzătoare, fiecare narghilea este pregătită cu atenție pentru o sesiune relaxantă și plină de savoare. Alege aroma preferată și bucură-te de momente speciale alături de prieteni, într-o atmosferă elegantă și confortabilă. 💨✨",
+      "price": 100,
+      "imageUrl": "https://images.pexels.com/photos/7518749/pexels-photo-7518749.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": true,
+      "categoryId": "cat-1781093057400",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781099658634",
+      "name": "Pizza quattro stagioni 30 cm",
+      "description": "Sos rosii, mozzarella, topping pizza, sunca, ciuperci, carnati, masline",
+      "price": 32.1,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/8a7900ca25aaad7af9803e05895b81a238f3ae38.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "590gr\n\nINGREDIENTE: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar) SOS DE PIZZA 50g( rosii, suc de rosii , corector de aciditate: acid citric) MOZZARELLA 140G (lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) SUNCA 40G ( carne de porc, apa, agent de ingrosare : caragenan , stabilizatori : trifosfati si polifosfati, dextroza , proteina de porc , arome , potentiator de aroma: monoglutamat de sodiu, antioxidanti : acid ascorbic si bicarbonat de sodiu , aroma de fum, corector de aciditate: citrat de sodiu, condimente, extracte de origine vegetala din soia, amidon modificat. CIUPERCI 60g CARNATI SEMIAFUMATI 40G ( carne de porc, carne de vita, apa, proteina vegetala din soia, dextroza proteina de porc , sorici, sare, emulsifiant : mono si digliceride ale acizilor grasi, agenti de ingrosare: caragenan, guma de cantan ) proteina de mazare.stabilizatori : difosfati si polifosfsti, antioxidanti : acid ascorbic bicarbonat de sodiu , corector de aciditate : citrati de sodiu , glucono detta lactona ,lactoza , condimente : contin boabe de mustar, arome, potentiator de gust : monoglutamat de sodiu , aroma de fum , conservanti: lactat de sodiu , acetati de sodiu , nitrit de sodiu , colorant : carmina , membrana naturala comestibila: mate de oaie . SALAM CHORIZO 20G( carne de porc , slanina , carne vita, sare condimente , dextroza , extracte de condimente , antioxidant :eritorbat de sodiu , conservant : nitrit de sodiu , cultura starter . MASLINE FELIATE 30G( masline, apa , sare , gluconat feros, acid lactic )",
+        "allergenTraceText": "Poate sa contine urme de : lactoza, mustar , gluten.",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "915.16 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "218.73 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "10.38 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "21.65 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.22 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "9.55 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.81 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.25 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.21 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781099815446",
+      "name": "Pizza capriciosa 30 cm",
+      "description": "Sos rosii, mozzarella, topping pizza, sunca, ciuperci, carnati, salam chorizo, ardei gras, masline\n",
+      "price": 33.6,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/41/7ba5e9e602f0fd918f8aa6e4340d96795d3f5af9.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar), SOS DE PIZZA 50 (rosii,suc de rosii,corector de aciditate: acid citric) MOZZARELLA 140g (lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) SUNCA 40 ( carne de porc, apa, agent de ingrosare: caragenan, stabilizatori: trifosfati si polifosfati , dextroza, proteina de porc , arome , potentiator de aroma: monoglutamat de sodiu, antioxidanti : acid ascorbic si bicarbonat de sodiu , aroma de fum, corector de aciditate: citrat de sodiu, condimente, extracte de origine vegetala din soia, amidon modificat. CIUPERCI 60g, CARNATI SEMIAFUMATI 40G ( carne de porc, carne de vita, apa, proteina vegetala din soia, dextroza proteina de porc , sorici, sare, emulsifiant : mono si digliceride ale acizilor grasi, agenti de ingrosare: caragenan, guma de cantan ) proteina de mazare.stabilizatori : difosfati si polifosfsti, antioxidanti : acid ascorbic bicarbonat de sodiu , corector de aciditate : citrati de sodiu , glucono detta lactona ,lactoza , condimente : contin boabe de mustar, arome, potentiator de gust : monoglutamat de sodiu , aroma de fum , conservanti: lactat de sodiu , acetati de sodiu , nitrit de sodiu , colorant : carmina , membrana naturala comestibila: mate de oaie . SALAM CHORIZO 20G ( carne de porc , slanina , carne vita, sare condimente , dextroza , extracte de condimente , antioxidant :eritorbat de sodiu , conservant : nitrit de sodiu , cultura starter . MASLINE FELIATE 30G ( masline, apa , sare , gluconat feros, acid lactic ) ARDEI GRAS 30G",
+        "allergenTraceText": "poate sa contina urme de: gluten , lactoza mustar,lapte",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "892.15 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "213.23 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "10.55 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "21.07 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.12 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "9.2 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.45 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.33 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.14 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781099952253",
+      "name": "Pizza diavollo 30 cm",
+      "description": "Sos rosii, mozzarella, topping pizza, salam chorizo, peperoncino",
+      "price": 32.4,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/5692e0d21d75c375fa5f3bec4ee4c6484423a17e.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar) SOS DE PIZZA 50g(rosii,suc de rosii,corector de aciditate: acid citric) MOZZARELLA 140g (lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) SALAM CHORIZO 65g(carne de porc,slanina,carne de vita,sare, condimente, dextroza, extracte de condimente, antioxidant : eritorbat de sodiu , conservant : nitrit de sodiu,cultura starter. PEPERONCINO 5g",
+        "allergenTraceText": "poate sa contina urme de : lapte , lactoza, mustar",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1032.10 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "246.68 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "12.98 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "22.71 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.10 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "11.19 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "5.89 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.26 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.28 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781100035579",
+      "name": "Pizza quattro formaggi 30 cm",
+      "description": "Extra mozzarella, topping pizza, cașcaval afumat, blue cheese, grana padano\n\n",
+      "price": 34.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/fdda215c035925a18778dd9f3284522849e1924b.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "670gr\n\nINGREDIENTE: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar), MOZZAREALA 210G(lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) CASCAVAL AFUMAT 50gr ( lapte de vaca pasteorizat,sare agent de intarire : culturi lactice, cheag . BRANZA SEMI-MOALE CU MUCEGAI NOBIL ALBASTRU 30G  ( lapte de vaca , sare , cultura de lapte, mucegai nobil Penicilium roqueforti. BRANZA ITALIANA 15G (lapte, sare , cheag, lysozym din ou)",
+        "allergenTraceText": "lapte si derivate din lapte",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1159.55 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "277.14 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "14.94 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "19.77 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.88 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "14.94 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "7.22 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.22 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.68 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781100504057",
+      "name": "Pizza primavera 30 cm",
+      "description": "Sos rosii, mozzarella, topping pizza, piept de pui, ciuperci, ardei gras, porumb\n\n",
+      "price": 31.2,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/fa7fa0c6579d63d41ba15bb83c302ad798cd9320.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "760gr\n\nINGREDIENTE : BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar), SOS DE PIZZA 50g( rosii, suc de rosii , corector de aciditate :acid citric) MOZZARELLA 140G (lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) CIUPERCI 60g. ARDEI GRAS 30g, PIEPT DE PUI 70g (piept de pui 95%, apa, proteina vegetala din soia , stabilizatori : di si trifosfati de sodiu, amidon modificat , sare , sirop de glucoza, corector de aciditate : acetat de sodiu si carbonat de sodiu , potentiator de aroma : monoglutamat de sodiu , ulei vegetal de floarea soarelui, agent de ingrosare : guma xantan , condimente : boia de ardei dulce , boia de ardei iute , usturoi , oregano si piper alb . zahar , maltodextrina , transglutamiaza , aroma de fum . PORUMB 30G (porumb zaharat boabe, apa, sare, zahar)",
+        "allergenTraceText": "poate sa contina urme de : mustar, lactoza, lapte, gluten, telina, ou , seminte de susan",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "906.67 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "216.70 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "12.65 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "17.94 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.22 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "9.86 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.68 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.37 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.02 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781100599304",
+      "name": "Pizza deliciosa 30 cm",
+      "description": "Sos rosii, mozzarella, topping pizza, sunca, blue cheese\n\n",
+      "price": 31.2,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/22cf60897a34f08be97f4b214e7f8d073eaaf607.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "INGREDIENTE : ingrediente: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar), SOS DE PIZZA 50 (rosii,suc de rosii,corector de aciditate: acid citric) MOZZARELLA 140g (lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) SUNCA 100G ( carne de porc, apa, agent de ingrosare: caragenan, stabilizatori: trifosfati si polifosfati , dextroza, proteina de porc , arome , potentiator de aroma: monoglutamat de sodiu, antioxidanti : acid ascorbic si bicarbonat de sodiu , aroma de fum, corector de aciditate: citrat de sodiu, condimente, extracte de origine vegetala din soia, amidon modificat. . BRANZA SEMI-MOALE CU MUCEGAI NOBIL ALBASTRU 30G ( lapte de vaca , sare , cultura de lapte ,mucegai nobil Penicilium roqueforti.",
+        "allergenTraceText": "poate sa contina urme de lapte , lactoza, mustar , gluten , derivate din lapte",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "919.01 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "219.65 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "11.58 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "23 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.23 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "8.62 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.21 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.27 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.20 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781100682695",
+      "name": "Pizza margherita 30 cm (copii)",
+      "description": "Sos rosii, mozzarella, topping pizza, oregano\n\n",
+      "price": 24.9,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/a1393546a40b73a75200b4784f2f6076ea8b3887.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093063227",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "450gr INGREDIENTE: BLAT DE PIZZA (Faina, sare, ulei floarea soarelui, zahar), SOS DE PIZZA 50g (rosii,suc de rosii,corector de aciditate: acid citric) MOZZARELLA 210g(lapte, sare, cheag microbian, corectori de aciditate, acid citric, acid lactic, culturi lactice) OREGANO 5G",
+        "allergenTraceText": "poate sa contina urme de: lapte , lactoza mustar",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1024.15 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "244.78 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "10.65 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "28.82 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.13 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "9.21 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.61 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.34 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.06 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781103635020",
+      "name": "Cheeseburger vita",
+      "description": "Cheeseburger + cartofi prajiti 130gr + sos",
+      "price": 66,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0812/51/057eec5bec5f6afa4026c21d9ed1f389cff5cde5.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093068080",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": [
+        {
+          "id": "group-1781103444774-xbi82",
+          "name": "Sos",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781103444774-5igtm",
+              "name": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781103485988-sx9ck",
+              "name": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781103567302-szjv4",
+              "name": "Sos barbeque",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781103580738-v3ipy",
+              "name": "Ketchup dulce",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781103589536-5kc8p",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "ingredients": [],
-  "orders": [],
-  "reviews": [],
-  "bills": [],
+  "orders": [
+    {
+      "id": "ord-1781100170454",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781100170454",
+      "orderNumber": "ORD-6624",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781100170454-0",
+          "productId": "prod-1781099952253",
+          "productName": "Pizza diavollo 30 cm",
+          "price": 32.4,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781100170454-1",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 132.4,
+      "createdAt": "2026-06-10T14:02:50.454Z",
+      "updatedAt": "2026-06-10T14:05:11.181Z",
+      "prepTimeEstimate": 15,
+      "approvedAt": "2026-06-10T14:03:57.398Z",
+      "startedAt": "2026-06-10T14:04:55.523Z",
+      "readyAt": "2026-06-10T14:05:07.608Z",
+      "completedAt": "2026-06-10T14:05:11.181Z"
+    },
+    {
+      "id": "ord-1781104864006",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781104864005",
+      "orderNumber": "ORD-5815",
+      "status": "CANCELLED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781104864005-0",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 32.1,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781105193683-1",
+          "productId": "prod-1781099815446",
+          "productName": "Pizza capriciosa 30 cm",
+          "price": 33.6,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 65.7,
+      "createdAt": "2026-06-10T15:21:04.005Z",
+      "updatedAt": "2026-06-10T15:45:15.262Z",
+      "approvedAt": "2026-06-10T15:26:53.253Z",
+      "cancelledAt": "2026-06-10T15:45:15.262Z"
+    },
+    {
+      "id": "ord-1781105227875",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781107729413",
+      "orderNumber": "ORD-1175",
+      "status": "CONFIRMED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781105227875-0",
+          "productId": "prod-1781099952253",
+          "productName": "Pizza diavollo 30 cm",
+          "price": 32.4,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781105247249-1",
+          "productId": "prod-1781103635020",
+          "productName": "Cheeseburger vita",
+          "price": 66,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781105247249-2",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781105247249-3",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 31.2,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781105247249-4",
+          "productId": "prod-1781099815446",
+          "productName": "Pizza capriciosa 30 cm",
+          "price": 33.6,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 263.2,
+      "createdAt": "2026-06-10T15:27:07.874Z",
+      "updatedAt": "2026-06-10T16:08:51.185Z",
+      "approvedAt": "2026-06-10T16:08:51.185Z"
+    },
+    {
+      "id": "ord-1781107701803",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781107729413",
+      "orderNumber": "ORD-5580",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781107701803-0",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 100,
+      "createdAt": "2026-06-10T16:08:21.803Z",
+      "updatedAt": "2026-06-10T16:08:57.559Z",
+      "approvedAt": "2026-06-10T16:08:49.413Z",
+      "readyAt": "2026-06-10T16:08:49.413Z",
+      "completedAt": "2026-06-10T16:08:57.559Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev-1781100318857",
+      "orderId": "ord-1781100170454",
+      "productId": "prod-1781099952253",
+      "productName": "Pizza diavollo 30 cm",
+      "rating": 5,
+      "comment": "",
+      "customerName": "Masa 1",
+      "createdAt": "2026-06-10T14:05:18.857Z"
+    },
+    {
+      "id": "rev-1781107752333",
+      "orderId": "ord-1781107701803",
+      "productId": "prod-1781093779291",
+      "productName": "Narghilea Premium",
+      "rating": 5,
+      "comment": "dwqdqwdqwdqw",
+      "customerName": "Masa 1",
+      "createdAt": "2026-06-10T16:09:12.333Z"
+    }
+  ],
+  "bills": [
+    {
+      "id": "bill-1781107232817",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781104864005",
+      "orderIds": [
+        "ord-1781105227875"
+      ],
+      "status": "PAID",
+      "subtotal": 263.2,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-10T16:00:32.816Z",
+      "updatedAt": "2026-06-10T16:08:54.770Z"
+    },
+    {
+      "id": "bill-1781100337979",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781100170454",
+      "orderIds": [
+        "ord-1781100170454"
+      ],
+      "status": "PAID",
+      "subtotal": 132.4,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-10T14:05:37.979Z",
+      "updatedAt": "2026-06-10T14:06:09.939Z"
+    }
+  ],
   "waiterRequests": []
 }

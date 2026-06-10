@@ -33,6 +33,12 @@ interface WaiterCallMarker {
   expiresAt: number;
 }
 
+interface CustomerPopupState {
+  title: string;
+  message: string;
+  tone: 'success' | 'error';
+}
+
 const trackerStages = [
   { status: OrderStatus.PENDING, label: 'Asteapta ospatarul' },
   { status: OrderStatus.CONFIRMED, label: 'Confirmata' },
@@ -143,12 +149,36 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
-  const [waiterCallPopup, setWaiterCallPopup] = useState<{ title: string; message: string; tone: 'success' | 'error' } | null>(null);
+  const [feedbackPopup, setFeedbackPopup] = useState<CustomerPopupState | null>(null);
   const [waiterCallMarker, setWaiterCallMarker] = useState<WaiterCallMarker | null>(null);
 
   const activeTable = tables.find((table) => table.id === tableId) || tables[0] || null;
   const rememberedSessionCookieName = `restaurant-order-session-${tableId}`;
   const waiterCallStorageKey = `restaurant-waiter-call-${tableId}`;
+
+  const upsertActiveOrder = (incomingOrder: Order) => {
+    if (incomingOrder.tableId !== tableId) {
+      return;
+    }
+
+    setActiveOrders((currentOrders) => {
+      const existingIndex = currentOrders.findIndex((order) => order.id === incomingOrder.id);
+      if (existingIndex === -1) {
+        return [incomingOrder, ...currentOrders];
+      }
+
+      const nextOrders = [...currentOrders];
+      nextOrders[existingIndex] = incomingOrder;
+      return nextOrders;
+    });
+
+    if (incomingOrder.status === OrderStatus.DELIVERED) {
+      setReviewOrder(incomingOrder);
+      setReviewComment('');
+      setReviewRating(5);
+      setIsReviewSubmitted(false);
+    }
+  };
 
   const readRememberedSession = (): RememberedCustomerSession | null => {
     if (!tableId) {
@@ -311,33 +341,9 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
 
     loadData();
 
-    const upsertOrder = (incomingOrder: Order) => {
-      if (incomingOrder.tableId !== tableId) {
-        return;
-      }
-
-      setActiveOrders((currentOrders) => {
-        const existingIndex = currentOrders.findIndex((order) => order.id === incomingOrder.id);
-        if (existingIndex === -1) {
-          return [incomingOrder, ...currentOrders];
-        }
-
-        const nextOrders = [...currentOrders];
-        nextOrders[existingIndex] = incomingOrder;
-        return nextOrders;
-      });
-
-      if (incomingOrder.status === OrderStatus.DELIVERED) {
-        setReviewOrder(incomingOrder);
-        setReviewComment('');
-        setReviewRating(5);
-        setIsReviewSubmitted(false);
-      }
-    };
-
-    const unsubOrderUpdate = api.subscribe('order-update', upsertOrder);
-    const unsubNewOrder = api.subscribe('new-order', upsertOrder);
-    const unsubNewOrderRequest = api.subscribe('new-order-request', upsertOrder);
+    const unsubOrderUpdate = api.subscribe('order-update', upsertActiveOrder);
+    const unsubNewOrder = api.subscribe('new-order', upsertActiveOrder);
+    const unsubNewOrderRequest = api.subscribe('new-order-request', upsertActiveOrder);
     const unsubTable = api.subscribe('table-update', (table: Table) => {
       if (table.id === tableId) {
         loadData();
@@ -365,7 +371,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       return;
     }
 
-    const isOverlayOpen = Boolean(selectedProduct || nutritionProduct || isCartOpen || isTrackerOpen || reviewOrder || waiterCallPopup);
+    const isOverlayOpen = Boolean(selectedProduct || nutritionProduct || isCartOpen || isTrackerOpen || reviewOrder || feedbackPopup);
     if (!isOverlayOpen) {
       return;
     }
@@ -391,7 +397,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       document.body.style.width = previousBodyWidth;
       window.scrollTo(0, scrollY);
     };
-  }, [isCartOpen, isTrackerOpen, nutritionProduct, reviewOrder, selectedProduct, waiterCallPopup]);
+  }, [feedbackPopup, isCartOpen, isTrackerOpen, nutritionProduct, reviewOrder, selectedProduct]);
 
   useEffect(() => {
     if (!waiterCallMarker) {
@@ -579,14 +585,14 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
         );
         setIsCartOpen(false);
         persistWaiterCallMarker();
-        setWaiterCallPopup({
+        setFeedbackPopup({
           title: `Ospatarul a fost chemat la masa ${activeTable.number}`,
           message: 'Cosul tau ramane salvat ca sa il poti arata ospatarului cand ajunge la masa.',
           tone: 'success',
         });
       } catch (error) {
         console.error('Nu am putut chema ospatarul', error);
-        setWaiterCallPopup({
+        setFeedbackPopup({
           title: 'Nu am putut chema ospatarul',
           message: 'Incearca din nou peste cateva secunde.',
           tone: 'error',
@@ -614,7 +620,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       );
 
       rememberOrderOnDevice(createdOrder);
-      setActiveOrders((currentOrders) => [createdOrder, ...currentOrders]);
+      upsertActiveOrder(createdOrder);
       saveCart([]);
       setAdditionalOrderNotes('');
       setWaiterCallMarker(null);
@@ -627,24 +633,40 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       setIsTrackerOpen(true);
     } catch (error) {
       console.error('Nu am putut crea comanda', error);
-      alert('Cererea de comanda nu a putut fi trimisa. Incearca din nou.');
+      setFeedbackPopup({
+        title: 'Nu am putut trimite comanda',
+        message: 'Cererea de comanda nu a putut fi trimisa. Incearca din nou.',
+        tone: 'error',
+      });
     }
   };
 
   const requestBill = async (paymentMethod: 'CARD' | 'CASH') => {
     if (!currentSessionId) {
-      alert('Pe acest dispozitiv nu exista inca o sesiune proprie activa pentru nota.');
+      setFeedbackPopup({
+        title: 'Nu exista sesiune activa',
+        message: 'Pe acest dispozitiv nu exista inca o sesiune proprie activa pentru nota.',
+        tone: 'error',
+      });
       return;
     }
 
     if (currentOpenBill) {
-      alert('Nota a fost deja ceruta pentru aceasta masa. Ospatarul ajunge imediat.');
+      setFeedbackPopup({
+        title: 'Nota este deja ceruta',
+        message: 'Nota a fost deja ceruta pentru aceasta masa. Ospatarul ajunge imediat.',
+        tone: 'error',
+      });
       return;
     }
 
     const payableOrders = sessionOrders.filter((order) => order.status !== OrderStatus.CANCELLED);
     if (payableOrders.length === 0) {
-      alert('Nu exista inca nicio comanda activa pe aceasta masa.');
+      setFeedbackPopup({
+        title: 'Nu exista comenzi active',
+        message: 'Nu exista inca nicio comanda activa pe aceasta masa.',
+        tone: 'error',
+      });
       return;
     }
 
@@ -664,10 +686,18 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
         nextBills[existingIndex] = bill;
         return nextBills;
       });
-      alert(`Nota a fost ceruta. Ospatarul va veni imediat pentru plata ${paymentMethod.toLowerCase()}.`);
+      setFeedbackPopup({
+        title: 'Cerere nota trimisa',
+        message: `Nota a fost ceruta. Ospatarul va veni imediat pentru plata ${paymentMethod.toLowerCase()}.`,
+        tone: 'success',
+      });
     } catch (error) {
       console.error('Nu am putut cere nota', error);
-      alert(error instanceof Error ? error.message : 'Cererea pentru nota a esuat. Incearca din nou.');
+      setFeedbackPopup({
+        title: 'Nu am putut cere nota',
+        message: error instanceof Error ? error.message : 'Cererea pentru nota a esuat. Incearca din nou.',
+        tone: 'error',
+      });
     }
   };
 
@@ -1412,24 +1442,24 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
         </div>
       )}
 
-      {waiterCallPopup && (
+      {feedbackPopup && (
         <div className="fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-5">
           <div className="relative w-full max-w-[360px] rounded-[28px] border border-white/10 bg-card p-5 text-center">
             <div
               className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center ${
-                waiterCallPopup.tone === 'success' ? 'bg-success/15' : 'bg-danger/15'
+                feedbackPopup.tone === 'success' ? 'bg-success/15' : 'bg-danger/15'
               }`}
             >
-              {waiterCallPopup.tone === 'success' ? (
+              {feedbackPopup.tone === 'success' ? (
                 <Check className="w-7 h-7 text-success" />
               ) : (
                 <X className="w-7 h-7 text-danger" />
               )}
             </div>
-            <h3 className="mt-4 text-xl font-display font-bold">{waiterCallPopup.title}</h3>
-            <p className="mt-2 text-sm text-muted leading-6">{waiterCallPopup.message}</p>
+            <h3 className="mt-4 text-xl font-display font-bold">{feedbackPopup.title}</h3>
+            <p className="mt-2 text-sm text-muted leading-6">{feedbackPopup.message}</p>
             <button
-              onClick={() => setWaiterCallPopup(null)}
+              onClick={() => setFeedbackPopup(null)}
               className="mt-5 w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold"
             >
               Am inteles
