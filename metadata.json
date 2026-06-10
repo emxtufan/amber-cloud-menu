@@ -1,0 +1,6 @@
+{
+  "name": "Restaurant QR Ordering System",
+  "description": "A premium, real-time mobile-first QR ordering system for dine-in restaurants.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

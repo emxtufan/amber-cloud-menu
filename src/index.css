@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Fira+Code:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-background: #080808;
+  --color-card: #111111;
+  --color-primary: #c9a84c;
+  --color-secondary: #e8c97e;
+  --color-muted: #888880;
+  --color-success: #4ade80;
+  --color-warning: #d4a243;
+  --color-danger: #ef4444;
+  --color-border-dark: rgba(201, 168, 76, 0.14);
+
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "Fira Code", ui-monospace, monospace;
+
+  --radius-xl: 24px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #080808;
+}
+
+body {
+  background:
+    radial-gradient(circle at top, rgba(201, 168, 76, 0.08), transparent 36%),
+    linear-gradient(180deg, #090909 0%, #080808 100%);
+  color: #f0ead8;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+::selection {
+  background-color: rgba(201, 168, 76, 0.25);
+  color: #f0ead8;
+}
+
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass {
+  background: rgba(17, 17, 17, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 168, 76, 0.12);
+}
+
+[class*="border-white/5"],
+[class*="border-white/8"],
+[class*="border-white/10"] {
+  border-color: rgba(201, 168, 76, 0.12) !important;
+}
+
+.waiter-attention {
+  animation: waiterAttentionPulse 1.25s ease-in-out 4;
+  box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.42);
+}
+
+@keyframes waiterAttentionPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.42);
+  }
+
+  45% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 14px rgba(201, 168, 76, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(201, 168, 76, 0);
+  }
+}
