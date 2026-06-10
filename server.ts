@@ -94,7 +94,7 @@ async function startServer() {
   await DatabaseEngine.initialize();
 
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? Number(process.env.PORT) : 5595;
 
   app.use(express.json());
 

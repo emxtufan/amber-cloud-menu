@@ -1196,7 +1196,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                   value={productNotes}
                   onChange={(event) => setProductNotes(event.target.value)}
                   onFocus={(event) => scrollFieldIntoView(event.currentTarget)}
-                  placeholder="Fara ceapa, mai crocant, sos separat..."
+                  placeholder="Adauga cerinte speciale"
                   rows={4}
                   className="mt-2 w-full rounded-2xl border border-white/8 bg-background p-3 text-sm text-white outline-none resize-none"
                 />
