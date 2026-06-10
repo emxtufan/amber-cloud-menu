@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import {
   Bill,
   BillStatus,
@@ -29,6 +30,7 @@ const SUPABASE_APP_STATE_ID = 'restaurant_qr_state';
 
 interface DatabaseSchema {
   settings: RestaurantSettings;
+  accessControl: AccessControlData;
   tables: Table[];
   categories: Category[];
   products: Product[];
@@ -47,8 +49,44 @@ interface SupabaseAppStateRow {
 
 const DEFAULT_SETTINGS: RestaurantSettings = {
   customerOrderingEnabled: true,
-  waiterPin: '',
 };
+
+interface AccessControlData {
+  adminUsername: string;
+  adminPasswordHash: string;
+  waiterPinHash: string;
+  kitchenPinHash: string;
+}
+
+type AccessRole = 'ADMIN' | 'WAITER' | 'KITCHEN';
+
+function createPasswordHash(value: string) {
+  const normalized = value.trim();
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(normalized, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPasswordHash(value: string, serializedHash: string) {
+  if (!serializedHash || !value.trim()) {
+    return false;
+  }
+
+  const [salt, storedHash] = serializedHash.split(':');
+  if (!salt || !storedHash) {
+    return false;
+  }
+
+  const candidateHash = crypto.scryptSync(value.trim(), salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(candidateHash, 'hex'));
+}
+
+const DEFAULT_ACCESS_CONTROL = (): AccessControlData => ({
+  adminUsername: (process.env.ADMIN_USERNAME || 'admin').trim() || 'admin',
+  adminPasswordHash: createPasswordHash(process.env.ADMIN_PASSWORD || 'admin1234'),
+  waiterPinHash: createPasswordHash((process.env.WAITER_PIN || '1111').replace(/\D/g, '').slice(0, 8) || '1111'),
+  kitchenPinHash: createPasswordHash((process.env.KITCHEN_PIN || '2222').replace(/\D/g, '').slice(0, 8) || '2222'),
+});
 
 function createSessionId(tableId: string, timestamp = Date.now()) {
   return `session-table-${tableId}-${timestamp}`;
@@ -116,7 +154,48 @@ function normalizeOrderItem(item: any, fallbackId: string): OrderItem {
     quantity: Math.max(1, Number(item?.quantity || 1)),
     notes: item?.notes ? String(item.notes) : undefined,
     sendToKitchen: typeof item?.sendToKitchen === 'boolean' ? item.sendToKitchen : undefined,
+    selectedOptions: normalizeSelectedOrderOptions(item?.selectedOptions),
   };
+}
+
+function normalizeSelectedOrderOptions(selectedOptions: any): OrderItem['selectedOptions'] {
+  if (!Array.isArray(selectedOptions)) {
+    return [];
+  }
+
+  return selectedOptions.map((option, index) => ({
+    groupId: String(option?.groupId || `group-${index}`),
+    groupName: String(option?.groupName || 'Optiune'),
+    choiceId: String(option?.choiceId || `choice-${index}`),
+    choiceName: String(option?.choiceName || 'Varianta'),
+    priceDelta: Number(option?.priceDelta || 0),
+  }));
+}
+
+function normalizeProductOptionGroups(optionGroups: any): Product['optionGroups'] {
+  if (!Array.isArray(optionGroups)) {
+    return [];
+  }
+
+  return optionGroups
+    .map((group, groupIndex) => ({
+      id: String(group?.id || `option-group-${groupIndex}`),
+      name: String(group?.name || 'Optiuni'),
+      required: Boolean(group?.required),
+      selectionType: (group?.selectionType === 'multiple' ? 'multiple' : 'single') as 'single' | 'multiple',
+      maxSelections:
+        group?.selectionType === 'multiple' && Number(group?.maxSelections || 0) > 0
+          ? Number(group.maxSelections)
+          : undefined,
+      choices: Array.isArray(group?.choices)
+        ? group.choices.map((choice: any, choiceIndex: number) => ({
+            id: String(choice?.id || `option-choice-${groupIndex}-${choiceIndex}`),
+            name: String(choice?.name || 'Varianta'),
+            priceDelta: Number(choice?.priceDelta || 0),
+          }))
+        : [],
+    }))
+    .filter((group) => group.name.trim() && group.choices.length > 0);
 }
 
 function hasFinishedOrder(status: OrderStatus) {
@@ -293,12 +372,17 @@ export class DatabaseEngine {
   private static createInitialData(): DatabaseSchema {
     return {
       settings: { ...DEFAULT_SETTINGS },
+      accessControl: DEFAULT_ACCESS_CONTROL(),
       tables: DEFAULT_TABLES.map((table) => ({ ...table })),
       categories: DEFAULT_CATEGORIES.map((category) => ({ ...category })),
       products: DEFAULT_PRODUCTS().map((product) => ({
         ...product,
         ingredients: product.ingredients?.map((ingredient) => ({ ...ingredient })),
         allergens: [...(product.allergens || [])],
+        optionGroups: product.optionGroups?.map((group) => ({
+          ...group,
+          choices: group.choices.map((choice) => ({ ...choice })),
+        })),
       })),
       ingredients: DEFAULT_INGREDIENTS.map((ingredient) => ({ ...ingredient })),
       orders: DEFAULT_ORDERS.map((order) => ({
@@ -391,6 +475,7 @@ export class DatabaseEngine {
                   : [],
               }
             : undefined,
+          optionGroups: normalizeProductOptionGroups(product.optionGroups),
         }))
       : seed.products;
 
@@ -479,6 +564,7 @@ export class DatabaseEngine {
                 productName: String(item.productName || 'Produs'),
                 quantity: Math.max(1, Number(item.quantity || 1)),
                 notes: item.notes ? String(item.notes) : undefined,
+                selectedOptions: normalizeSelectedOrderOptions(item.selectedOptions),
               }))
             : [],
           notes: request.notes ? String(request.notes) : undefined,
@@ -489,16 +575,34 @@ export class DatabaseEngine {
         }))
       : seed.waiterRequests;
 
+    const defaultAccessControl = DEFAULT_ACCESS_CONTROL();
+
     const migrated: DatabaseSchema = {
       settings: {
         customerOrderingEnabled:
           raw.settings?.customerOrderingEnabled !== undefined
             ? Boolean(raw.settings.customerOrderingEnabled)
             : DEFAULT_SETTINGS.customerOrderingEnabled,
-        waiterPin:
-          typeof raw.settings?.waiterPin === 'string'
-            ? String(raw.settings.waiterPin).replace(/\D/g, '').slice(0, 4)
-            : DEFAULT_SETTINGS.waiterPin,
+      },
+      accessControl: {
+        adminUsername:
+          typeof raw.accessControl?.adminUsername === 'string' && raw.accessControl.adminUsername.trim()
+            ? raw.accessControl.adminUsername.trim()
+            : defaultAccessControl.adminUsername,
+        adminPasswordHash:
+          typeof raw.accessControl?.adminPasswordHash === 'string' && raw.accessControl.adminPasswordHash
+            ? raw.accessControl.adminPasswordHash
+            : defaultAccessControl.adminPasswordHash,
+        waiterPinHash:
+          typeof raw.accessControl?.waiterPinHash === 'string' && raw.accessControl.waiterPinHash
+            ? raw.accessControl.waiterPinHash
+            : typeof (raw as any).settings?.waiterPin === 'string' && String((raw as any).settings.waiterPin).replace(/\D/g, '').slice(0, 8)
+              ? createPasswordHash(String((raw as any).settings.waiterPin).replace(/\D/g, '').slice(0, 8))
+              : defaultAccessControl.waiterPinHash,
+        kitchenPinHash:
+          typeof raw.accessControl?.kitchenPinHash === 'string' && raw.accessControl.kitchenPinHash
+            ? raw.accessControl.kitchenPinHash
+            : defaultAccessControl.kitchenPinHash,
       },
       tables,
       categories,
@@ -812,6 +916,7 @@ export class DatabaseEngine {
             valuesPer100g: product.nutritionInfo.valuesPer100g.map((entry) => ({ ...entry })),
           }
         : undefined,
+      optionGroups: normalizeProductOptionGroups(product.optionGroups),
     };
 
     this.data?.products.push(created);
@@ -842,6 +947,11 @@ export class DatabaseEngine {
       };
     } else if (product.nutritionInfo === undefined) {
       existing.nutritionInfo = undefined;
+    }
+    if (product.optionGroups) {
+      existing.optionGroups = normalizeProductOptionGroups(product.optionGroups);
+    } else if (product.optionGroups === undefined) {
+      existing.optionGroups = undefined;
     }
     this.save();
     return existing;
@@ -1015,6 +1125,37 @@ export class DatabaseEngine {
     if (resolvedStatus === OrderStatus.CANCELLED) {
       order.cancelledAt = now;
     }
+
+    this.recalculateTableStatus(order.tableId);
+    this.save();
+    return order;
+  }
+
+  static appendItemsToPendingOrder(id: string, items: Omit<OrderItem, 'id'>[]): Order {
+    this.load();
+    const order = this.data?.orders.find((entry) => entry.id === id);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    if (order.status !== OrderStatus.PENDING) {
+      throw new Error('Doar comenzile aflate in asteptare pot fi completate inainte de confirmare.');
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error('Trebuie sa trimiti cel putin un produs pentru completare.');
+    }
+
+    const now = new Date().toISOString();
+    const appendedItems = items.map((item, index) =>
+      normalizeOrderItem(item, `item-${Date.now()}-${order.items.length + index}`)
+    );
+
+    order.items = [...order.items, ...appendedItems];
+    order.subtotal = Number(
+      order.items.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)
+    );
+    order.updatedAt = now;
 
     this.recalculateTableStatus(order.tableId);
     this.save();
@@ -1331,7 +1472,7 @@ export class DatabaseEngine {
 
   static createWaiterRequest(
     tableId: string,
-    items: { productId: string; productName: string; quantity: number; notes?: string }[],
+    items: { productId: string; productName: string; quantity: number; notes?: string; selectedOptions?: OrderItem['selectedOptions'] }[],
     notes?: string
   ): WaiterRequest {
     this.load();
@@ -1350,6 +1491,7 @@ export class DatabaseEngine {
         productName: item.productName,
         quantity: Math.max(1, Number(item.quantity || 1)),
         notes: item.notes,
+        selectedOptions: normalizeSelectedOrderOptions(item.selectedOptions),
       })),
       notes,
       status: 'OPEN',
@@ -1381,7 +1523,6 @@ export class DatabaseEngine {
     this.load();
     return {
       customerOrderingEnabled: this.data?.settings.customerOrderingEnabled ?? DEFAULT_SETTINGS.customerOrderingEnabled,
-      waiterPin: this.data?.settings.waiterPin ?? DEFAULT_SETTINGS.waiterPin,
     };
   }
 
@@ -1396,11 +1537,84 @@ export class DatabaseEngine {
       ...(settings.customerOrderingEnabled !== undefined
         ? { customerOrderingEnabled: Boolean(settings.customerOrderingEnabled) }
         : {}),
-      ...(settings.waiterPin !== undefined
-        ? { waiterPin: String(settings.waiterPin).replace(/\D/g, '').slice(0, 4) }
-        : {}),
     };
     this.save();
     return this.getSettings();
+  }
+
+  static getAccessControlSummary() {
+    this.load();
+    const accessControl = this.data?.accessControl || DEFAULT_ACCESS_CONTROL();
+    return {
+      adminUsername: accessControl.adminUsername,
+      adminPasswordConfigured: Boolean(accessControl.adminPasswordHash),
+      waiterPinConfigured: Boolean(accessControl.waiterPinHash),
+      kitchenPinConfigured: Boolean(accessControl.kitchenPinHash),
+    };
+  }
+
+  static updateAccessControl(payload: {
+    adminUsername?: string;
+    adminPassword?: string;
+    waiterPin?: string;
+    kitchenPin?: string;
+  }) {
+    this.load();
+    if (!this.data) {
+      this.data = this.createInitialData();
+    }
+
+    const current = this.data.accessControl || DEFAULT_ACCESS_CONTROL();
+    const nextAdminUsername =
+      typeof payload.adminUsername === 'string' && payload.adminUsername.trim()
+        ? payload.adminUsername.trim()
+        : current.adminUsername;
+
+    this.data.accessControl = {
+      adminUsername: nextAdminUsername,
+      adminPasswordHash:
+        typeof payload.adminPassword === 'string' && payload.adminPassword.trim().length >= 6
+          ? createPasswordHash(payload.adminPassword)
+          : current.adminPasswordHash,
+      waiterPinHash:
+        typeof payload.waiterPin === 'string' && payload.waiterPin.replace(/\D/g, '').length >= 4
+          ? createPasswordHash(payload.waiterPin.replace(/\D/g, '').slice(0, 8))
+          : current.waiterPinHash,
+      kitchenPinHash:
+        typeof payload.kitchenPin === 'string' && payload.kitchenPin.replace(/\D/g, '').length >= 4
+          ? createPasswordHash(payload.kitchenPin.replace(/\D/g, '').slice(0, 8))
+          : current.kitchenPinHash,
+    };
+
+    this.save();
+    return this.getAccessControlSummary();
+  }
+
+  static verifyAccessRole(
+    role: AccessRole,
+    payload: { username?: string; password?: string; pin?: string }
+  ) {
+    this.load();
+    const accessControl = this.data?.accessControl || DEFAULT_ACCESS_CONTROL();
+
+    if (role === 'ADMIN') {
+      const normalizedUsername = String(payload.username || '').trim();
+      const password = String(payload.password || '');
+      return (
+        normalizedUsername.toLowerCase() === accessControl.adminUsername.trim().toLowerCase() &&
+        verifyPasswordHash(password, accessControl.adminPasswordHash)
+      );
+    }
+
+    const normalizedPin = String(payload.pin || '').replace(/\D/g, '').slice(0, 8);
+    if (!normalizedPin) {
+      return false;
+    }
+
+    if (role === 'WAITER') {
+      return verifyPasswordHash(normalizedPin, accessControl.waiterPinHash);
+    }
+
+    return verifyPasswordHash(normalizedPin, accessControl.kitchenPinHash);
   }
 }

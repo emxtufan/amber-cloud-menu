@@ -63,6 +63,29 @@ export interface ProductNutritionInfo {
   valuesPer100g: NutritionValue[];
 }
 
+export interface ProductOptionChoice {
+  id: string;
+  name: string;
+  priceDelta: number;
+}
+
+export interface ProductOptionGroup {
+  id: string;
+  name: string;
+  required: boolean;
+  selectionType: 'single' | 'multiple';
+  maxSelections?: number;
+  choices: ProductOptionChoice[];
+}
+
+export interface SelectedOrderOption {
+  groupId: string;
+  groupName: string;
+  choiceId: string;
+  choiceName: string;
+  priceDelta: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -78,12 +101,15 @@ export interface Product {
   ingredients?: Ingredient[];
   allergens?: string[];
   nutritionInfo?: ProductNutritionInfo;
+  optionGroups?: ProductOptionGroup[];
 }
 
 export interface CartItem {
+  id: string;
   product: Product;
   quantity: number;
   notes?: string;
+  selectedOptions?: SelectedOrderOption[];
 }
 
 export interface OrderItem {
@@ -94,6 +120,7 @@ export interface OrderItem {
   quantity: number;
   notes?: string;
   sendToKitchen?: boolean;
+  selectedOptions?: SelectedOrderOption[];
 }
 
 export interface Order {
@@ -154,6 +181,7 @@ export interface WaiterRequestItem {
   productName: string;
   quantity: number;
   notes?: string;
+  selectedOptions?: SelectedOrderOption[];
 }
 
 export interface WaiterRequest {
@@ -170,7 +198,21 @@ export interface WaiterRequest {
 
 export interface RestaurantSettings {
   customerOrderingEnabled: boolean;
-  waiterPin: string;
+}
+
+export type InternalRole = 'ADMIN' | 'WAITER' | 'KITCHEN';
+
+export interface AuthSessionInfo {
+  authenticated: boolean;
+  role?: InternalRole;
+  username?: string;
+}
+
+export interface AccessControlSummary {
+  adminUsername: string;
+  adminPasswordConfigured: boolean;
+  waiterPinConfigured: boolean;
+  kitchenPinConfigured: boolean;
 }
 
 export interface SystemStats {

@@ -18,14 +18,8 @@ export default defineConfig(() => {
     server: {
       host: '0.0.0.0',
       port: 5173,
-
-      hmr: disableHmr
-        ? false
-        : {
-            port: 24679,
-          },
-
-      watch: disableHmr ? null : {},
+      hmr: false,
+      watch: null,
     },
   };
 });

@@ -6,7 +6,7 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { api } from '../services/api.js';
-import { Order, Table, Category, Product, RestaurantSettings, SystemStats } from '../types.js';
+import { AccessControlSummary, Order, Table, Category, Product, ProductOptionGroup, RestaurantSettings, SystemStats } from '../types.js';
 import { formatCad, formatDateTime, generateQrSvg, getOrderSourceLabel, getOrderStatusLabel, getPaymentMethodLabel, getTableAreaLabel, getTableQrLabel } from '../utils.js';
 
 type AnalyticsRange = 'today' | 'day' | 'week' | 'month';
@@ -51,6 +51,25 @@ function createEmptyNutritionInfo() {
     allergenTraceText: '',
     valuesHeading: 'Valoare energetica pentru 100 gr',
     valuesPer100g: [],
+  };
+}
+
+function createEmptyOptionChoice() {
+  return {
+    id: `choice-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    name: '',
+    priceDelta: 0,
+  };
+}
+
+function createEmptyOptionGroup(): ProductOptionGroup {
+  return {
+    id: `group-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    name: '',
+    required: false,
+    selectionType: 'single',
+    maxSelections: 2,
+    choices: [createEmptyOptionChoice()],
   };
 }
 
@@ -182,7 +201,7 @@ function formatKitchenDuration(minutes: number | null) {
   return `${hours}h ${remainingMinutes.toFixed(0)} min`;
 }
 
-export default function AdminApp() {
+export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise<void> }) {
   const [stats, setStats] = useState<SystemStats>({
     revenueToday: 0,
     revenueThisWeek: 0,
@@ -199,8 +218,17 @@ export default function AdminApp() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true, waiterPin: '' });
+  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true });
+  const [accessControl, setAccessControl] = useState<AccessControlSummary>({
+    adminUsername: 'admin',
+    adminPasswordConfigured: true,
+    waiterPinConfigured: true,
+    kitchenPinConfigured: true,
+  });
+  const [adminUsernameInput, setAdminUsernameInput] = useState('admin');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [waiterPinInput, setWaiterPinInput] = useState('');
+  const [kitchenPinInput, setKitchenPinInput] = useState('');
   const [analyticsRange, setAnalyticsRange] = useState<AnalyticsRange>('today');
   const [analyticsGroup, setAnalyticsGroup] = useState<AnalyticsGroup>('hour');
   const [newTableArea, setNewTableArea] = useState<TableArea>('INTERIOR');
@@ -227,6 +255,7 @@ export default function AdminApp() {
     available: true,
     allergens: [],
     nutritionInfo: createEmptyNutritionInfo(),
+    optionGroups: [],
   });
   const [productPriceInput, setProductPriceInput] = useState('');
   const [nutritionValuesText, setNutritionValuesText] = useState('');
@@ -247,8 +276,8 @@ export default function AdminApp() {
   };
 
   useEffect(() => {
-    setWaiterPinInput(settings.waiterPin || '');
-  }, [settings.waiterPin]);
+    setAdminUsernameInput(accessControl.adminUsername || 'admin');
+  }, [accessControl.adminUsername]);
 
   const openConfirmDialog = (dialog: NonNullable<AdminConfirmDialog>) => {
     setConfirmDialog(dialog);
@@ -273,6 +302,32 @@ export default function AdminApp() {
       const next = [...current];
       next[index] = incoming;
       return next.sort((left, right) => left.number - right.number);
+    });
+  };
+
+  const upsertCategory = (incoming: Category) => {
+    setCategories((current) => {
+      const index = current.findIndex((category) => category.id === incoming.id);
+      if (index === -1) {
+        return [...current, incoming].sort((left, right) => left.name.localeCompare(right.name));
+      }
+
+      const next = [...current];
+      next[index] = incoming;
+      return next.sort((left, right) => left.name.localeCompare(right.name));
+    });
+  };
+
+  const upsertProduct = (incoming: Product) => {
+    setProducts((current) => {
+      const index = current.findIndex((product) => product.id === incoming.id);
+      if (index === -1) {
+        return [...current, incoming].sort((left, right) => left.name.localeCompare(right.name));
+      }
+
+      const next = [...current];
+      next[index] = incoming;
+      return next.sort((left, right) => left.name.localeCompare(right.name));
     });
   };
 
@@ -307,6 +362,8 @@ export default function AdminApp() {
       setProducts(pr);
       setOrders(od);
       setSettings(sg);
+      const accessSummary = await api.getAccessControlSummary();
+      setAccessControl(accessSummary);
 
       // Default category id if empty
       if (ct.length > 0 && !productForm.categoryId) {
@@ -342,21 +399,15 @@ export default function AdminApp() {
     });
     const unsubMenu = api.subscribe('menu-update', (payload: any) => {
       if (payload?.type === 'category_created' && payload.category) {
-        setCategories((current) => {
-          const exists = current.some((entry) => entry.id === payload.category.id);
-          return exists ? current.map((entry) => (entry.id === payload.category.id ? payload.category : entry)) : [...current, payload.category];
-        });
+        upsertCategory(payload.category);
       } else if (payload?.type === 'category_updated' && payload.category) {
-        setCategories((current) => current.map((entry) => (entry.id === payload.category.id ? payload.category : entry)));
+        upsertCategory(payload.category);
       } else if (payload?.type === 'category_deleted' && payload.id) {
         setCategories((current) => current.filter((entry) => entry.id !== payload.id));
       } else if (payload?.type === 'product_created' && payload.product) {
-        setProducts((current) => {
-          const exists = current.some((entry) => entry.id === payload.product.id);
-          return exists ? current.map((entry) => (entry.id === payload.product.id ? payload.product : entry)) : [...current, payload.product];
-        });
+        upsertProduct(payload.product);
       } else if (payload?.type === 'product_updated' && payload.product) {
-        setProducts((current) => current.map((entry) => (entry.id === payload.product.id ? payload.product : entry)));
+        upsertProduct(payload.product);
       } else if (payload?.type === 'product_deleted' && payload.id) {
         setProducts((current) => current.filter((entry) => entry.id !== payload.id));
       }
@@ -421,11 +472,11 @@ export default function AdminApp() {
     try {
       if (isEditingCategory === 'new') {
         const createdCategory = await api.createCategory(categoryForm.name, categoryForm.icon);
-        setCategories((current) => [...current, createdCategory]);
+        upsertCategory(createdCategory);
         showToast('Categoria a fost adaugata.');
       } else if (isEditingCategory) {
         const updatedCategory = await api.updateCategory(isEditingCategory, categoryForm.name, categoryForm.icon, true);
-        setCategories((current) => current.map((entry) => (entry.id === updatedCategory.id ? updatedCategory : entry)));
+        upsertCategory(updatedCategory);
         showToast('Categoria a fost actualizata.');
       }
       setIsEditingCategory(null);
@@ -454,6 +505,41 @@ export default function AdminApp() {
     });
   };
 
+  const addOptionGroupToProduct = () => {
+    setProductForm((prev) => ({
+      ...prev,
+      optionGroups: [...(prev.optionGroups || []), createEmptyOptionGroup()],
+    }));
+  };
+
+  const updateOptionGroup = (groupId: string, updater: (group: ProductOptionGroup) => ProductOptionGroup) => {
+    setProductForm((prev) => ({
+      ...prev,
+      optionGroups: (prev.optionGroups || []).map((group) => (group.id === groupId ? updater(group) : group)),
+    }));
+  };
+
+  const removeOptionGroup = (groupId: string) => {
+    setProductForm((prev) => ({
+      ...prev,
+      optionGroups: (prev.optionGroups || []).filter((group) => group.id !== groupId),
+    }));
+  };
+
+  const addOptionChoice = (groupId: string) => {
+    updateOptionGroup(groupId, (group) => ({
+      ...group,
+      choices: [...group.choices, createEmptyOptionChoice()],
+    }));
+  };
+
+  const removeOptionChoice = (groupId: string, choiceId: string) => {
+    updateOptionGroup(groupId, (group) => ({
+      ...group,
+      choices: group.choices.filter((choice) => choice.id !== choiceId),
+    }));
+  };
+
   // Product Actions
   const handleSaveProduct = async () => {
     const normalizedPrice = Number(productPriceInput.replace(',', '.'));
@@ -476,20 +562,38 @@ export default function AdminApp() {
         normalizedNutritionInfo.allergenTraceText ||
         normalizedNutritionInfo.valuesPer100g.length
     );
+    const normalizedOptionGroups = (productForm.optionGroups || [])
+      .map((group) => ({
+        ...group,
+        name: group.name.trim(),
+        maxSelections:
+          group.selectionType === 'multiple' && Number(group.maxSelections || 0) > 0
+            ? Number(group.maxSelections)
+            : undefined,
+        choices: group.choices
+          .map((choice) => ({
+            ...choice,
+            name: choice.name.trim(),
+            priceDelta: Number(choice.priceDelta || 0),
+          }))
+          .filter((choice) => choice.name),
+      }))
+      .filter((group) => group.name && group.choices.length > 0);
     const productPayload: Omit<Product, 'id'> = {
       ...productForm,
       price: normalizedPrice,
       nutritionInfo: hasNutritionContent ? normalizedNutritionInfo : undefined,
+      optionGroups: normalizedOptionGroups,
     };
 
     try {
       if (isEditingProduct === 'new') {
         const createdProduct = await api.createProduct(productPayload);
-        setProducts((current) => [...current, createdProduct]);
+        upsertProduct(createdProduct);
         showToast('Produsul a fost adaugat.');
       } else if (isEditingProduct) {
         const updatedProduct = await api.updateProduct(isEditingProduct, productPayload);
-        setProducts((current) => current.map((entry) => (entry.id === updatedProduct.id ? updatedProduct : entry)));
+        upsertProduct(updatedProduct);
         showToast('Produsul a fost actualizat.');
       }
       setIsEditingProduct(null);
@@ -533,9 +637,7 @@ export default function AdminApp() {
         nextNumber += 1;
       }
 
-      setTables((current) =>
-        [...current, ...createdTables].sort((left, right) => left.number - right.number)
-      );
+      createdTables.forEach((table) => upsertTable(table));
       refreshStats();
       showToast(
         count === 1
@@ -591,12 +693,57 @@ export default function AdminApp() {
     }
 
     try {
-      const nextSettings = await api.updateSettings({ waiterPin: normalizedPin });
-      setSettings(nextSettings);
-      showToast('PIN-ul ospatarului a fost actualizat.');
+      const nextAccessControl = await api.updateAccessControl({ waiterPin: normalizedPin });
+      setAccessControl(nextAccessControl);
+      setWaiterPinInput('');
+      showToast('PIN-ul ospatarului a fost actualizat in siguranta.');
     } catch (error) {
       console.error('Nu am putut actualiza PIN-ul ospatarului', error);
       showToast('Nu am putut salva PIN-ul ospatarului.', 'error');
+    }
+  };
+
+  const saveKitchenPin = async () => {
+    const normalizedPin = kitchenPinInput.replace(/\D/g, '').slice(0, 4);
+    if (normalizedPin.length !== 4) {
+      showToast('PIN-ul bucatariei trebuie sa aiba exact 4 cifre.', 'error');
+      return;
+    }
+
+    try {
+      const nextAccessControl = await api.updateAccessControl({ kitchenPin: normalizedPin });
+      setAccessControl(nextAccessControl);
+      setKitchenPinInput('');
+      showToast('PIN-ul bucatariei a fost actualizat.');
+    } catch (error) {
+      console.error('Nu am putut actualiza PIN-ul bucatariei', error);
+      showToast('Nu am putut salva PIN-ul bucatariei.', 'error');
+    }
+  };
+
+  const saveAdminCredentials = async () => {
+    const normalizedUsername = adminUsernameInput.trim();
+    if (!normalizedUsername) {
+      showToast('Introdu un username valid pentru admin.', 'error');
+      return;
+    }
+
+    if (adminPasswordInput && adminPasswordInput.trim().length < 6) {
+      showToast('Parola de admin trebuie sa aiba minim 6 caractere.', 'error');
+      return;
+    }
+
+    try {
+      const nextAccessControl = await api.updateAccessControl({
+        adminUsername: normalizedUsername,
+        ...(adminPasswordInput.trim() ? { adminPassword: adminPasswordInput } : {}),
+      });
+      setAccessControl(nextAccessControl);
+      setAdminPasswordInput('');
+      showToast('Credentialele de admin au fost actualizate.');
+    } catch (error) {
+      console.error('Nu am putut actualiza credentialele de admin', error);
+      showToast('Nu am putut salva credentialele de admin.', 'error');
     }
   };
 
@@ -861,6 +1008,12 @@ export default function AdminApp() {
         <span className="text-xs font-mono text-muted uppercase">Control central pentru meniu, mese si coduri QR</span>
       </div>
     </div>
+    <button
+      onClick={() => void onLogout?.()}
+      className="rounded-2xl border border-white/8 bg-card px-4 py-2.5 text-sm font-semibold text-white"
+    >
+      Iesi
+    </button>
   </div>
 
   {/* Dashboard Sub-Tabs navigation switcher */}
@@ -1430,6 +1583,7 @@ export default function AdminApp() {
                     available: true,
                     allergens: [],
                     nutritionInfo: createEmptyNutritionInfo(),
+                    optionGroups: [],
                   });
                   setProductPriceInput('');
                   setNutritionValuesText('');
@@ -1529,6 +1683,154 @@ export default function AdminApp() {
                     onChange={(e) => setProductForm(prev => ({ ...prev, description: e.target.value }))}
                     className="w-full bg-[#1C202B] border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none"
                   />
+                </div>
+
+                <div className="rounded-2xl border border-white/8 bg-card/70 p-4 flex flex-col gap-3.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h4 className="text-sm font-display font-bold text-white">Optiuni dinamice</h4>
+                      <p className="text-[10px] font-mono text-muted mt-1">
+                        Poti adauga grupe precum sosuri, garnituri, toppinguri sau extra ingrediente.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addOptionGroupToProduct}
+                      className="rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-[11px] font-mono font-bold text-primary"
+                    >
+                      + Adauga grupa
+                    </button>
+                  </div>
+
+                  {(productForm.optionGroups || []).length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-[11px] text-muted">
+                      Acest produs nu are inca optiuni suplimentare.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {(productForm.optionGroups || []).map((group) => (
+                        <div key={group.id} className="rounded-2xl border border-white/8 bg-background p-3">
+                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-mono text-muted uppercase">Nume grupa</label>
+                              <input
+                                type="text"
+                                value={group.name}
+                                onChange={(e) => updateOptionGroup(group.id, (current) => ({ ...current, name: e.target.value }))}
+                                placeholder="Ex: Sosuri"
+                                className="w-full bg-card border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="flex flex-col gap-1">
+                                <label className="text-[10px] font-mono text-muted uppercase">Tip selectie</label>
+                                <select
+                                  value={group.selectionType}
+                                  onChange={(e) =>
+                                    updateOptionGroup(group.id, (current) => ({
+                                      ...current,
+                                      selectionType: e.target.value === 'multiple' ? 'multiple' : 'single',
+                                    }))
+                                  }
+                                  className="w-full bg-card border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none"
+                                >
+                                  <option value="single">O singura</option>
+                                  <option value="multiple">Mai multe</option>
+                                </select>
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label className="text-[10px] font-mono text-muted uppercase">Max selectii</label>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  value={group.selectionType === 'multiple' ? group.maxSelections || 2 : 1}
+                                  onChange={(e) =>
+                                    updateOptionGroup(group.id, (current) => ({
+                                      ...current,
+                                      maxSelections: Math.max(1, Number(e.target.value || 1)),
+                                    }))
+                                  }
+                                  disabled={group.selectionType !== 'multiple'}
+                                  className="w-full bg-card border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none disabled:opacity-50"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 flex items-center justify-between gap-3">
+                            <label className="flex items-center gap-2 cursor-pointer font-mono text-[11px] text-muted">
+                              <input
+                                type="checkbox"
+                                checked={group.required}
+                                onChange={(e) => updateOptionGroup(group.id, (current) => ({ ...current, required: e.target.checked }))}
+                                className="w-4 h-4 rounded border-white/10 text-primary focus:ring-0 cursor-pointer accent-primary"
+                              />
+                              Obligatorie la comanda
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => removeOptionGroup(group.id)}
+                              className="rounded-lg border border-danger/20 bg-danger/10 px-3 py-2 text-[10px] font-mono font-bold text-danger"
+                            >
+                              Sterge grupa
+                            </button>
+                          </div>
+
+                          <div className="mt-3 space-y-2">
+                            {group.choices.map((choice) => (
+                              <div key={choice.id} className="grid grid-cols-[minmax(0,1fr)_120px_auto] gap-2">
+                                <input
+                                  type="text"
+                                  value={choice.name}
+                                  onChange={(e) =>
+                                    updateOptionGroup(group.id, (current) => ({
+                                      ...current,
+                                      choices: current.choices.map((entry) =>
+                                        entry.id === choice.id ? { ...entry, name: e.target.value } : entry
+                                      ),
+                                    }))
+                                  }
+                                  placeholder="Ex: Sos usturoi"
+                                  className="w-full bg-card border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none"
+                                />
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={choice.priceDelta}
+                                  onChange={(e) =>
+                                    updateOptionGroup(group.id, (current) => ({
+                                      ...current,
+                                      choices: current.choices.map((entry) =>
+                                        entry.id === choice.id ? { ...entry, priceDelta: Number(e.target.value || 0) } : entry
+                                      ),
+                                    }))
+                                  }
+                                  placeholder="0"
+                                  className="w-full bg-card border border-white/5 rounded-lg py-2 px-3 text-white focus:outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeOptionChoice(group.id, choice.id)}
+                                  className="rounded-lg border border-white/10 px-3 py-2 text-[10px] font-mono text-muted hover:text-white"
+                                >
+                                  Sterge
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => addOptionChoice(group.id)}
+                            className="mt-3 rounded-xl border border-white/10 bg-card px-3 py-2 text-[11px] font-mono font-bold text-white"
+                          >
+                            + Adauga varianta
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="rounded-2xl border border-white/8 bg-card/70 p-4 flex flex-col gap-3.5">
@@ -1649,6 +1951,9 @@ export default function AdminApp() {
                     <span className={`text-[8px] font-mono uppercase px-2 py-0.5 rounded-full font-bold ${p.nutritionInfo?.ingredientsText || p.nutritionInfo?.valuesPer100g?.length ? 'bg-primary/10 text-primary' : 'bg-white/5 text-muted'}`}>
                       {p.nutritionInfo?.ingredientsText || p.nutritionInfo?.valuesPer100g?.length ? 'Are nutritie' : 'Fara nutritie'}
                     </span>
+                    <span className={`text-[8px] font-mono uppercase px-2 py-0.5 rounded-full font-bold ${(p.optionGroups || []).length > 0 ? 'bg-warning/10 text-warning' : 'bg-white/5 text-muted'}`}>
+                      {(p.optionGroups || []).length > 0 ? `${p.optionGroups?.length} grupe optiuni` : 'Fara optiuni'}
+                    </span>
                     {p.isBestseller && (
                       <span className="bg-red-500/10 border border-red-500/20 text-red-500 text-[8px] font-mono font-bold px-2 py-0.5 rounded-full uppercase">
                         Recomandat
@@ -1660,7 +1965,11 @@ export default function AdminApp() {
                     <button
                       onClick={() => {
                         setIsEditingProduct(p.id);
-                        setProductForm({ ...p, nutritionInfo: p.nutritionInfo || createEmptyNutritionInfo() });
+                        setProductForm({
+                          ...p,
+                          nutritionInfo: p.nutritionInfo || createEmptyNutritionInfo(),
+                          optionGroups: p.optionGroups || [],
+                        });
                         setProductPriceInput(String(p.price).replace('.', ','));
                         setNutritionValuesText(serializeNutritionValues(p.nutritionInfo?.valuesPer100g || []));
                       }}
@@ -1803,7 +2112,7 @@ export default function AdminApp() {
           <div>
             <h3 className="text-sm font-display font-bold text-white uppercase tracking-wider">Configurare meniu si acces</h3>
             <p className="text-xs text-muted font-mono mt-0.5">
-              Controlezi comenzile din telefon si codul PIN folosit in interfata ospatarului.
+              Controlezi comenzile din telefon si credentialele interne pentru admin, ospatar si bucatarie.
             </p>
           </div>
 
@@ -1852,9 +2161,9 @@ export default function AdminApp() {
             <div className="rounded-[18px] border border-white/8 bg-background px-4 py-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Setare PIN</p>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Acces ospatar</p>
                   <h3 className="mt-1 text-sm font-display font-bold text-white">PIN ospatar</h3>
-                  <p className="mt-1 text-xs leading-5 text-muted">Cod comun de 4 cifre pentru accesul in interfata de ospatar.</p>
+                  <p className="mt-1 text-xs leading-5 text-muted">PIN-ul este salvat hash-uit pe server si nu mai este expus in setari.</p>
                 </div>
 
                 <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
@@ -1874,6 +2183,82 @@ export default function AdminApp() {
                     Salveaza
                   </button>
                 </div>
+              </div>
+              <p className="mt-2 text-[10px] font-mono uppercase text-muted">
+                {accessControl.waiterPinConfigured ? 'PIN activ' : 'PIN lipsa'}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+            <div className="rounded-[18px] border border-white/8 bg-background px-4 py-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Acces bucatarie</p>
+                  <h3 className="mt-1 text-sm font-display font-bold text-white">PIN bucatarie</h3>
+                  <p className="mt-1 text-xs leading-5 text-muted">Protejeaza panoul intern de bucatarie cu un PIN separat.</p>
+                </div>
+
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={kitchenPinInput}
+                    onChange={(event) => setKitchenPinInput(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="0000"
+                    className="w-full rounded-xl border border-white/8 bg-card px-3 py-2.5 text-sm text-white outline-none sm:w-28"
+                  />
+                  <button
+                    onClick={saveKitchenPin}
+                    className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white"
+                  >
+                    Salveaza
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 text-[10px] font-mono uppercase text-muted">
+                {accessControl.kitchenPinConfigured ? 'PIN activ' : 'PIN lipsa'}
+              </p>
+            </div>
+
+            <div className="rounded-[18px] border border-white/8 bg-background px-4 py-3">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Acces admin</p>
+                <h3 className="mt-1 text-sm font-display font-bold text-white">Login admin</h3>
+                <p className="mt-1 text-xs leading-5 text-muted">Username si parola separate, stocate doar in forma hash-uita pe server.</p>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <input
+                  type="text"
+                  value={adminUsernameInput}
+                  onChange={(event) => setAdminUsernameInput(event.target.value)}
+                  placeholder="admin"
+                  className="w-full rounded-xl border border-white/8 bg-card px-3 py-2.5 text-sm text-white outline-none"
+                />
+                <input
+                  type="password"
+                  value={adminPasswordInput}
+                  onChange={(event) => setAdminPasswordInput(event.target.value)}
+                  placeholder="Parola noua"
+                  className="w-full rounded-xl border border-white/8 bg-card px-3 py-2.5 text-sm text-white outline-none"
+                />
+                <button
+                  onClick={saveAdminCredentials}
+                  className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white"
+                >
+                  Salveaza
+                </button>
+              </div>
+
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/8 bg-card px-2.5 py-1 text-[10px] font-mono uppercase text-muted">
+                  User: {accessControl.adminUsername}
+                </span>
+                <span className="rounded-full border border-white/8 bg-card px-2.5 py-1 text-[10px] font-mono uppercase text-muted">
+                  {accessControl.adminPasswordConfigured ? 'Parola setata' : 'Parola lipsa'}
+                </span>
               </div>
             </div>
           </div>

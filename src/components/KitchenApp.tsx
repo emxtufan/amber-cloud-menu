@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BellRing, ChefHat, CheckCircle2, Clock3, Flame, History, XCircle } from 'lucide-react';
 import { api } from '../services/api.js';
 import { Order, OrderStatus } from '../types.js';
-import { formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel } from '../utils.js';
+import { formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, groupSelectedOptions } from '../utils.js';
 
 function getKitchenItems(order: Order) {
   return order.items.filter((item) => item.sendToKitchen !== false);
@@ -38,7 +38,7 @@ function playKitchenNotificationSound() {
   }
 }
 
-export default function KitchenApp() {
+export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promise<void> }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -148,6 +148,15 @@ export default function KitchenApp() {
           <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
             <div>
               <p className="font-semibold">{item.productName}</p>
+              {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                <div className="mt-1 space-y-1">
+                  {groupSelectedOptions(item.selectedOptions).map((group) => (
+                    <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                      {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                    </p>
+                  ))}
+                </div>
+              )}
               {item.notes && <p className="text-xs text-primary mt-1">{item.notes}</p>}
             </div>
             <span className="text-muted font-mono">x{item.quantity}</span>
@@ -213,12 +222,20 @@ export default function KitchenApp() {
             </div>
           </div>
 
-          <button
-            onClick={playKitchenNotificationSound}
-            className="rounded-2xl border border-white/8 bg-card px-4 py-3 text-sm text-muted"
-          >
-            Test sunet bucatarie
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={playKitchenNotificationSound}
+              className="rounded-2xl border border-white/8 bg-card px-4 py-3 text-sm text-muted"
+            >
+              Test sunet bucatarie
+            </button>
+            <button
+              onClick={() => void onLogout?.()}
+              className="rounded-2xl border border-white/8 bg-background px-4 py-3 text-sm font-semibold text-white"
+            >
+              Iesi
+            </button>
+          </div>
         </header>
 
         <main className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -452,6 +469,15 @@ export default function KitchenApp() {
                       <div key={item.id} className="flex items-start justify-between gap-3 rounded-2xl border border-white/8 bg-card/60 px-3 py-3 text-sm">
                         <div className="min-w-0">
                           <p className="font-semibold text-white">{item.productName}</p>
+                          {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                            <div className="mt-1 space-y-1">
+                              {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                  {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                </p>
+                              ))}
+                            </div>
+                          )}
                           {item.notes && <p className="mt-1 text-xs text-primary">{item.notes}</p>}
                         </div>
                         <span className="shrink-0 font-mono text-muted">x{item.quantity}</span>

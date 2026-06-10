@@ -1,5 +1,5 @@
 import qrcode from 'qrcode-generator';
-import { OrderSource, OrderStatus, Table, TableStatus } from './types.js';
+import { OrderSource, OrderStatus, SelectedOrderOption, Table, TableStatus } from './types.js';
 
 export function formatCad(amount: number): string {
   return new Intl.NumberFormat('ro-RO', {
@@ -8,6 +8,39 @@ export function formatCad(amount: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+export function formatOptionPriceDelta(priceDelta: number): string {
+  if (!priceDelta) {
+    return '+0,00 RON';
+  }
+
+  const sign = priceDelta > 0 ? '+' : '-';
+  return `${sign}${formatCad(Math.abs(priceDelta))}`;
+}
+
+export function getSelectedOptionsTotal(selectedOptions?: SelectedOrderOption[]): number {
+  return (selectedOptions || []).reduce((sum, option) => sum + option.priceDelta, 0);
+}
+
+export function groupSelectedOptions(selectedOptions?: SelectedOrderOption[]) {
+  const grouped = new Map<string, { groupId: string; groupName: string; choices: SelectedOrderOption[] }>();
+
+  (selectedOptions || []).forEach((option) => {
+    const current = grouped.get(option.groupId);
+    if (current) {
+      current.choices.push(option);
+      return;
+    }
+
+    grouped.set(option.groupId, {
+      groupId: option.groupId,
+      groupName: option.groupName,
+      choices: [option],
+    });
+  });
+
+  return [...grouped.values()];
 }
 
 export function formatTimeElapsed(createdAtString: string): string {

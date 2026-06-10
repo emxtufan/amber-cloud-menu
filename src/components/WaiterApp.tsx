@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   BellRing,
   CheckCircle2,
   ClipboardList,
   CreditCard,
-  LockKeyhole,
   Minus,
   Plus,
   Send,
@@ -12,8 +11,8 @@ import {
   XCircle,
 } from 'lucide-react';
 import { api } from '../services/api.js';
-import { Bill, BillStatus, Category, Order, OrderSource, OrderStatus, PaymentMethod, Product, RestaurantSettings, Table, TableStatus, WaiterRequest } from '../types.js';
-import { formatCad, formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, getPaymentMethodLabel, getTableAreaLabel, getTableDisplayLabel, getTableStatusLabel } from '../utils.js';
+import { Bill, BillStatus, Category, Order, OrderSource, OrderStatus, PaymentMethod, Product, ProductOptionGroup, SelectedOrderOption, Table, TableStatus, WaiterRequest } from '../types.js';
+import { formatCad, formatOptionPriceDelta, formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, getPaymentMethodLabel, getSelectedOptionsTotal, getTableAreaLabel, getTableDisplayLabel, getTableStatusLabel, groupSelectedOptions } from '../utils.js';
 
 interface WaiterAlert {
   id: string;
@@ -24,11 +23,20 @@ interface WaiterAlert {
 }
 
 interface ManualQueueItem {
+  id: string;
   productId: string;
   productName: string;
   price: number;
   quantity: number;
   sendToKitchen: boolean;
+  selectedOptions?: SelectedOrderOption[];
+}
+
+interface ManualDraftItem {
+  id: string;
+  product: Product;
+  quantity: number;
+  selectedOptions: SelectedOrderOption[];
 }
 
 interface ManualQueuedOrder {
@@ -42,50 +50,66 @@ interface ManualQueuedOrder {
   createdAt: string;
 }
 
-const WAITER_LOCK_TIMEOUT_MS = 5 * 60 * 1000;
+type ProductConfigContext = 'manual' | 'pending';
 
 function hasFinishedStatus(status: OrderStatus) {
   return [OrderStatus.DELIVERED, OrderStatus.CANCELLED].includes(status);
 }
 
-export default function WaiterApp() {
+function createManualLineId() {
+  return `manual-line-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getSelectedOptionSignature(selectedOptions?: SelectedOrderOption[]) {
+  return [...(selectedOptions || [])]
+    .map((option) => `${option.groupId}:${option.choiceId}`)
+    .sort()
+    .join('|');
+}
+
+function buildSelectedOptions(product: Product, selectedChoicesByGroup: Record<string, string[]>) {
+  return (product.optionGroups || []).flatMap((group) => {
+    const choiceIds = selectedChoicesByGroup[group.id] || [];
+    return group.choices
+      .filter((choice) => choiceIds.includes(choice.id))
+      .map((choice) => ({
+        groupId: group.id,
+        groupName: group.name,
+        choiceId: choice.id,
+        choiceName: choice.name,
+        priceDelta: choice.priceDelta,
+      }));
+  });
+}
+
+function getManualLineUnitPrice(product: Product, selectedOptions?: SelectedOrderOption[]) {
+  return product.price + getSelectedOptionsTotal(selectedOptions);
+}
+
+export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promise<void> }) {
   const [tables, setTables] = useState<Table[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [bills, setBills] = useState<Bill[]>([]);
   const [waiterRequests, setWaiterRequests] = useState<WaiterRequest[]>([]);
-  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true, waiterPin: '' });
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [isAddingManual, setIsAddingManual] = useState(false);
-  const [manualCart, setManualCart] = useState<Record<string, number>>({});
+  const [manualCart, setManualCart] = useState<ManualDraftItem[]>([]);
   const [manualKitchenSelections, setManualKitchenSelections] = useState<Record<string, boolean>>({});
   const [manualNote, setManualNote] = useState('');
   const [manualQueuedOrders, setManualQueuedOrders] = useState<ManualQueuedOrder[]>([]);
   const [isSendingManualQueue, setIsSendingManualQueue] = useState(false);
+  const [pendingEditorOrderId, setPendingEditorOrderId] = useState<string | null>(null);
+  const [pendingEditorItems, setPendingEditorItems] = useState<ManualDraftItem[]>([]);
+  const [isSavingPendingEditor, setIsSavingPendingEditor] = useState(false);
+  const [configProduct, setConfigProduct] = useState<Product | null>(null);
+  const [configChoices, setConfigChoices] = useState<Record<string, string[]>>({});
+  const [configQuantity, setConfigQuantity] = useState(1);
+  const [configContext, setConfigContext] = useState<ProductConfigContext | null>(null);
   const [alerts, setAlerts] = useState<WaiterAlert[]>([]);
   const [highlightedTables, setHighlightedTables] = useState<Record<string, number>>({});
   const [approvalSelections, setApprovalSelections] = useState<Record<string, Record<string, boolean>>>({});
-  const [storedWaiterPin, setStoredWaiterPin] = useState('');
-  const [isWaiterLocked, setIsWaiterLocked] = useState(true);
-  const [waiterPinEntry, setWaiterPinEntry] = useState('');
-  const [waiterPinMessage, setWaiterPinMessage] = useState('Introdu PIN-ul pentru a debloca panoul ospatarului.');
-  const inactivityTimeoutRef = useRef<number | null>(null);
-  const previousServerPinRef = useRef('');
-
-  const clearInactivityTimer = () => {
-    if (inactivityTimeoutRef.current !== null) {
-      window.clearTimeout(inactivityTimeoutRef.current);
-      inactivityTimeoutRef.current = null;
-    }
-  };
-
-  const lockWaiterInterface = (message?: string) => {
-    clearInactivityTimer();
-    setIsWaiterLocked(true);
-    setWaiterPinEntry('');
-    setWaiterPinMessage(message || 'Introdu PIN-ul pentru a debloca panoul ospatarului.');
-  };
 
   const pushAlert = (alert: Omit<WaiterAlert, 'id'>) => {
     const id = `waiter-alert-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -132,14 +156,13 @@ export default function WaiterApp() {
 
   const fetchAllData = async () => {
     try {
-      const [tableList, orderList, productList, categoryList, billList, waiterRequestList, settingsData] = await Promise.all([
+      const [tableList, orderList, productList, categoryList, billList, waiterRequestList] = await Promise.all([
         api.getTables(),
         api.getOrders(),
         api.getProducts(),
         api.getCategories(),
         api.getBills(),
         api.getWaiterRequests(),
-        api.getSettings(),
       ]);
 
       setTables(tableList);
@@ -148,60 +171,26 @@ export default function WaiterApp() {
       setCategories(categoryList);
       setBills(billList);
       setWaiterRequests(waiterRequestList);
-      setSettings(settingsData);
     } catch (error) {
       console.error('Nu am putut incarca datele pentru ospatar', error);
     }
   };
 
   useEffect(() => {
-    if (isWaiterLocked || !storedWaiterPin) {
-      clearInactivityTimer();
+    if (typeof document === 'undefined' || (!configProduct && !pendingEditorOrderId)) {
       return;
     }
 
-    const resetInactivityTimer = () => {
-      clearInactivityTimer();
-      inactivityTimeoutRef.current = window.setTimeout(() => {
-        lockWaiterInterface('Panoul s-a blocat dupa 5 minute de inactivitate.');
-      }, WAITER_LOCK_TIMEOUT_MS);
-    };
-
-    resetInactivityTimer();
-    const activityEvents: Array<keyof WindowEventMap> = ['mousemove', 'mousedown', 'touchstart', 'keydown', 'scroll'];
-    activityEvents.forEach((eventName) => window.addEventListener(eventName, resetInactivityTimer, { passive: true }));
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
 
     return () => {
-      activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetInactivityTimer));
-      clearInactivityTimer();
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
     };
-  }, [isWaiterLocked, storedWaiterPin]);
-
-  useEffect(() => {
-    const nextPin = settings.waiterPin || '';
-    const previousPin = previousServerPinRef.current;
-    previousServerPinRef.current = nextPin;
-    setStoredWaiterPin(nextPin);
-
-    if (!nextPin) {
-      clearInactivityTimer();
-      setIsWaiterLocked(false);
-      setWaiterPinEntry('');
-      setWaiterPinMessage('Seteaza PIN-ul ospatarului din admin pentru a activa blocarea.');
-      return;
-    }
-
-    setWaiterPinEntry('');
-
-    if (!previousPin) {
-      lockWaiterInterface('Introdu PIN-ul pentru a debloca panoul ospatarului.');
-      return;
-    }
-
-    if (previousPin !== nextPin) {
-      lockWaiterInterface('PIN-ul ospatarului a fost schimbat din admin. Introdu noul PIN.');
-    }
-  }, [settings.waiterPin]);
+  }, [configProduct, pendingEditorOrderId]);
 
   useEffect(() => {
     fetchAllData();
@@ -243,9 +232,6 @@ export default function WaiterApp() {
       refresh();
     });
     const unsubWaiterRequestUpdate = api.subscribe('waiter-request-update', refresh);
-    const unsubSettings = api.subscribe('settings-update', (nextSettings: RestaurantSettings) => {
-      setSettings(nextSettings);
-    });
 
     return () => {
       unsubTable();
@@ -255,7 +241,6 @@ export default function WaiterApp() {
       unsubBill();
       unsubNewWaiterRequest();
       unsubWaiterRequestUpdate();
-      unsubSettings();
     };
   }, []);
 
@@ -308,17 +293,31 @@ export default function WaiterApp() {
       }))
       .sort((left, right) => left.name.localeCompare(right.name));
   }, [categoryById, products]);
+  const manualProductQuantities = useMemo(() => {
+    const next = new Map<string, number>();
+    manualCart.forEach((item) => {
+      next.set(item.product.id, (next.get(item.product.id) || 0) + item.quantity);
+    });
+    return next;
+  }, [manualCart]);
+  const pendingEditorOrder = useMemo(
+    () => (pendingEditorOrderId ? orders.find((order) => order.id === pendingEditorOrderId && order.status === OrderStatus.PENDING) || null : null),
+    [orders, pendingEditorOrderId]
+  );
+  const pendingEditorProductQuantities = useMemo(() => {
+    const next = new Map<string, number>();
+    pendingEditorItems.forEach((item) => {
+      next.set(item.product.id, (next.get(item.product.id) || 0) + item.quantity);
+    });
+    return next;
+  }, [pendingEditorItems]);
   const manualCartItemCount = useMemo(
-    () => Object.values(manualCart).reduce<number>((sum, quantity) => sum + Number(quantity || 0), 0),
+    () => manualCart.reduce((sum, item) => sum + item.quantity, 0),
     [manualCart]
   );
   const manualCartTotal = useMemo(
-    () =>
-      Object.entries(manualCart).reduce<number>((sum, [productId, quantity]) => {
-        const product = products.find((entry) => entry.id === productId);
-        return sum + (product?.price || 0) * Number(quantity || 0);
-      }, 0),
-    [manualCart, products]
+    () => manualCart.reduce((sum, item) => sum + getManualLineUnitPrice(item.product, item.selectedOptions) * item.quantity, 0),
+    [manualCart]
   );
   const manualQueueItemCount = useMemo(
     () => manualQueuedOrders.reduce((sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0),
@@ -327,6 +326,14 @@ export default function WaiterApp() {
   const manualQueueTotal = useMemo(
     () => manualQueuedOrders.reduce((sum, order) => sum + order.subtotal, 0),
     [manualQueuedOrders]
+  );
+  const pendingEditorItemCount = useMemo(
+    () => pendingEditorItems.reduce((sum, item) => sum + item.quantity, 0),
+    [pendingEditorItems]
+  );
+  const pendingEditorTotal = useMemo(
+    () => pendingEditorItems.reduce((sum, item) => sum + getManualLineUnitPrice(item.product, item.selectedOptions) * item.quantity, 0),
+    [pendingEditorItems]
   );
   const readyForDelivery = useMemo(
     () => orders.filter((order) => order.status === OrderStatus.READY),
@@ -429,17 +436,17 @@ export default function WaiterApp() {
     setManualKitchenSelections((current) => {
       const next: Record<string, boolean> = {};
 
-      Object.keys(manualCart).forEach((productId) => {
-        next[productId] = current[productId] ?? getDefaultKitchenSelection(productId);
+      manualCart.forEach((item) => {
+        next[item.id] = current[item.id] ?? getDefaultKitchenSelection(item.product.id);
       });
 
       const sameKeys =
         Object.keys(current).length === Object.keys(next).length &&
-        Object.keys(next).every((productId) => current[productId] === next[productId]);
+        Object.keys(next).every((itemId) => current[itemId] === next[itemId]);
 
       return sameKeys ? current : next;
     });
-  }, [categoryById, manualCart, products]);
+  }, [getDefaultKitchenSelection, manualCart]);
 
   useEffect(() => {
     if (!pendingApprovals.length) {
@@ -605,79 +612,306 @@ export default function WaiterApp() {
   };
 
   const resetManualDraft = () => {
-    setManualCart({});
+    setManualCart([]);
     setManualKitchenSelections({});
     setManualNote('');
+    setConfigProduct(null);
+    setConfigChoices({});
+    setConfigQuantity(1);
+    setConfigContext(null);
   };
 
-  const appendWaiterPinDigit = (digit: string) => {
-    setWaiterPinEntry((current) => (current.length >= 4 ? current : `${current}${digit}`));
+  const resetPendingEditor = () => {
+    setPendingEditorOrderId(null);
+    setPendingEditorItems([]);
+    setIsSavingPendingEditor(false);
+    setConfigProduct(null);
+    setConfigChoices({});
+    setConfigQuantity(1);
+    setConfigContext(null);
   };
 
-  const removeWaiterPinDigit = () => {
-    setWaiterPinEntry((current) => current.slice(0, -1));
+  const openProductConfigurator = (product: Product, context: ProductConfigContext) => {
+    setConfigProduct(product);
+    setConfigChoices({});
+    setConfigQuantity(1);
+    setConfigContext(context);
   };
 
-  const clearWaiterPinEntry = () => {
-    setWaiterPinEntry('');
+  const closeProductConfigurator = () => {
+    setConfigProduct(null);
+    setConfigChoices({});
+    setConfigQuantity(1);
+    setConfigContext(null);
   };
 
-  const submitWaiterPin = () => {
-    if (waiterPinEntry.length !== 4) {
-      setWaiterPinMessage('PIN-ul trebuie sa aiba exact 4 cifre.');
+  const upsertManualLine = (product: Product, quantity: number, selectedOptions: SelectedOrderOption[]) => {
+    if (quantity <= 0) {
       return;
     }
 
-    if (waiterPinEntry === storedWaiterPin) {
-      setIsWaiterLocked(false);
-      setWaiterPinEntry('');
-      setWaiterPinMessage('Introdu PIN-ul pentru a debloca panoul ospatarului.');
-      return;
-    }
-
-    setWaiterPinEntry('');
-    setWaiterPinMessage('PIN gresit. Incearca din nou.');
-  };
-
-  const modifyManualQty = (productId: string, delta: number) => {
     setManualCart((current) => {
-      const nextQuantity = (current[productId] || 0) + delta;
-      const nextCart = { ...current };
-      if (nextQuantity <= 0) {
-        delete nextCart[productId];
-      } else {
-        nextCart[productId] = nextQuantity;
+      const signature = getSelectedOptionSignature(selectedOptions);
+      const existingIndex = current.findIndex(
+        (item) =>
+          item.product.id === product.id &&
+          getSelectedOptionSignature(item.selectedOptions) === signature
+      );
+
+      if (existingIndex >= 0) {
+        return current.map((item, index) =>
+          index === existingIndex
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
       }
-      return nextCart;
+
+      return [
+        ...current,
+        {
+          id: createManualLineId(),
+          product,
+          quantity,
+          selectedOptions,
+        },
+      ];
     });
   };
 
-  const toggleManualKitchenSelection = (productId: string) => {
+  const upsertPendingEditorLine = (product: Product, quantity: number, selectedOptions: SelectedOrderOption[]) => {
+    if (quantity <= 0) {
+      return;
+    }
+
+    setPendingEditorItems((current) => {
+      const signature = getSelectedOptionSignature(selectedOptions);
+      const existingIndex = current.findIndex(
+        (item) =>
+          item.product.id === product.id &&
+          getSelectedOptionSignature(item.selectedOptions) === signature
+      );
+
+      if (existingIndex >= 0) {
+        return current.map((item, index) =>
+          index === existingIndex
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      }
+
+      return [
+        ...current,
+        {
+          id: createManualLineId(),
+          product,
+          quantity,
+          selectedOptions,
+        },
+      ];
+    });
+  };
+
+  const modifyManualQty = (product: Product, delta: number) => {
+    if (product.optionGroups?.length) {
+      if (delta > 0) {
+        openProductConfigurator(product, 'manual');
+        return;
+      }
+
+      setManualCart((current) => {
+        const nextCart = [...current];
+        for (let index = nextCart.length - 1; index >= 0; index -= 1) {
+          if (nextCart[index].product.id !== product.id) {
+            continue;
+          }
+
+          const target = nextCart[index];
+          if (target.quantity <= 1) {
+            nextCart.splice(index, 1);
+          } else {
+            nextCart[index] = { ...target, quantity: target.quantity - 1 };
+          }
+          break;
+        }
+        return nextCart;
+      });
+      return;
+    }
+
+    if (delta > 0) {
+      upsertManualLine(product, delta, []);
+      return;
+    }
+
+    setManualCart((current) =>
+      current
+        .map((item) => {
+          if (item.product.id !== product.id || item.selectedOptions.length > 0) {
+            return item;
+          }
+
+          const nextQuantity = item.quantity + delta;
+          return nextQuantity > 0 ? { ...item, quantity: nextQuantity } : null;
+        })
+        .filter(Boolean) as ManualDraftItem[]
+    );
+  };
+
+  const modifyPendingEditorQty = (product: Product, delta: number) => {
+    if (product.optionGroups?.length) {
+      if (delta > 0) {
+        openProductConfigurator(product, 'pending');
+        return;
+      }
+
+      setPendingEditorItems((current) => {
+        const nextItems = [...current];
+        for (let index = nextItems.length - 1; index >= 0; index -= 1) {
+          if (nextItems[index].product.id !== product.id) {
+            continue;
+          }
+
+          const target = nextItems[index];
+          if (target.quantity <= 1) {
+            nextItems.splice(index, 1);
+          } else {
+            nextItems[index] = { ...target, quantity: target.quantity - 1 };
+          }
+          break;
+        }
+        return nextItems;
+      });
+      return;
+    }
+
+    if (delta > 0) {
+      upsertPendingEditorLine(product, delta, []);
+      return;
+    }
+
+    setPendingEditorItems((current) =>
+      current
+        .map((item) => {
+          if (item.product.id !== product.id || item.selectedOptions.length > 0) {
+            return item;
+          }
+
+          const nextQuantity = item.quantity + delta;
+          return nextQuantity > 0 ? { ...item, quantity: nextQuantity } : null;
+        })
+        .filter(Boolean) as ManualDraftItem[]
+    );
+  };
+
+  const modifyManualLineQuantity = (lineId: string, delta: number) => {
+    setManualCart((current) =>
+      current
+        .map((item) => {
+          if (item.id !== lineId) {
+            return item;
+          }
+
+          const nextQuantity = item.quantity + delta;
+          return nextQuantity > 0 ? { ...item, quantity: nextQuantity } : null;
+        })
+        .filter(Boolean) as ManualDraftItem[]
+    );
+  };
+
+  const modifyPendingEditorLineQuantity = (lineId: string, delta: number) => {
+    setPendingEditorItems((current) =>
+      current
+        .map((item) => {
+          if (item.id !== lineId) {
+            return item;
+          }
+
+          const nextQuantity = item.quantity + delta;
+          return nextQuantity > 0 ? { ...item, quantity: nextQuantity } : null;
+        })
+        .filter(Boolean) as ManualDraftItem[]
+    );
+  };
+
+  const toggleManualKitchenSelection = (itemId: string) => {
+    const targetItem = manualCart.find((item) => item.id === itemId);
     setManualKitchenSelections((current) => ({
       ...current,
-      [productId]: !(current[productId] ?? getDefaultKitchenSelection(productId)),
+      [itemId]: !(current[itemId] ?? getDefaultKitchenSelection(targetItem?.product.id || '')),
     }));
+  };
+
+  const toggleConfigChoice = (group: ProductOptionGroup, choiceId: string) => {
+    setConfigChoices((current) => {
+      const existing = current[group.id] || [];
+      const alreadySelected = existing.includes(choiceId);
+
+      if (group.selectionType === 'single') {
+        return {
+          ...current,
+          [group.id]: alreadySelected ? [] : [choiceId],
+        };
+      }
+
+      if (alreadySelected) {
+        return {
+          ...current,
+          [group.id]: existing.filter((entry) => entry !== choiceId),
+        };
+      }
+
+      const maxSelections = group.maxSelections && group.maxSelections > 0 ? group.maxSelections : undefined;
+      const preservedExisting = maxSelections
+        ? maxSelections > 1
+          ? existing.slice(-(maxSelections - 1))
+          : []
+        : existing;
+
+      return {
+        ...current,
+        [group.id]: maxSelections ? [...preservedExisting, choiceId] : [...existing, choiceId],
+      };
+    });
+  };
+
+  const configSelectedOptions = configProduct ? buildSelectedOptions(configProduct, configChoices) : [];
+  const configUnitPrice = configProduct ? getManualLineUnitPrice(configProduct, configSelectedOptions) : 0;
+
+  const addConfiguredProduct = () => {
+    if (!configProduct || !configContext) {
+      return;
+    }
+
+    const missingRequiredGroup = (configProduct.optionGroups || []).find(
+      (group) => group.required && !configSelectedOptions.some((option) => option.groupId === group.id)
+    );
+
+    if (missingRequiredGroup) {
+      alert(`Selecteaza o optiune pentru "${missingRequiredGroup.name}".`);
+      return;
+    }
+
+    if (configContext === 'manual') {
+      upsertManualLine(configProduct, configQuantity, configSelectedOptions);
+    } else {
+      upsertPendingEditorLine(configProduct, configQuantity, configSelectedOptions);
+    }
+
+    closeProductConfigurator();
   };
 
   const manualReviewItems = useMemo(
     () =>
-      Object.entries(manualCart)
-        .map(([productId, quantity]) => {
-          const product = products.find((entry) => entry.id === productId);
-          if (!product) {
-            return null;
-          }
-
-          return {
-            productId,
-            productName: product.name,
-            price: product.price,
-            quantity: Number(quantity || 0),
-            sendToKitchen: manualKitchenSelections[productId] ?? getDefaultKitchenSelection(productId),
-          };
-        })
-        .filter((item): item is ManualQueueItem => Boolean(item)),
-    [getDefaultKitchenSelection, manualCart, manualKitchenSelections, products]
+      manualCart.map((item) => ({
+        id: item.id,
+        productId: item.product.id,
+        productName: item.product.name,
+        price: getManualLineUnitPrice(item.product, item.selectedOptions),
+        quantity: item.quantity,
+        sendToKitchen: manualKitchenSelections[item.id] ?? getDefaultKitchenSelection(item.product.id),
+        selectedOptions: item.selectedOptions,
+      })),
+    [getDefaultKitchenSelection, manualCart, manualKitchenSelections]
   );
 
   const manualKitchenItemCount = useMemo(
@@ -695,7 +929,7 @@ export default function WaiterApp() {
       return;
     }
 
-    const queuedOrder: ManualQueuedOrder = {
+      const queuedOrder: ManualQueuedOrder = {
       id: `manual-queue-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       tableId: selectedTable.id,
       tableNumber: selectedTable.number,
@@ -733,7 +967,19 @@ export default function WaiterApp() {
     try {
       const results = await Promise.allSettled(
         manualQueuedOrders.map((queuedOrder) =>
-          api.createOrder(queuedOrder.tableId, queuedOrder.items, queuedOrder.notes, OrderSource.WAITER)
+          api.createOrder(
+            queuedOrder.tableId,
+            queuedOrder.items.map((item) => ({
+              productId: item.productId,
+              productName: item.productName,
+              price: item.price,
+              quantity: item.quantity,
+              sendToKitchen: item.sendToKitchen,
+              selectedOptions: item.selectedOptions,
+            })),
+            queuedOrder.notes,
+            OrderSource.WAITER
+          )
         )
       );
 
@@ -753,6 +999,38 @@ export default function WaiterApp() {
       console.error('Nu am putut trimite coada manuala catre bucatarie', error);
     } finally {
       setIsSendingManualQueue(false);
+    }
+  };
+
+  const openPendingOrderEditor = (orderId: string) => {
+    setPendingEditorOrderId(orderId);
+    setPendingEditorItems([]);
+    setIsSavingPendingEditor(false);
+  };
+
+  const savePendingOrderAdditions = async () => {
+    if (!pendingEditorOrderId || pendingEditorItems.length === 0) {
+      return;
+    }
+
+    setIsSavingPendingEditor(true);
+    try {
+      await api.appendItemsToPendingOrder(
+        pendingEditorOrderId,
+        pendingEditorItems.map((item) => ({
+          productId: item.product.id,
+          productName: item.product.name,
+          price: getManualLineUnitPrice(item.product, item.selectedOptions),
+          quantity: item.quantity,
+          selectedOptions: item.selectedOptions,
+        }))
+      );
+      await fetchAllData();
+      resetPendingEditor();
+    } catch (error) {
+      console.error('Nu am putut completa comanda clientului', error);
+      alert(error instanceof Error ? error.message : 'Nu am putut completa comanda clientului.');
+      setIsSavingPendingEditor(false);
     }
   };
 
@@ -809,16 +1087,10 @@ export default function WaiterApp() {
               <span className="ml-2 text-white/70">({manualQueueItemCount} produse)</span>
             </div>
             <button
-              onClick={() => lockWaiterInterface()}
-              disabled={!storedWaiterPin}
-              className={`rounded-2xl border px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2 transition ${
-                storedWaiterPin
-                  ? 'border-warning/20 bg-warning/10 text-warning'
-                  : 'cursor-not-allowed border-white/8 bg-background text-muted'
-              }`}
+              onClick={() => void onLogout?.()}
+              className="rounded-2xl border border-white/8 bg-background px-4 py-3 text-sm font-semibold text-white transition hover:border-white/15"
             >
-              <LockKeyhole className="w-4 h-4" />
-              Blocheaza acum
+              Iesi din sesiune
             </button>
           </div>
         </header>
@@ -867,6 +1139,15 @@ export default function WaiterApp() {
                       >
                         <div className="min-w-0">
                           <p className="font-semibold">{item.productName}</p>
+                          {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                            <div className="mt-1 space-y-1">
+                              {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                  {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                </p>
+                              ))}
+                            </div>
+                          )}
                           {item.notes && <p className="text-xs text-primary mt-1">{item.notes}</p>}
                           <p className="mt-1 text-[11px] text-muted">
                             {approvalSelections[order.id]?.[item.id] ?? getDefaultKitchenSelection(item.productId, item.sendToKitchen)
@@ -898,7 +1179,14 @@ export default function WaiterApp() {
                     </div>
                   )}
 
-                  <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => openPendingOrderEditor(order.id)}
+                    className="mt-4 w-full rounded-2xl border border-white/8 bg-card px-4 py-3 text-sm font-semibold text-white"
+                  >
+                    Adauga produse inainte de confirmare
+                  </button>
+
+                  <div className="mt-2 grid grid-cols-2 gap-2">
                     <button
                       onClick={() => cancelOrder(order.id)}
                       className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger"
@@ -999,7 +1287,7 @@ export default function WaiterApp() {
                   <div className="mt-4 space-y-2">
                     {queuedOrder.items.map((item) => (
                       <div
-                        key={`${queuedOrder.id}-${item.productId}`}
+                        key={item.id}
                         className={`rounded-2xl border px-3 py-3 text-sm ${
                           item.sendToKitchen ? 'border-primary/20 bg-primary/10' : 'border-white/8 bg-card/50'
                         }`}
@@ -1007,6 +1295,15 @@ export default function WaiterApp() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="font-semibold">{item.productName}</p>
+                            {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                              <div className="mt-1 space-y-1">
+                                {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                  <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                    {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
                             <p className="mt-1 text-[11px] text-muted">
                               {item.sendToKitchen ? 'Merge in bucatarie' : 'Ramane doar in istoric / servire'}
                             </p>
@@ -1158,7 +1455,15 @@ export default function WaiterApp() {
                     Goleste sesiunea
                   </button>
                   <button
-                    onClick={() => setIsAddingManual((current) => !current)}
+                    onClick={() =>
+                      setIsAddingManual((current) => {
+                        const nextValue = !current;
+                        if (!nextValue) {
+                          closeProductConfigurator();
+                        }
+                        return nextValue;
+                      })
+                    }
                     className="rounded-2xl bg-primary px-4 py-3 text-sm font-semibold flex items-center justify-center gap-2"
                   >
                     <Send className="w-4 h-4" />
@@ -1246,7 +1551,7 @@ export default function WaiterApp() {
                       <div>
                         <h3 className="text-sm font-display font-bold">Comanda manuala ospatar</h3>
                         <p className="mt-1 text-xs text-muted">
-                          Apasa pe produse, apoi revizuieste toata comanda. Bauturile raman implicit in servire, nu in bucatarie.
+                          Apasa pe produse, adauga optiuni unde este cazul, apoi revizuieste toata comanda. Bauturile raman implicit in servire, nu in bucatarie.
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-2 md:min-w-[270px]">
@@ -1278,7 +1583,8 @@ export default function WaiterApp() {
                             </div>
                             <div className="-mx-1 flex w-full flex-nowrap snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 overscroll-x-contain">
                               {group.products.map((product) => {
-                                const count = manualCart[product.id] || 0;
+                                const count = manualProductQuantities.get(product.id) || 0;
+                                const hasOptions = Boolean(product.optionGroups?.length);
 
                                 return (
                                   <div
@@ -1297,7 +1603,7 @@ export default function WaiterApp() {
 
                                       <button
                                         type="button"
-                                        onClick={() => modifyManualQty(product.id, -1)}
+                                        onClick={() => modifyManualQty(product, -1)}
                                         aria-label={`Scoate ${product.name}`}
                                         className="absolute inset-y-0 left-0 z-10 flex w-1/2 items-start justify-start p-2.5 text-white/80 transition hover:bg-danger/20 active:bg-danger/30 disabled:cursor-not-allowed disabled:opacity-35 md:p-4"
                                         disabled={count === 0}
@@ -1308,7 +1614,7 @@ export default function WaiterApp() {
                                       </button>
                                       <button
                                         type="button"
-                                        onClick={() => modifyManualQty(product.id, 1)}
+                                        onClick={() => modifyManualQty(product, 1)}
                                         aria-label={`Adauga ${product.name}`}
                                         className="absolute inset-y-0 right-0 z-10 flex w-1/2 items-start justify-end p-2.5 text-white transition hover:bg-success/20 active:bg-success/30 md:p-4"
                                       >
@@ -1326,6 +1632,13 @@ export default function WaiterApp() {
                                           {count > 0 ? `x${count}` : '0'}
                                         </span>
                                       </div>
+                                      {hasOptions && (
+                                        <div className="absolute bottom-2.5 right-2.5 z-10 md:bottom-4 md:right-4">
+                                          <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-white/80 md:px-3 md:py-1.5">
+                                            Optiuni
+                                          </span>
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="space-y-2.5 px-2.5 py-2.5 md:px-4 md:py-4">
                                       <p className="min-h-[2.7rem] text-[15px] font-display font-bold leading-5 text-white md:min-h-[3.5rem] md:text-lg md:leading-7">
@@ -1335,6 +1648,11 @@ export default function WaiterApp() {
                                         <p className="text-xs font-mono uppercase tracking-[0.16em] text-primary md:text-sm md:tracking-[0.18em]">
                                           {formatCad(product.price)}
                                         </p>
+                                        {hasOptions ? (
+                                          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
+                                            Extra
+                                          </span>
+                                        ) : null}
                                       </div>
                                     </div>
                                   </div>
@@ -1365,29 +1683,58 @@ export default function WaiterApp() {
                         ) : (
                           <div className="mt-4 space-y-2">
                             {manualReviewItems.map((item) => (
-                              <label
-                                key={item.productId}
-                                className={`flex cursor-pointer items-start justify-between gap-3 rounded-2xl border px-3 py-3 text-sm ${
+                              <div
+                                key={item.id}
+                                className={`rounded-2xl border px-3 py-3 text-sm ${
                                   item.sendToKitchen ? 'border-primary/20 bg-primary/10' : 'border-white/8 bg-background/70'
                                 }`}
                               >
-                                <div className="min-w-0">
-                                  <p className="font-semibold">{item.productName}</p>
-                                  <p className="mt-1 text-[11px] text-muted">
-                                    {item.sendToKitchen ? 'Merge in bucatarie' : 'Ramane doar pentru servire / bauturi'}
-                                  </p>
-                                  <p className="mt-1 text-[11px] text-white/60">{formatCad(item.price * item.quantity)}</p>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <p className="font-semibold">{item.productName}</p>
+                                    {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                                      <div className="mt-1 space-y-1">
+                                        {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                          <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                            {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                          </p>
+                                        ))}
+                                      </div>
+                                    )}
+                                    <p className="mt-1 text-[11px] text-muted">
+                                      {item.sendToKitchen ? 'Merge in bucatarie' : 'Ramane doar pentru servire / bauturi'}
+                                    </p>
+                                    <p className="mt-1 text-[11px] text-white/60">{formatCad(item.price * item.quantity)}</p>
+                                  </div>
+                                  <div className="flex shrink-0 items-start gap-3">
+                                    <div className="flex items-center overflow-hidden rounded-2xl border border-white/8 bg-black/20">
+                                      <button
+                                        type="button"
+                                        onClick={() => modifyManualLineQuantity(item.id, -1)}
+                                        className="px-3 py-2 text-danger transition hover:bg-danger/15 active:bg-danger/20"
+                                        aria-label={`Scade ${item.productName}`}
+                                      >
+                                        <Minus className="h-4 w-4" />
+                                      </button>
+                                      <span className="min-w-[44px] px-2 text-center font-mono text-muted">x{item.quantity}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => modifyManualLineQuantity(item.id, 1)}
+                                        className="px-3 py-2 text-success transition hover:bg-success/15 active:bg-success/20"
+                                        aria-label={`Creste ${item.productName}`}
+                                      >
+                                        <Plus className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                    <input
+                                      type="checkbox"
+                                      checked={item.sendToKitchen}
+                                      onChange={() => toggleManualKitchenSelection(item.id)}
+                                      className="mt-2 h-4 w-4 accent-primary"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="flex shrink-0 items-center gap-3">
-                                  <span className="font-mono text-muted">x{item.quantity}</span>
-                                  <input
-                                    type="checkbox"
-                                    checked={item.sendToKitchen}
-                                    onChange={() => toggleManualKitchenSelection(item.productId)}
-                                    className="h-4 w-4 accent-primary"
-                                  />
-                                </div>
-                              </label>
+                              </div>
                             ))}
                           </div>
                         )}
@@ -1464,11 +1811,11 @@ export default function WaiterApp() {
                               </div>
                             </div>
 
-                            <div className="mt-4 space-y-2 xl:-mx-1 xl:flex xl:snap-x xl:snap-mandatory xl:gap-3 xl:overflow-x-auto xl:px-1 xl:pb-2 xl:space-y-0">
+                            <div className="mt-4 grid grid-cols-1 gap-2 xl:grid-cols-2">
                               {order.items.map((item) => (
                                 <label
                                   key={item.id}
-                                  className={`flex items-start justify-between gap-3 rounded-2xl border px-3 py-3 text-sm xl:w-[280px] xl:min-w-[280px] xl:shrink-0 xl:snap-start ${
+                                  className={`flex items-start justify-between gap-3 rounded-2xl border px-3 py-3 text-sm ${
                                     order.status === OrderStatus.PENDING
                                       ? 'cursor-pointer'
                                       : ''
@@ -1481,6 +1828,15 @@ export default function WaiterApp() {
                                 >
                                   <div className="min-w-0">
                                     <span>{item.productName}</span>
+                                    {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                                      <div className="mt-1 space-y-1">
+                                        {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                          <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                            {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                          </p>
+                                        ))}
+                                      </div>
+                                    )}
                                     <p className="mt-1 text-[11px] text-muted">
                                       {item.sendToKitchen === false ? 'Servire / bar' : 'Flux bucatarie'}
                                     </p>
@@ -1555,74 +1911,355 @@ export default function WaiterApp() {
         </section>
       </div>
 
-      {isWaiterLocked && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-background/96 px-4 py-6 backdrop-blur">
-          <div className="w-full max-w-md rounded-[32px] border border-white/8 bg-card p-5 shadow-2xl">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[24px] border border-warning/20 bg-warning/10 text-warning">
-              <LockKeyhole className="h-7 w-7" />
-            </div>
-
-            <div className="mt-5 text-center">
-              <p className="text-xs font-mono uppercase tracking-[0.32em] text-warning">Acces ospatar</p>
-              <h2 className="mt-3 text-2xl font-display font-bold text-white">Panou blocat</h2>
-              <p className="mt-3 text-sm leading-6 text-muted">{waiterPinMessage}</p>
-            </div>
-
-            <div className="mt-5 flex items-center justify-center gap-3">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <span
-                  key={`pin-dot-${index}`}
-                  className={`h-4 w-4 rounded-full border ${
-                    index < waiterPinEntry.length ? 'border-primary bg-primary' : 'border-white/15 bg-transparent'
-                  }`}
-                />
-              ))}
-            </div>
-
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-                <button
-                  key={digit}
-                  type="button"
-                  onClick={() => appendWaiterPinDigit(digit)}
-                  className="rounded-2xl border border-white/8 bg-background px-4 py-4 text-xl font-display font-bold text-white transition hover:border-primary/30 hover:bg-primary/10"
-                >
-                  {digit}
-                </button>
-              ))}
+      {pendingEditorOrder && (
+        <div className="fixed inset-0 z-[108] flex items-end bg-black/65 px-3 py-3 backdrop-blur md:items-center md:justify-center md:p-6">
+          <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-card shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-white/8 px-4 py-4 md:px-5">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Completeaza comanda clientului</p>
+                <h3 className="mt-2 text-2xl font-display font-bold text-white">
+                  Masa {pendingEditorOrder.tableNumber} • {pendingEditorOrder.orderNumber}
+                </h3>
+                <p className="mt-2 text-sm text-white/70">
+                  Comanda curenta are {pendingEditorOrder.items.reduce((sum, item) => sum + item.quantity, 0)} produse si totalul {formatCad(pendingEditorOrder.subtotal)}.
+                </p>
+              </div>
               <button
                 type="button"
-                onClick={clearWaiterPinEntry}
-                className="rounded-2xl border border-white/8 bg-background px-4 py-4 text-sm font-semibold text-muted transition hover:border-white/15 hover:text-white"
+                onClick={resetPendingEditor}
+                className="rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm font-semibold text-white"
               >
-                Sterge
-              </button>
-              <button
-                type="button"
-                onClick={() => appendWaiterPinDigit('0')}
-                className="rounded-2xl border border-white/8 bg-background px-4 py-4 text-xl font-display font-bold text-white transition hover:border-primary/30 hover:bg-primary/10"
-              >
-                0
-              </button>
-              <button
-                type="button"
-                onClick={removeWaiterPinDigit}
-                className="rounded-2xl border border-white/8 bg-background px-4 py-4 text-sm font-semibold text-muted transition hover:border-white/15 hover:text-white"
-              >
-                Inapoi
+                Inchide
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={submitWaiterPin}
-              className="mt-4 w-full rounded-2xl bg-primary px-4 py-4 text-sm font-semibold text-white"
-            >
-              Deblocheaza
-            </button>
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 xl:grid-cols-[1.25fr_0.75fr]">
+              <div className="min-h-0 overflow-y-auto border-b border-white/8 px-4 py-4 xl:border-b-0 xl:border-r xl:px-5">
+                <div className="space-y-5">
+                  {manualProductGroups.map((group) => (
+                    <section key={`pending-${group.id}`}>
+                      <div className="mb-3 flex items-center gap-2 px-1">
+                        {group.icon ? (
+                          <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/8 bg-card text-xl">
+                            {group.icon}
+                          </span>
+                        ) : null}
+                        <div>
+                          <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-primary">Sectiune</p>
+                          <p className="text-base font-display font-bold text-white">{group.name}</p>
+                        </div>
+                      </div>
+
+                      <div className="-mx-1 flex w-full flex-nowrap snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 overscroll-x-contain">
+                        {group.products.map((product) => {
+                          const count = pendingEditorProductQuantities.get(product.id) || 0;
+                          const hasOptions = Boolean(product.optionGroups?.length);
+
+                          return (
+                            <div
+                              key={`pending-product-${product.id}`}
+                              className={`relative w-[calc(50%-0.375rem)] min-w-[calc(50%-0.375rem)] max-w-[calc(50%-0.375rem)] shrink-0 snap-start overflow-hidden rounded-[22px] border bg-card transition-all ${
+                                count > 0 ? 'border-primary/40 shadow-[0_0_0_1px_rgba(232,122,65,0.3)]' : 'border-white/8'
+                              }`}
+                            >
+                              <div className="relative aspect-[1.16] md:aspect-[0.98]">
+                                <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+
+                                <button
+                                  type="button"
+                                  onClick={() => modifyPendingEditorQty(product, -1)}
+                                  aria-label={`Scoate ${product.name}`}
+                                  className="absolute inset-y-0 left-0 z-10 flex w-1/2 items-start justify-start p-2.5 text-white/80 transition hover:bg-danger/20 active:bg-danger/30 disabled:cursor-not-allowed disabled:opacity-35 md:p-4"
+                                  disabled={count === 0}
+                                >
+                                  <span className="rounded-2xl bg-black/55 p-2.5 md:p-3">
+                                    <Minus className="h-4 w-4 md:h-5 md:w-5" />
+                                  </span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => modifyPendingEditorQty(product, 1)}
+                                  aria-label={`Adauga ${product.name}`}
+                                  className="absolute inset-y-0 right-0 z-10 flex w-1/2 items-start justify-end p-2.5 text-white transition hover:bg-success/20 active:bg-success/30 md:p-4"
+                                >
+                                  <span className="rounded-2xl bg-primary p-2.5 shadow-lg md:p-3">
+                                    <Plus className="h-4 w-4 md:h-5 md:w-5" />
+                                  </span>
+                                </button>
+
+                                <div className="absolute bottom-2.5 left-2.5 z-10 md:bottom-4 md:left-4">
+                                  <span
+                                    className={`rounded-full px-2.5 py-1 text-[11px] font-mono shadow-lg md:px-4 md:py-2 md:text-sm ${
+                                      count > 0 ? 'bg-primary text-white' : 'bg-black/55 text-white/80'
+                                    }`}
+                                  >
+                                    {count > 0 ? `x${count}` : '0'}
+                                  </span>
+                                </div>
+                                {hasOptions && (
+                                  <div className="absolute bottom-2.5 right-2.5 z-10 md:bottom-4 md:right-4">
+                                    <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-white/80 md:px-3 md:py-1.5">
+                                      Optiuni
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="space-y-2.5 px-2.5 py-2.5 md:px-4 md:py-4">
+                                <p className="min-h-[2.7rem] text-[15px] font-display font-bold leading-5 text-white md:min-h-[3.5rem] md:text-lg md:leading-7">
+                                  {product.name}
+                                </p>
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="text-xs font-mono uppercase tracking-[0.16em] text-primary md:text-sm md:tracking-[0.18em]">
+                                    {formatCad(product.price)}
+                                  </p>
+                                  {hasOptions ? (
+                                    <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
+                                      Extra
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </div>
+
+              <div className="min-h-0 overflow-y-auto px-4 py-4 xl:px-5">
+                <div className="rounded-[24px] border border-white/8 bg-background/80 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-mono uppercase tracking-[0.24em] text-primary">Produse noi</p>
+                      <h4 className="mt-2 text-base font-display font-bold">Ce mai adauga ospatarul pe comanda</h4>
+                    </div>
+                    <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-mono text-primary">
+                      {pendingEditorItemCount} produse
+                    </span>
+                  </div>
+
+                  {pendingEditorItems.length === 0 ? (
+                    <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-muted">
+                      Nu ai adaugat inca nimic peste comanda clientului.
+                    </div>
+                  ) : (
+                    <div className="mt-4 space-y-2">
+                      {pendingEditorItems.map((item) => (
+                        <div key={item.id} className="rounded-2xl border border-white/8 bg-card/80 px-3 py-3 text-sm">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="font-semibold">{item.product.name}</p>
+                              {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                                <div className="mt-1 space-y-1">
+                                  {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                    <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                      {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                              <p className="mt-1 text-[11px] text-white/60">
+                                {formatCad(getManualLineUnitPrice(item.product, item.selectedOptions) * item.quantity)}
+                              </p>
+                            </div>
+                            <div className="flex items-center overflow-hidden rounded-2xl border border-white/8 bg-black/20">
+                              <button
+                                type="button"
+                                onClick={() => modifyPendingEditorLineQuantity(item.id, -1)}
+                                className="px-3 py-2 text-danger transition hover:bg-danger/15 active:bg-danger/20"
+                                aria-label={`Scade ${item.product.name}`}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </button>
+                              <span className="min-w-[44px] px-2 text-center font-mono text-muted">x{item.quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => modifyPendingEditorLineQuantity(item.id, 1)}
+                                className="px-3 py-2 text-success transition hover:bg-success/15 active:bg-success/20"
+                                aria-label={`Creste ${item.product.name}`}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 rounded-2xl border border-white/8 bg-card px-3 py-3">
+                    <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted">Total suplimentar</p>
+                    <p className="mt-2 text-2xl font-display font-bold text-white">{formatCad(pendingEditorTotal)}</p>
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={resetPendingEditor}
+                      className="flex-1 rounded-2xl border border-white/8 px-4 py-3 text-sm text-muted"
+                    >
+                      Renunta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={savePendingOrderAdditions}
+                      disabled={pendingEditorItems.length === 0 || isSavingPendingEditor}
+                      className="flex-1 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isSavingPendingEditor ? 'Se salveaza...' : 'Adauga pe comanda'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
+
+      {configProduct && (
+        <div className="fixed inset-0 z-[110] flex items-end bg-black/70 px-3 py-3 backdrop-blur md:items-center md:justify-center md:p-6">
+          <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-[30px] border border-white/10 bg-card shadow-2xl">
+            <div className="relative">
+              <img
+                src={configProduct.imageUrl}
+                alt={configProduct.name}
+                className="h-44 w-full object-cover md:h-56"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/35 to-transparent" />
+              <button
+                type="button"
+                onClick={closeProductConfigurator}
+                className="absolute right-4 top-4 rounded-2xl border border-white/10 bg-black/45 px-3 py-2 text-sm font-semibold text-white"
+              >
+                Inchide
+              </button>
+              <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+                <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Configurare produs</p>
+                <h3 className="mt-2 text-2xl font-display font-bold text-white">{configProduct.name}</h3>
+                <p className="mt-2 text-sm text-white/75">{formatCad(configProduct.price)} baza</p>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-4 md:px-5">
+              <div className="rounded-[24px] border border-white/8 bg-background/70 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-mono uppercase tracking-[0.22em] text-muted">Cantitate</p>
+                    <p className="mt-2 text-sm text-white/75">Seteaza cate bucati adaugi cu aceasta configurare.</p>
+                  </div>
+                  <div className="flex items-center overflow-hidden rounded-2xl border border-white/8 bg-card">
+                    <button
+                      type="button"
+                      onClick={() => setConfigQuantity((current) => Math.max(1, current - 1))}
+                      className="px-4 py-3 text-danger transition hover:bg-danger/15 active:bg-danger/20"
+                      aria-label="Scade cantitatea"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="min-w-[56px] px-3 text-center font-display text-xl font-bold text-white">{configQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setConfigQuantity((current) => current + 1)}
+                      className="px-4 py-3 text-success transition hover:bg-success/15 active:bg-success/20"
+                      aria-label="Creste cantitatea"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {(configProduct.optionGroups || []).map((group) => {
+                  const selectedIds = configChoices[group.id] || [];
+                  return (
+                    <div key={group.id} className="rounded-[24px] border border-white/8 bg-background/70 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <h4 className="text-base font-display font-bold text-white">{group.name}</h4>
+                          <p className="mt-1 text-[11px] text-muted">
+                            {group.required ? 'Obligatoriu' : 'Optional'} • {group.selectionType === 'single' ? 'O singura alegere' : group.maxSelections ? `Maxim ${group.maxSelections}` : 'Selectie multipla'}
+                          </p>
+                        </div>
+                        {group.required ? (
+                          <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-primary">
+                            Necesara
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {group.choices.map((choice) => {
+                          const isSelected = selectedIds.includes(choice.id);
+                          return (
+                            <button
+                              key={choice.id}
+                              type="button"
+                              onClick={() => toggleConfigChoice(group, choice.id)}
+                              className={`rounded-2xl border px-3 py-3 text-left text-sm transition ${
+                                isSelected ? 'border-primary/30 bg-primary/10 text-white' : 'border-white/8 bg-card text-white/85'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <span className="font-semibold">{choice.name}</span>
+                                <span className={`rounded-full px-2 py-1 text-[10px] font-mono ${isSelected ? 'bg-primary text-white' : 'bg-black/25 text-white/60'}`}>
+                                  {formatOptionPriceDelta(choice.priceDelta)}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="border-t border-white/8 bg-background/95 p-4 md:p-5">
+              {groupSelectedOptions(configSelectedOptions).length > 0 && (
+                <div className="mb-3 rounded-2xl border border-white/8 bg-card px-3 py-3">
+                  {groupSelectedOptions(configSelectedOptions).map((group) => (
+                    <p key={group.groupId} className="text-xs text-muted">
+                      {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Total configurare</p>
+                  <p className="mt-2 text-2xl font-display font-bold text-white">
+                    {formatCad(configUnitPrice * configQuantity)}
+                  </p>
+                </div>
+                <div className="flex w-full gap-2 sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={closeProductConfigurator}
+                    className="flex-1 rounded-2xl border border-white/8 px-4 py-3 text-sm text-muted sm:flex-none sm:min-w-[120px]"
+                  >
+                    Renunta
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addConfiguredProduct}
+                    className="flex-1 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white sm:flex-none sm:min-w-[190px]"
+                  >
+                      Adauga in draft
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

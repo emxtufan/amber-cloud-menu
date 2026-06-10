@@ -1,11 +1,23 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
+import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { DatabaseEngine } from './server_db.js';
-import { OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod } from './src/types.js';
+import { OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod, InternalRole } from './src/types.js';
 
 let sseClients: Response[] = [];
+const AUTH_COOKIE_NAME = 'restaurant_internal_session';
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+
+interface AuthSessionRecord {
+  id: string;
+  role: InternalRole;
+  username?: string;
+  expiresAt: number;
+}
+
+const authSessions = new Map<string, AuthSessionRecord>();
 
 // Broadcast changes to active SSE clients
 function broadcastEvent(type: string, data: any) {
@@ -17,6 +29,65 @@ function broadcastEvent(type: string, data: any) {
       console.error('Failed to write to SSE client, connection probably closed');
     }
   });
+}
+
+function parseCookies(req: Request) {
+  const rawCookieHeader = req.headers.cookie || '';
+  return rawCookieHeader.split(';').reduce<Record<string, string>>((accumulator, chunk) => {
+    const [rawKey, ...rawValueParts] = chunk.trim().split('=');
+    if (!rawKey) {
+      return accumulator;
+    }
+
+    accumulator[rawKey] = decodeURIComponent(rawValueParts.join('=') || '');
+    return accumulator;
+  }, {});
+}
+
+function setAuthCookie(res: Response, sessionId: string) {
+  res.setHeader(
+    'Set-Cookie',
+    `${AUTH_COOKIE_NAME}=${encodeURIComponent(sessionId)}; HttpOnly; Path=/; Max-Age=${Math.floor(
+      SESSION_TTL_MS / 1000
+    )}; SameSite=Lax`
+  );
+}
+
+function clearAuthCookie(res: Response) {
+  res.setHeader('Set-Cookie', `${AUTH_COOKIE_NAME}=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax`);
+}
+
+function readAuthSession(req: Request) {
+  const cookies = parseCookies(req);
+  const sessionId = cookies[AUTH_COOKIE_NAME];
+  if (!sessionId) {
+    return null;
+  }
+
+  const session = authSessions.get(sessionId);
+  if (!session) {
+    return null;
+  }
+
+  if (session.expiresAt <= Date.now()) {
+    authSessions.delete(sessionId);
+    return null;
+  }
+
+  session.expiresAt = Date.now() + SESSION_TTL_MS;
+  return session;
+}
+
+function requireAuth(allowedRoles: InternalRole[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const session = readAuthSession(req);
+    if (!session || !allowedRoles.includes(session.role)) {
+      clearAuthCookie(res);
+      return res.status(401).json({ error: 'Autentificare necesara.' });
+    }
+
+    next();
+  };
 }
 
 async function startServer() {
@@ -49,6 +120,67 @@ async function startServer() {
     });
   });
 
+  app.post('/api/auth/login', asyncHandler(async (req: Request, res: Response) => {
+    const { role, username, password, pin } = req.body || {};
+    if (role !== 'ADMIN' && role !== 'WAITER' && role !== 'KITCHEN') {
+      return res.status(400).json({ error: 'Rol invalid.' });
+    }
+
+    const isValid = DatabaseEngine.verifyAccessRole(role, {
+      username: typeof username === 'string' ? username : undefined,
+      password: typeof password === 'string' ? password : undefined,
+      pin: typeof pin === 'string' ? pin : undefined,
+    });
+
+    if (!isValid) {
+      clearAuthCookie(res);
+      return res.status(401).json({
+        error: role === 'ADMIN' ? 'Date de autentificare invalide.' : 'PIN invalid.',
+      });
+    }
+
+    const accessSummary = DatabaseEngine.getAccessControlSummary();
+    const sessionId = crypto.randomUUID();
+    authSessions.set(sessionId, {
+      id: sessionId,
+      role,
+      username: role === 'ADMIN' ? accessSummary.adminUsername : undefined,
+      expiresAt: Date.now() + SESSION_TTL_MS,
+    });
+    setAuthCookie(res, sessionId);
+
+    res.json({
+      authenticated: true,
+      role,
+      username: role === 'ADMIN' ? accessSummary.adminUsername : undefined,
+    });
+  }));
+
+  app.get('/api/auth/session', asyncHandler((req: Request, res: Response) => {
+    const session = readAuthSession(req);
+    if (!session) {
+      clearAuthCookie(res);
+      return res.json({ authenticated: false });
+    }
+
+    setAuthCookie(res, session.id);
+    res.json({
+      authenticated: true,
+      role: session.role,
+      username: session.username,
+    });
+  }));
+
+  app.post('/api/auth/logout', asyncHandler((req: Request, res: Response) => {
+    const session = readAuthSession(req);
+    if (session) {
+      authSessions.delete(session.id);
+    }
+
+    clearAuthCookie(res);
+    res.json({ success: true });
+  }));
+
   // Table API Routes
   app.get('/api/tables', asyncHandler((req: Request, res: Response) => {
     res.json(DatabaseEngine.getTables());
@@ -60,7 +192,7 @@ async function startServer() {
     res.json(table);
   }));
 
-  app.post('/api/tables', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/tables', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const { number, area, name } = req.body;
     if (!number) return res.status(400).json({ error: 'Table number is required' });
     const table = DatabaseEngine.createTable(Number(number), area, name);
@@ -69,14 +201,14 @@ async function startServer() {
     res.status(201).json(table);
   }));
 
-  app.delete('/api/tables/:id', asyncHandler(async (req: Request, res: Response) => {
+  app.delete('/api/tables/:id', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     DatabaseEngine.deleteTable(req.params.id);
     await DatabaseEngine.flush();
     broadcastEvent('table-delete', { id: req.params.id });
     res.json({ success: true, id: req.params.id });
   }));
 
-  app.post('/api/tables/:id/status', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/tables/:id/status', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
     const { status } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
     const table = DatabaseEngine.updateTableStatus(req.params.id, status as TableStatus);
@@ -85,7 +217,7 @@ async function startServer() {
     res.json(table);
   }));
 
-  app.post('/api/tables/:id/settle', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/tables/:id/settle', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
     const { paymentMethod } = req.body;
     if (!paymentMethod) return res.status(400).json({ error: 'paymentMethod is required' });
     const settlement = DatabaseEngine.settleTableSession(req.params.id, paymentMethod as PaymentMethod);
@@ -102,7 +234,7 @@ async function startServer() {
     res.json(DatabaseEngine.getCategories());
   }));
 
-  app.post('/api/categories', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/categories', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const { name, icon } = req.body;
     if (!name || !icon) return res.status(400).json({ error: 'Name and icon are required' });
     const cat = DatabaseEngine.createCategory(name, icon);
@@ -111,7 +243,7 @@ async function startServer() {
     res.status(201).json(cat);
   }));
 
-  app.put('/api/categories/:id', asyncHandler(async (req: Request, res: Response) => {
+  app.put('/api/categories/:id', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const { name, icon, active } = req.body;
     const cat = DatabaseEngine.updateCategory(req.params.id, name, icon, active);
     await DatabaseEngine.flush();
@@ -119,7 +251,7 @@ async function startServer() {
     res.json(cat);
   }));
 
-  app.delete('/api/categories/:id', asyncHandler(async (req: Request, res: Response) => {
+  app.delete('/api/categories/:id', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     DatabaseEngine.deleteCategory(req.params.id);
     await DatabaseEngine.flush();
     broadcastEvent('menu-update', { type: 'category_deleted', id: req.params.id });
@@ -131,21 +263,21 @@ async function startServer() {
     res.json(DatabaseEngine.getProducts());
   }));
 
-  app.post('/api/products', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/products', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const prod = DatabaseEngine.createProduct(req.body);
     await DatabaseEngine.flush();
     broadcastEvent('menu-update', { type: 'product_created', product: prod });
     res.status(201).json(prod);
   }));
 
-  app.put('/api/products/:id', asyncHandler(async (req: Request, res: Response) => {
+  app.put('/api/products/:id', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const prod = DatabaseEngine.updateProduct(req.params.id, req.body);
     await DatabaseEngine.flush();
     broadcastEvent('menu-update', { type: 'product_updated', product: prod });
     res.json(prod);
   }));
 
-  app.delete('/api/products/:id', asyncHandler(async (req: Request, res: Response) => {
+  app.delete('/api/products/:id', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     DatabaseEngine.deleteProduct(req.params.id);
     await DatabaseEngine.flush();
     broadcastEvent('menu-update', { type: 'product_deleted', id: req.params.id });
@@ -182,7 +314,7 @@ async function startServer() {
     res.status(201).json(order);
   }));
 
-  app.post('/api/orders/:id/status', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/orders/:id/status', requireAuth(['ADMIN', 'WAITER', 'KITCHEN']), asyncHandler(async (req: Request, res: Response) => {
     const { status, prepTimeEstimate, startNewSession, kitchenItemIds } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
     
@@ -197,6 +329,24 @@ async function startServer() {
     if (order.status === OrderStatus.CONFIRMED) {
       broadcastEvent('new-order', order);
     }
+    broadcastEvent('order-update', order);
+
+    const table = DatabaseEngine.getTable(order.tableId);
+    if (table) {
+      broadcastEvent('table-update', table);
+    }
+
+    res.json(order);
+  }));
+
+  app.post('/api/orders/:id/items', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'items trebuie sa fie o lista nevida' });
+    }
+
+    const order = DatabaseEngine.appendItemsToPendingOrder(req.params.id, items);
+    await DatabaseEngine.flush();
     broadcastEvent('order-update', order);
 
     const table = DatabaseEngine.getTable(order.tableId);
@@ -243,7 +393,7 @@ async function startServer() {
     res.status(201).json(bill);
   }));
 
-  app.post('/api/bills/:id/status', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/bills/:id/status', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
     const { status } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
     const bill = DatabaseEngine.updateBillStatus(req.params.id, status as BillStatus);
@@ -258,7 +408,7 @@ async function startServer() {
     res.json(bill);
   }));
 
-  app.get('/api/waiter-requests', asyncHandler((req: Request, res: Response) => {
+  app.get('/api/waiter-requests', requireAuth(['ADMIN', 'WAITER']), asyncHandler((req: Request, res: Response) => {
     res.json(DatabaseEngine.getWaiterRequests());
   }));
 
@@ -275,7 +425,7 @@ async function startServer() {
     res.status(201).json(waiterRequest);
   }));
 
-  app.post('/api/waiter-requests/:id/resolve', asyncHandler(async (req: Request, res: Response) => {
+  app.post('/api/waiter-requests/:id/resolve', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
     const waiterRequest = DatabaseEngine.resolveWaiterRequest(req.params.id);
     await DatabaseEngine.flush();
     broadcastEvent('waiter-request-update', waiterRequest);
@@ -283,7 +433,7 @@ async function startServer() {
   }));
 
   // Stats Analytics API Endpoint
-  app.get('/api/stats', asyncHandler((req: Request, res: Response) => {
+  app.get('/api/stats', requireAuth(['ADMIN']), asyncHandler((req: Request, res: Response) => {
     res.json(DatabaseEngine.getStats());
   }));
 
@@ -291,11 +441,21 @@ async function startServer() {
     res.json(DatabaseEngine.getSettings());
   }));
 
-  app.put('/api/settings', asyncHandler(async (req: Request, res: Response) => {
+  app.put('/api/settings', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
     const settings = DatabaseEngine.updateSettings(req.body || {});
     await DatabaseEngine.flush();
     broadcastEvent('settings-update', settings);
     res.json(settings);
+  }));
+
+  app.get('/api/access-control', requireAuth(['ADMIN']), asyncHandler((req: Request, res: Response) => {
+    res.json(DatabaseEngine.getAccessControlSummary());
+  }));
+
+  app.put('/api/access-control', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
+    const accessControlSummary = DatabaseEngine.updateAccessControl(req.body || {});
+    await DatabaseEngine.flush();
+    res.json(accessControlSummary);
   }));
 
   // Error handling middleware

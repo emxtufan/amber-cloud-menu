@@ -12,8 +12,8 @@ import {
   X,
 } from 'lucide-react';
 import { api } from '../services/api.js';
-import { Bill, BillStatus, CartItem, Category, Order, OrderSource, OrderStatus, Product, RestaurantSettings, Table, TableStatus } from '../types.js';
-import { formatCad, getOrderStatusLabel, getPaymentMethodLabel } from '../utils.js';
+import { Bill, BillStatus, CartItem, Category, Order, OrderSource, OrderStatus, Product, ProductOptionGroup, RestaurantSettings, SelectedOrderOption, Table, TableStatus } from '../types.js';
+import { formatCad, formatOptionPriceDelta, getOrderStatusLabel, getPaymentMethodLabel, getSelectedOptionsTotal, groupSelectedOptions } from '../utils.js';
 
 interface CustomerAppProps {
   tableId: string;
@@ -77,16 +77,61 @@ function scrollFieldIntoView(target: HTMLInputElement | HTMLTextAreaElement) {
   }, 180);
 }
 
+function createCartLineId() {
+  return `cart-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getSelectedOptionSignature(selectedOptions?: SelectedOrderOption[]) {
+  return [...(selectedOptions || [])]
+    .map((option) => `${option.groupId}:${option.choiceId}`)
+    .sort()
+    .join('|');
+}
+
+function getLineUnitPrice(product: Product, selectedOptions?: SelectedOrderOption[]) {
+  return product.price + getSelectedOptionsTotal(selectedOptions);
+}
+
+function normalizeCartItem(raw: any): CartItem | null {
+  if (!raw?.product?.id) {
+    return null;
+  }
+
+  return {
+    id: typeof raw.id === 'string' ? raw.id : createCartLineId(),
+    product: raw.product,
+    quantity: Math.max(1, Number(raw.quantity || 1)),
+    notes: raw.notes ? String(raw.notes) : undefined,
+    selectedOptions: Array.isArray(raw.selectedOptions) ? raw.selectedOptions : [],
+  };
+}
+
+function buildSelectedOptions(product: Product, selectedChoicesByGroup: Record<string, string[]>): SelectedOrderOption[] {
+  return (product.optionGroups || []).flatMap((group) => {
+    const choiceIds = selectedChoicesByGroup[group.id] || [];
+    return group.choices
+      .filter((choice) => choiceIds.includes(choice.id))
+      .map((choice) => ({
+        groupId: group.id,
+        groupName: group.name,
+        choiceId: choice.id,
+        choiceName: choice.name,
+        priceDelta: choice.priceDelta,
+      }));
+  });
+}
+
 export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true, waiterPin: '' });
+  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [nutritionProduct, setNutritionProduct] = useState<Product | null>(null);
   const [productQuantity, setProductQuantity] = useState(1);
   const [productNotes, setProductNotes] = useState('');
+  const [selectedProductChoices, setSelectedProductChoices] = useState<Record<string, string[]>>({});
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
@@ -224,7 +269,8 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
     try {
       const persisted = localStorage.getItem(`cart-table-${tableId}`);
       if (persisted) {
-        setCart(JSON.parse(persisted));
+        const parsed = JSON.parse(persisted);
+        setCart(Array.isArray(parsed) ? parsed.map(normalizeCartItem).filter(Boolean) as CartItem[] : []);
       } else {
         setCart([]);
       }
@@ -392,8 +438,10 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
     [products, searchQuery, selectedCategory]
   );
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => sum + getLineUnitPrice(item.product, item.selectedOptions) * item.quantity, 0);
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const selectedProductOptions = selectedProduct ? buildSelectedOptions(selectedProduct, selectedProductChoices) : [];
+  const selectedProductUnitPrice = selectedProduct ? getLineUnitPrice(selectedProduct, selectedProductOptions) : 0;
   const currentSessionId = rememberedSessionId;
   const sessionOrders = useMemo(
     () =>
@@ -426,30 +474,80 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
   );
   const currentOpenBill = sessionBills.find((bill) => bill.status !== BillStatus.PAID) || null;
 
-  const addToCart = (product: Product, quantity: number, notes: string) => {
-    const existingIndex = cart.findIndex((item) => item.product.id === product.id);
+  const toggleProductChoice = (group: ProductOptionGroup, choiceId: string) => {
+    setSelectedProductChoices((current) => {
+      const existing = current[group.id] || [];
+      const alreadySelected = existing.includes(choiceId);
+
+      if (group.selectionType === 'single') {
+        return {
+          ...current,
+          [group.id]: alreadySelected ? [] : [choiceId],
+        };
+      }
+
+      if (alreadySelected) {
+        return {
+          ...current,
+          [group.id]: existing.filter((entry) => entry !== choiceId),
+        };
+      }
+
+      const maxSelections = group.maxSelections && group.maxSelections > 0 ? group.maxSelections : undefined;
+      const preservedExisting = maxSelections
+        ? maxSelections > 1
+          ? existing.slice(-(maxSelections - 1))
+          : []
+        : existing;
+      const nextValues = maxSelections ? [...preservedExisting, choiceId] : [...existing, choiceId];
+      return {
+        ...current,
+        [group.id]: nextValues,
+      };
+    });
+  };
+
+  const addToCart = (product: Product, quantity: number, notes: string, selectedOptions: SelectedOrderOption[]) => {
+    const missingRequiredGroup = (product.optionGroups || []).find(
+      (group) => group.required && !selectedOptions.some((option) => option.groupId === group.id)
+    );
+    if (missingRequiredGroup) {
+      alert(`Selecteaza o optiune pentru "${missingRequiredGroup.name}".`);
+      return;
+    }
+
+    const normalizedNotes = notes.trim();
+    const existingIndex = cart.findIndex(
+      (item) =>
+        item.product.id === product.id &&
+        (item.notes || '') === normalizedNotes &&
+        getSelectedOptionSignature(item.selectedOptions) === getSelectedOptionSignature(selectedOptions)
+    );
     const nextCart = [...cart];
 
     if (existingIndex >= 0) {
       nextCart[existingIndex].quantity += quantity;
-      if (notes) {
-        const currentNotes = nextCart[existingIndex].notes ? `${nextCart[existingIndex].notes}; ` : '';
-        nextCart[existingIndex].notes = `${currentNotes}${notes}`;
-      }
     } else {
-      nextCart.push({ product, quantity, notes });
+      nextCart.push({
+        id: createCartLineId(),
+        product,
+        quantity,
+        notes: normalizedNotes || undefined,
+        selectedOptions,
+      });
     }
 
     saveCart(nextCart);
     setSelectedProduct(null);
     setProductQuantity(1);
     setProductNotes('');
+    setSelectedProductChoices({});
   };
 
-  const updateCartQuantity = (productId: string, delta: number) => {
+  const updateCartQuantity = (cartItemId: string, delta: number) => {
     const nextCart = cart
       .map((item) => {
-        if (item.product.id !== productId) {
+        if (item.id !== cartItemId) {
           return item;
         }
 
@@ -475,6 +573,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
             productName: item.product.name,
             quantity: item.quantity,
             notes: item.notes,
+            selectedOptions: item.selectedOptions,
           })),
           additionalOrderNotes
         );
@@ -500,9 +599,10 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       const orderItems = cart.map((item) => ({
         productId: item.product.id,
         productName: item.product.name,
-        price: item.product.price,
+        price: getLineUnitPrice(item.product, item.selectedOptions),
         quantity: item.quantity,
         notes: item.notes,
+        selectedOptions: item.selectedOptions,
       }));
 
       const createdOrder = await api.createOrder(
@@ -694,6 +794,8 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                     onClick={() => {
                       setSelectedProduct(product);
                       setProductQuantity(1);
+                      setProductNotes('');
+                      setSelectedProductChoices({});
                     }}
                     className="w-full text-left"
                   >
@@ -730,6 +832,8 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                   onClick={() => {
                     setSelectedProduct(product);
                     setProductQuantity(1);
+                    setProductNotes('');
+                    setSelectedProductChoices({});
                   }}
                   className="w-full text-left flex gap-4"
                 >
@@ -827,8 +931,19 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
 
                       <div className="mt-3 space-y-2">
                         {order.items.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
-                            <span>{item.productName}</span>
+                          <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
+                            <div className="min-w-0">
+                              <span>{item.productName}</span>
+                              {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                                <div className="mt-1 space-y-1">
+                                  {groupSelectedOptions(item.selectedOptions).map((group) => (
+                                    <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted">
+                                      {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                             <span className="text-muted font-mono">x{item.quantity}</span>
                           </div>
                         ))}
@@ -986,6 +1101,63 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                     Vezi informatiile nutritionale
                   </button>
                 )}
+
+                {(selectedProduct.optionGroups || []).length > 0 && (
+                  <div className="mt-5 space-y-3">
+                    {(selectedProduct.optionGroups || []).map((group) => {
+                      const selectedIds = selectedProductChoices[group.id] || [];
+                      return (
+                        <div key={group.id} className="rounded-2xl border border-white/8 bg-background p-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-white">{group.name}</p>
+                              <p className="mt-1 text-[11px] text-muted">
+                                {group.selectionType === 'single'
+                                  ? group.required
+                                    ? 'Alege o varianta'
+                                    : 'Alege o varianta, daca vrei'
+                                  : group.maxSelections
+                                    ? `Poti alege pana la ${group.maxSelections}`
+                                    : 'Poti alege mai multe variante'}
+                              </p>
+                            </div>
+                            {group.required && (
+                              <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] font-mono uppercase text-primary">
+                                Obligatoriu
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-3 space-y-2">
+                            {group.choices.map((choice) => {
+                              const active = selectedIds.includes(choice.id);
+                              return (
+                                <button
+                                  key={choice.id}
+                                  type="button"
+                                  onClick={() => toggleProductChoice(group, choice.id)}
+                                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-3 text-left ${
+                                    active ? 'border-primary/30 bg-primary/10' : 'border-white/8 bg-card'
+                                  }`}
+                                >
+                                  <div>
+                                    <p className="text-sm font-medium text-white">{choice.name}</p>
+                                    <p className="mt-1 text-[11px] text-muted">{formatOptionPriceDelta(choice.priceDelta)}</p>
+                                  </div>
+                                  <span
+                                    className={`h-5 w-5 rounded-full border ${
+                                      active ? 'border-primary bg-primary' : 'border-white/10 bg-background'
+                                    }`}
+                                  />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="mt-5">
@@ -1020,11 +1192,11 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                 </div>
 
                 <button
-                  onClick={() => addToCart(selectedProduct, productQuantity, productNotes)}
+                  onClick={() => addToCart(selectedProduct, productQuantity, productNotes, selectedProductOptions)}
                   className="flex-1 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold flex items-center justify-between"
                 >
                   <span>Adauga in comanda</span>
-                  <span>{formatCad(selectedProduct.price * productQuantity)}</span>
+                  <span>{formatCad(selectedProductUnitPrice * productQuantity)}</span>
                 </button>
               </div>
             </div>
@@ -1107,28 +1279,37 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
               <div className="mt-4 flex flex-col gap-3">
                 {cart.map((item) => (
                   <div
-                    key={item.product.id}
+                    key={item.id}
                     className="rounded-2xl border border-white/8 bg-background p-3 flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img src={item.product.imageUrl} alt={item.product.name} className="w-12 h-12 rounded-xl object-cover" />
                       <div className="min-w-0">
                         <p className="text-sm font-semibold truncate">{item.product.name}</p>
-                        <p className="text-xs text-muted">{formatCad(item.product.price)} / buc</p>
+                        <p className="text-xs text-muted">{formatCad(getLineUnitPrice(item.product, item.selectedOptions))} / buc</p>
+                        {groupSelectedOptions(item.selectedOptions).length > 0 && (
+                          <div className="mt-1 space-y-1">
+                            {groupSelectedOptions(item.selectedOptions).map((group) => (
+                              <p key={`${item.id}-${group.groupId}`} className="text-[11px] text-muted truncate">
+                                {group.groupName}: {group.choices.map((choice) => choice.choiceName).join(', ')}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                         {item.notes && <p className="text-xs text-primary truncate mt-1">{item.notes}</p>}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => updateCartQuantity(item.product.id, -1)}
+                        onClick={() => updateCartQuantity(item.id, -1)}
                         className="w-8 h-8 rounded-xl border border-white/8 flex items-center justify-center"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="w-7 text-center text-sm font-mono">{item.quantity}</span>
                       <button
-                        onClick={() => updateCartQuantity(item.product.id, 1)}
+                        onClick={() => updateCartQuantity(item.id, 1)}
                         className="w-8 h-8 rounded-xl border border-white/8 flex items-center justify-center"
                       >
                         <Plus className="w-4 h-4" />

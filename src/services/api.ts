@@ -1,4 +1,4 @@
-import { Table, Category, Product, Order, Bill, Review, RestaurantSettings, SystemStats, TableStatus, OrderStatus, BillStatus, OrderSource, WaiterRequest, PaymentMethod, TableSettlementResult } from '../types.js';
+import { Table, Category, Product, Order, Bill, Review, RestaurantSettings, SystemStats, TableStatus, OrderStatus, BillStatus, OrderSource, WaiterRequest, PaymentMethod, TableSettlementResult, SelectedOrderOption, AccessControlSummary, AuthSessionInfo, InternalRole } from '../types.js';
 
 // Determine base API url dynamically
 const BASE_URL = '';
@@ -11,10 +11,6 @@ class ApiClient {
   private reconnectTimeout: any = null;
 
   constructor() {
-    // Only establish SSE if running in browser
-    if (typeof window !== 'undefined') {
-      this.initSSE();
-    }
   }
 
   private initSSE() {
@@ -65,6 +61,10 @@ class ApiClient {
 
   // Subscribe to real-time events
   subscribe(type: string, callback: EventCallback): () => void {
+    if (typeof window !== 'undefined' && !this.eventSource) {
+      this.initSSE();
+    }
+
     if (!this.eventListeners[type]) {
       this.eventListeners[type] = [];
     }
@@ -192,7 +192,7 @@ class ApiClient {
 
   createOrder(
     tableId: string,
-    items: { productId: string; productName: string; price: number; quantity: number; notes?: string; sendToKitchen?: boolean }[],
+    items: { productId: string; productName: string; price: number; quantity: number; notes?: string; sendToKitchen?: boolean; selectedOptions?: SelectedOrderOption[] }[],
     notes?: string,
     source: OrderSource = OrderSource.CUSTOMER,
     sessionId?: string
@@ -213,6 +213,16 @@ class ApiClient {
     return this.request<Order>(`/api/orders/${id}/status`, {
       method: 'POST',
       body: JSON.stringify({ status, prepTimeEstimate, startNewSession, kitchenItemIds })
+    });
+  }
+
+  appendItemsToPendingOrder(
+    id: string,
+    items: { productId: string; productName: string; price: number; quantity: number; notes?: string; sendToKitchen?: boolean; selectedOptions?: SelectedOrderOption[] }[]
+  ): Promise<Order> {
+    return this.request<Order>(`/api/orders/${id}/items`, {
+      method: 'POST',
+      body: JSON.stringify({ items })
     });
   }
 
@@ -248,7 +258,7 @@ class ApiClient {
 
   createWaiterRequest(
     tableId: string,
-    items: { productId: string; productName: string; quantity: number; notes?: string }[],
+    items: { productId: string; productName: string; quantity: number; notes?: string; selectedOptions?: SelectedOrderOption[] }[],
     notes?: string
   ): Promise<WaiterRequest> {
     return this.request<WaiterRequest>('/api/waiter-requests', {
@@ -288,6 +298,39 @@ class ApiClient {
     return this.request<RestaurantSettings>('/api/settings', {
       method: 'PUT',
       body: JSON.stringify(settings)
+    });
+  }
+
+  login(role: InternalRole, payload: { username?: string; password?: string; pin?: string }): Promise<AuthSessionInfo> {
+    return this.request<AuthSessionInfo>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ role, ...payload })
+    });
+  }
+
+  getAuthSession(): Promise<AuthSessionInfo> {
+    return this.request<AuthSessionInfo>('/api/auth/session');
+  }
+
+  logout(): Promise<{ success: true }> {
+    return this.request<{ success: true }>('/api/auth/logout', {
+      method: 'POST'
+    });
+  }
+
+  getAccessControlSummary(): Promise<AccessControlSummary> {
+    return this.request<AccessControlSummary>('/api/access-control');
+  }
+
+  updateAccessControl(payload: {
+    adminUsername?: string;
+    adminPassword?: string;
+    waiterPin?: string;
+    kitchenPin?: string;
+  }): Promise<AccessControlSummary> {
+    return this.request<AccessControlSummary>('/api/access-control', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
     });
   }
 }
