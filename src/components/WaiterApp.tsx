@@ -1328,8 +1328,8 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           )}
         </section>
 
-        <section className="grid grid-cols-1 xl:grid-cols-[1.5fr_1fr] gap-6 items-start">
-          <div className="rounded-[28px] border border-white/8 bg-card p-5">
+        <section className={`grid grid-cols-1 gap-6 items-start ${isAddingManual ? 'xl:grid-cols-1' : 'xl:grid-cols-[1.5fr_1fr]'}`}>
+          <div className={`rounded-[28px] border border-white/8 bg-card p-5 ${isAddingManual ? 'xl:order-2' : ''}`}>
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
                 <p className="text-xs font-mono uppercase tracking-[0.3em] text-muted">Harta salii</p>
@@ -1426,7 +1426,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-white/8 bg-card p-5">
+          <div className={`rounded-[28px] border border-white/8 bg-card p-5 ${isAddingManual ? 'xl:order-1' : ''}`}>
             {selectedTable ? (
               <div className="flex flex-col gap-5">
                 <div className="border-b border-white/5 pb-3">
@@ -1547,14 +1547,14 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
 
                 {isAddingManual ? (
                   <div className="rounded-[24px] border border-white/8 bg-background/60 p-4">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
                       <div>
                         <h3 className="text-sm font-display font-bold">Comanda manuala ospatar</h3>
                         <p className="mt-1 text-xs text-muted">
                           Apasa pe produse, adauga optiuni unde este cazul, apoi revizuieste toata comanda. Bauturile raman implicit in servire, nu in bucatarie.
                         </p>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 md:min-w-[270px]">
+                      <div className="grid grid-cols-2 gap-2 xl:min-w-[270px]">
                         <div className="rounded-2xl border border-white/8 bg-card px-4 py-3">
                           <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted">Produse</p>
                           <p className="mt-2 text-2xl font-display font-bold">{manualCartItemCount}</p>
@@ -1566,105 +1566,106 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                       </div>
                     </div>
 
-                    <div className="mt-4 pr-1 md:max-h-[58vh] md:overflow-y-auto">
-                      <div className="space-y-5">
-                        {manualProductGroups.map((group) => (
-                          <section key={group.id}>
-                            <div className="mb-3 flex items-center gap-2 px-1">
-                              {group.icon ? (
-                                <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/8 bg-card text-xl">
-                                  {group.icon}
-                                </span>
-                              ) : null}
-                              <div>
-                                <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-primary">Sectiune</p>
-                                <p className="text-base font-display font-bold text-white">{group.name}</p>
+                    <div className="mt-4">
+                      <div className="pr-1 md:max-h-[58vh] md:overflow-y-auto">
+                        <div className="space-y-5">
+                          {manualProductGroups.map((group) => (
+                            <section key={group.id}>
+                              <div className="mb-3 flex items-center gap-2 px-1">
+                                {group.icon ? (
+                                  <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/8 bg-card text-lg">
+                                    {group.icon}
+                                  </span>
+                                ) : null}
+                                <div>
+                                  <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-primary">Sectiune</p>
+                                  <p className="text-sm font-display font-bold text-white md:text-base">{group.name}</p>
+                                </div>
                               </div>
-                            </div>
-                            <div className="-mx-1 flex w-full flex-nowrap snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 overscroll-x-contain">
-                              {group.products.map((product) => {
-                                const count = manualProductQuantities.get(product.id) || 0;
-                                const hasOptions = Boolean(product.optionGroups?.length);
+                              <div className="-mx-1 flex w-full flex-nowrap snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 overscroll-x-contain">
+                                {group.products.map((product) => {
+                                  const count = manualProductQuantities.get(product.id) || 0;
+                                  const hasOptions = Boolean(product.optionGroups?.length);
 
-                                return (
-                                  <div
-                                    key={product.id}
-                                    className={`relative w-[calc(50%-0.375rem)] min-w-[calc(50%-0.375rem)] max-w-[calc(50%-0.375rem)] shrink-0 snap-start overflow-hidden rounded-[22px] border bg-card transition-all ${
-                                      count > 0 ? 'border-primary/40 shadow-[0_0_0_1px_rgba(232,122,65,0.3)]' : 'border-white/8'
-                                    }`}
-                                  >
-                                    <div className="relative aspect-[1.16] md:aspect-[0.98]">
-                                      <img
-                                        src={product.imageUrl}
-                                        alt={product.name}
-                                        className="h-full w-full object-cover"
-                                      />
-                                      <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+                                  return (
+                                    <div
+                                      key={product.id}
+                                      className={`relative w-[calc(50%-0.375rem)] min-w-[calc(50%-0.375rem)] max-w-[calc(50%-0.375rem)] shrink-0 snap-start overflow-hidden rounded-[20px] border bg-card transition-all md:w-[170px] md:min-w-[170px] md:max-w-[170px] xl:w-[188px] xl:min-w-[188px] xl:max-w-[188px] ${
+                                        count > 0 ? 'border-primary/40 shadow-[0_0_0_1px_rgba(232,122,65,0.3)]' : 'border-white/8'
+                                      }`}
+                                    >
+                                      <div className="relative aspect-[1.08]">
+                                        <img
+                                          src={product.imageUrl}
+                                          alt={product.name}
+                                          className="h-full w-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-                                      <button
-                                        type="button"
-                                        onClick={() => modifyManualQty(product, -1)}
-                                        aria-label={`Scoate ${product.name}`}
-                                        className="absolute inset-y-0 left-0 z-10 flex w-1/2 items-start justify-start p-2.5 text-white/80 transition hover:bg-danger/20 active:bg-danger/30 disabled:cursor-not-allowed disabled:opacity-35 md:p-4"
-                                        disabled={count === 0}
-                                      >
-                                        <span className="rounded-2xl bg-black/55 p-2.5 md:p-3">
-                                          <Minus className="h-4 w-4 md:h-5 md:w-5" />
-                                        </span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => modifyManualQty(product, 1)}
-                                        aria-label={`Adauga ${product.name}`}
-                                        className="absolute inset-y-0 right-0 z-10 flex w-1/2 items-start justify-end p-2.5 text-white transition hover:bg-success/20 active:bg-success/30 md:p-4"
-                                      >
-                                        <span className="rounded-2xl bg-primary p-2.5 shadow-lg md:p-3">
-                                          <Plus className="h-4 w-4 md:h-5 md:w-5" />
-                                        </span>
-                                      </button>
-
-                                      <div className="absolute bottom-2.5 left-2.5 z-10 md:bottom-4 md:left-4">
-                                        <span
-                                          className={`rounded-full px-2.5 py-1 text-[11px] font-mono shadow-lg md:px-4 md:py-2 md:text-sm ${
-                                            count > 0 ? 'bg-primary text-white' : 'bg-black/55 text-white/80'
-                                          }`}
+                                        <button
+                                          type="button"
+                                          onClick={() => modifyManualQty(product, -1)}
+                                          aria-label={`Scoate ${product.name}`}
+                                          className="absolute inset-y-0 left-0 z-10 flex w-1/2 items-start justify-start p-2 text-white/80 transition hover:bg-danger/20 active:bg-danger/30 disabled:cursor-not-allowed disabled:opacity-35"
+                                          disabled={count === 0}
                                         >
-                                          {count > 0 ? `x${count}` : '0'}
-                                        </span>
-                                      </div>
-                                      {hasOptions && (
-                                        <div className="absolute bottom-2.5 right-2.5 z-10 md:bottom-4 md:right-4">
-                                          <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-white/80 md:px-3 md:py-1.5">
-                                            Optiuni
+                                          <span className="rounded-2xl bg-black/55 p-2">
+                                            <Minus className="h-4 w-4" />
+                                          </span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => modifyManualQty(product, 1)}
+                                          aria-label={`Adauga ${product.name}`}
+                                          className="absolute inset-y-0 right-0 z-10 flex w-1/2 items-start justify-end p-2 text-white transition hover:bg-success/20 active:bg-success/30"
+                                        >
+                                          <span className="rounded-2xl bg-primary p-2 shadow-lg">
+                                            <Plus className="h-4 w-4" />
+                                          </span>
+                                        </button>
+
+                                        <div className="absolute bottom-2 left-2 z-10">
+                                          <span
+                                            className={`rounded-full px-2.5 py-1 text-[11px] font-mono shadow-lg ${
+                                              count > 0 ? 'bg-primary text-white' : 'bg-black/55 text-white/80'
+                                            }`}
+                                          >
+                                            {count > 0 ? `x${count}` : '0'}
                                           </span>
                                         </div>
-                                      )}
-                                    </div>
-                                    <div className="space-y-2.5 px-2.5 py-2.5 md:px-4 md:py-4">
-                                      <p className="min-h-[2.7rem] text-[15px] font-display font-bold leading-5 text-white md:min-h-[3.5rem] md:text-lg md:leading-7">
-                                        {product.name}
-                                      </p>
-                                      <div className="flex items-center justify-between gap-2">
-                                        <p className="text-xs font-mono uppercase tracking-[0.16em] text-primary md:text-sm md:tracking-[0.18em]">
-                                          {formatCad(product.price)}
+                                        {hasOptions && (
+                                          <div className="absolute bottom-2 right-2 z-10 lg:bottom-2.5 lg:right-2.5">
+                                            <span className="rounded-full bg-black/55 px-2 py-1 text-[10px] font-mono uppercase tracking-[0.12em] text-white/80">
+                                              Optiuni
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="space-y-2 px-2.5 py-2.5">
+                                        <p className="min-h-[2.5rem] text-[13px] font-display font-bold leading-5 text-white">
+                                          {product.name}
                                         </p>
-                                        {hasOptions ? (
-                                          <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
-                                            Extra
-                                          </span>
-                                        ) : null}
+                                        <div className="flex items-center justify-between gap-2">
+                                          <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-primary">
+                                            {formatCad(product.price)}
+                                          </p>
+                                          {hasOptions ? (
+                                            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/50">
+                                              Extra
+                                            </span>
+                                          ) : null}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </section>
-                        ))}
+                                  );
+                                })}
+                              </div>
+                            </section>
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="mt-4 space-y-3 rounded-[24px] border border-white/8 bg-background/95 p-3">
+                      <div className="mt-4 space-y-3 rounded-[24px] border border-white/8 bg-background/95 p-3">
                       <div className="rounded-2xl border border-white/8 bg-card p-3">
                         <div className="flex items-center justify-between gap-3">
                           <div>
@@ -1769,6 +1770,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                           Adauga in coada
                         </button>
                       </div>
+                    </div>
                     </div>
                   </div>
                 ) : (

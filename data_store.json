@@ -213,13 +213,20 @@
       "icon": "🍿",
       "slug": "gustari",
       "active": true
+    },
+    {
+      "id": "cat-1781169029940",
+      "name": "Sosuri",
+      "icon": "🫗",
+      "slug": "sosuri",
+      "active": true
     }
   ],
   "products": [
     {
       "id": "prod-1781093779291",
       "name": "Narghilea Premium",
-      "description": "Descoperă o selecție atent aleasă de arome premium pentru narghilea, de la combinații fructate și răcoritoare până la mixuri exotice și intense. Fie că preferi gusturile clasice sau experiențe noi și surprinzătoare, fiecare narghilea este pregătită cu atenție pentru o sesiune relaxantă și plină de savoare. Alege aroma preferată și bucură-te de momente speciale alături de prieteni, într-o atmosferă elegantă și confortabilă. 💨✨",
+      "description": "Solicită narghilistul pentru a te ajuta să alegi aroma perfectă! În funcție de gusturile și preferințele voastre, vă recomandăm combinația ideală pentru o experiență premium la narghilea.",
       "price": 100,
       "imageUrl": "https://images.pexels.com/photos/7518749/pexels-photo-7518749.jpeg",
       "rating": 5,
@@ -289,7 +296,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168934412-m1hgq",
+          "name": "Blat",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168934412-7koip",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168945219-6pntr",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168951212-472yn",
+              "name": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781099815446",
@@ -348,7 +379,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168545426-nifbz",
+          "name": "Blat",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168545426-y3bmk",
+              "name": "Blat Normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168564303-7wupd",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168569413-utyn6",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781099952253",
@@ -407,7 +462,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168753605-kskf6",
+          "name": "Blat",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168753605-w8jhu",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168762507-pvzl7",
+              "name": "Blat normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168773961-znlfj",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781100035579",
@@ -466,7 +545,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168906848-sxsus",
+          "name": "Blat",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168906848-dp7pa",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168913754-c3jy7",
+              "name": "Blat normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168919442-2f45c",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781100504057",
@@ -525,7 +628,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168876924-5mif0",
+          "name": "Blat",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168876924-uunmg",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168885624-fx60k",
+              "name": "Blat normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168891718-xgx90",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781100599304",
@@ -584,7 +711,31 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168709715-7jrtv",
+          "name": "Blat",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168709715-o4xve",
+              "name": "Blat normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168719728-fkir4",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168724650-vyrxa",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781100682695",
@@ -643,14 +794,38 @@
           }
         ]
       },
-      "optionGroups": []
+      "optionGroups": [
+        {
+          "id": "group-1781168807604-zzbjv",
+          "name": "Blat",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781168807604-m494d",
+              "name": "Blat subtire",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168815769-wxwme",
+              "name": "Blat normal",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781168820921-nchuu",
+              "name": "Blat dublu",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "prod-1781103635020",
       "name": "Cheeseburger vita",
       "description": "Cheeseburger + cartofi prajiti 130gr + sos",
       "price": 66,
-      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0812/51/057eec5bec5f6afa4026c21d9ed1f389cff5cde5.png",
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/badbcdb5a7b8d173356f1543971405dfab3ad1e2.png",
       "rating": 5,
       "reviewsCount": 12,
       "prepTime": 25,
@@ -659,11 +834,54 @@
       "available": true,
       "ingredients": [],
       "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: burger 170g(carne vită 98%, origine RO, sare, piper), chiflă burger 170g(făină albă de grău 480, lapte, ou, unt, zahăr, sare, drojdie poaspătă, semințe de susan), sos pentru burger 50g[maioneză(ingregiente:ulei vegetal de rapiță(78%), apă(8,2%), ouă(6,8%), oțet(4,7%), gălbenuș de ou(2,1%, din găini crescute in hale la sol), zahăr, sare, suc concentrat de lămâie, antioxidant(calciu disodiu etilendimină EDTA), aromă, extract de paprika), sos barbeque(ingrediente:apă, sirop de glucoză-fructoză, pastă de tomate(11%), oțet din vin alb, zahăr, amidon modificat de porumb, sare, sirop de zahăr caramelizat, acid (acid citric), pudră de ceapă, aromă de fum, condimente(chili, boia, piper), stabilizator(gumă de xantan), conservant(sorbat de sodiu)], roșii 50g, castraveți murați 20g(ingrediente:castraveți cornișon, apă, sare,oțet din alcool(0,8%), condimente:muștar boabe, mărar, indulcitor zaharină(0,01%)), salată eisberg 30g, brănză pentru burger 12g[ingrediente: brânză cheddar (36%), ulei de rapiță, cheddar procesat(brânză 7%), apă, lapte praf degresat, emulificatori E331, E339, proteină praf din zer, proteină din lapte, sare, amidon din porumb, regulator de aciditate:acid citric, conservant: sorbat de potasiu,colorant:extract de paprika, caroten ,antiaglomerant:lecitnă de flaorea soarelui,], ceapă roșie 10g.",
+        "allergenTraceText": "lapte, lactoză, susan, mustar, gluten, ouă, poate contine urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "724.66 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "173.2 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "7.12 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "18.29 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.90 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "8.10 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.08 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.48 g"
+          }
+        ]
+      },
       "optionGroups": [
         {
           "id": "group-1781103444774-xbi82",
           "name": "Sos",
-          "required": false,
+          "required": true,
           "selectionType": "single",
           "choices": [
             {
@@ -692,13 +910,2722 @@
               "priceDelta": 0
             }
           ]
+        },
+        {
+          "id": "group-1781169990745-etymm",
+          "name": "Cartofi",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169990745-edrlz",
+              "name": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170003633-j42nf",
+              "name": "Cartofi crispy dippers 130gr",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781170015087-1dxyz",
+          "name": "Extra cheddar",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170015087-k9nq6",
+              "name": "Extra cheddar",
+              "priceDelta": 4.5
+            }
+          ]
         }
       ]
+    },
+    {
+      "id": "prod-1781169162864",
+      "name": "Hamburger vita",
+      "description": "Hamburger + cartofi 130gr + sos\n2x carne vită smash, salata iceberg, roșii, ceapă, castraveți murați, sos Presto\n\n",
+      "price": 57,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/03/2afd53c1a4516ce23dc013e24139c00f5398c84e.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 24,
+      "isBestseller": true,
+      "categoryId": "cat-1781093068080",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: burger 170g(carne vită 98%, origine RO, sare, piper), chiflă burger 80g(făină albă de grău 480, lapte, ou, unt, zahăr, sare, drojdie poaspătă, semințe de susan), sos pentru burger 50g[maioneză(ingregiente:ulei vegetal de rapiță(78%), apă(8,2%), ouă(6,8%), oțet(4,7%), gălbenuș de ou(2,1%, din găini crescute in hale la sol), zahăr, sare, suc concentrat de lămâie, antioxidant(calciu disodiu etilendimină EDTA), aromă, extract de paprika), sos barbeque(ingrediente:apă, sirop de glucoză-fructoză, pastă de tomate(11%), oțet din vin alb, zahăr, amidon modificat de porumb, sare, sirop de zahăr caramelizat, acid (acid citric), pudră de ceapă, aromă de fum, condimente(chili, boia, piper), stabilizator(gumă de xantan), conservant(sorbat de sodiu)], roșii 50g, castraveți murați 20g(ingrediente:castraveți cornișon, apă, sare,oțet din alcool(0,8%), condimente:muștar boabe, mărar, indulcitor zaharină(0,01%)), salată eisberg 30g, ceapă roșie 10g.",
+        "allergenTraceText": "lapte, lactoză, susan, mustar, gluten, ouă, poate contine urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "756.59 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "180.83 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "6.80 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "21.47 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.39 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "7.02 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "2.77 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1.11 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.21 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781169122601-m85a3",
+          "name": "Extra cheddar",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169122601-2i6ap",
+              "name": "Extra cheddar",
+              "priceDelta": 4.5
+            }
+          ]
+        },
+        {
+          "id": "group-1781169455005-000ta",
+          "name": "Cartofi",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169455005-e3iq5",
+              "name": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169471593-snacz",
+              "name": "Cartofi crispy dippers 130gr",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781169895017-97f7z",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169895017-cmprh",
+              "name": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169908588-utpfu",
+              "name": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169914698-kpof6",
+              "name": "Sos barbeque",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169920883-a7krl",
+              "name": "Ketchup dulce",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169926258-97zy7",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169932176-7gguo",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781169729258",
+      "name": "Bacon Cheeseburger vita",
+      "description": "Bacon cheeseburger + cartofi prajiti 130gr + sos\n\n",
+      "price": 64,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/c8fbc3a2b8006e06dd5a5e1246a30d7bce190bfe.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093068080",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: burger 170g(carne vită 98%, origine RO, sare, piper), chiflă burger 80g(făină albă de grău 480, lapte, ou, unt, zahăr, sare, drojdie poaspătă, semințe de susan), sos pentru burger 50g[maioneză(ingregiente:ulei vegetal de rapiță(78%), apă(8,2%), ouă(6,8%), oțet(4,7%), gălbenuș de ou(2,1%, din găini crescute in hale la sol), zahăr, sare, suc concentrat de lămâie, antioxidant(calciu disodiu etilendimină EDTA), aromă, extract de paprika), sos barbeque(ingrediente:apă, sirop de glucoză-fructoză, pastă de tomate(11%), oțet din vin alb, zahăr, amidon modificat de porumb, sare, sirop de zahăr caramelizat, acid (acid citric), pudră de ceapă, aromă de fum, condimente(chili, boia, piper), stabilizator(gumă de xantan), conservant(sorbat de sodiu)], roșii 50g, bacon 30g (ingrediente: piept de porc fara os(proveniență UE), pulpa de porc(proveniență UE), amidon, apă, sare, zaharuri(dextroză), stabilizatori(di și Tripoli fosfați de sodiu), antioxidanți (citrat de sodiu), agent gelifiant (caragenan), arome, colorant(suc de ridiche), conservant(nitrit de sodiu, acetat de sodiu) ,castraveți murați 20g(ingrediente:castraveți cornișon, apă, sare,oțet din alcool(0,8%), condimente:muștar boabe, mărar, indulcitor zaharină(0,01%)), salată eisberg 30g, brănză pentru burger 12g[ingrediente: brânză cheddar (36%), ulei de rapiță, cheddar procesat(brânză 7%), apă, lapte praf degresat, emulificatori E331, E339, proteină praf din zer, proteină din lapte, sare, amidon din porumb, regulator de aciditate:acid citric, conservant: sorbat de potasiu,colorant:extract de paprika, caroten ,antiaglomerant:lecitnă de floarea soarelui,], ceapă roșie 10g.",
+        "allergenTraceText": "lapte, lactoză, susan, mustar, gluten, ouă, poate contine urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "750.52 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "179.39 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "7.19 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "18.31 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.91 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "8.12 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.11 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1.01 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.51 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781169635837-xpwhp",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169635837-6sh4i",
+              "name": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169651553-4t99o",
+              "name": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169657011-gkokh",
+              "name": "Sos barbeque",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169662827-v3un0",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781169687301-tzf2r",
+          "name": "Extra cheddar",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169687301-svlhr",
+              "name": "Extra cheddar",
+              "priceDelta": 4.5
+            }
+          ]
+        },
+        {
+          "id": "group-1781169843569-bvmd4",
+          "name": "Cartofi",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781169843569-zj82f",
+              "name": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781169859145-wd4j1",
+              "name": "Cartofi crispy dippers 130gr",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781170303656",
+      "name": "Presto burger",
+      "description": "Presto burger + cartofi prajiti 130gr +  sos\n\n",
+      "price": 67,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/e84073954dd630bf95534bbd8cfc88db3cce6c02.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093068080",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "burger 170g(carne vită 98%, origine RO, sare, piper), chiflă burger80g(făină albă\n\nde grău 480, lapte, ou, unt, zahăr, sare, drojdie poaspătă, semințe de susan), sos pentru burger 50g[maioneză(ingregiente:ulei vegetal de rapiță(78%), apă(8,2%), ouă(6,8%), oțet(4,7%), gălbenuș de ou(2,1%, din găini crescute in hale la sol), zahăr, sare, suc concentrat de lămâie, antioxidant(calciu disodiu etilendimină EDTA), aromă, extract de paprika), sos barbeque (ingrediente:apă, sirop de glucoză-fructoză, pastă de tomate(11%), oțet din vin alb, zahăr, amidon modificat de porumb, sare, sirop de zahăr caramelizat, acid (acid citric), pudră de ceapă, aromă de fum, condimente(chili, boia, piper), stabilizator(gumă de xantan), conservant(sorbat de sodiu)], roșii 50g, ou 50g ,bacon 30g (ingrediente: piept de porc fara os(proveniență UE), pulpa de porc(proveniență UE), amidon, apă, sare, zaharuri(dextroză), stabilizatori(di și Tripoli fosfați de sodiu), antioxidanți (citrat de sodiu), agent gelifiant (caragenan), arome, colorant (suc de ridiche), conservant (nitrit de sodiu, acetat de sodiu) ,castraveți murați 20g (ingrediente: castraveți      cornișon, apă, sare,oțet din alcool(0,8%), condimente:muștar boabe, mărar, indulcitor zaharină(0,01%)), salată eisberg 30g, brănză pentru burger 12g[ingrediente: brânză cheddar (36%), ulei de rapiță, cheddar procesat(brânză 7%), apă, lapte praf degresat, emulificatori E331, E339, proteină praf din zer, proteină din lapte, sare, amidon din porumb, regulator de aciditate:acid citric, conservant: sorbat de potasiu,colorant:extract de paprika, caroten ,antiaglomerant:lecitnă de flaorea soarelui,], ceapă roșie 10.",
+        "allergenTraceText": "lapte, lactoză, susan, mustar, gluten, ouă, poate contine urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "744.75 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "178 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "7.73 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "16.49 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.41 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "8.67 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.31 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.91 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.30 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781170176181-f81bo",
+          "name": "Extra cheddar",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170176181-t18vn",
+              "name": "Extra cheddar",
+              "priceDelta": 4.5
+            }
+          ]
+        },
+        {
+          "id": "group-1781170191656-zfpju",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170191656-whxi6",
+              "name": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170206499-pt0zj",
+              "name": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170210918-vp6zx",
+              "name": "Sos barbeque",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170218463-co7fg",
+              "name": "Ketchup dulce",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170225756-ry8l3",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781170245175-0i8wr",
+          "name": "Cartofi",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170245175-9xdms",
+              "name": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170260926-3vu58",
+              "name": "Cartofi crispy dippers 130gr",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781170529052",
+      "name": "Bacon Cheeseburger crispy de pui",
+      "description": "Bacon cheeseburger crispy pui+ cartofi prajiti 130gr + sos\n\n",
+      "price": 61,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/0cdbfdd04dbe2f0ddd09bbc9710c81517f6716bb.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093068080",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Cheeseburger Crispy de pui 345g\n\nIngrediente:strips de pui colosal 120g[ingrediente:piept de pui file(83%), făină de grâu, ulei de rapiță, sare, amidon de porumb, amidon din GRÂU, agemt de afânare( difosfați, carbonați de sodiu), maltodextrină, stabilizator(citrați de sodiu), legume uscate(uturoi, ceapă), condimente, fibre din citrice,, corector de aciditate(carbonați de sodiu), ierburi aromate, colorant(extract de ardei roșu)] , chiflă burger80g(făină albă de grău 480, lapte, ou, unt, zahăr, sare, drojdie poaspătă, semințe de susan), sos pentru burger 50g[maioneză(ingregiente:ulei vegetal de rapiță(78%), apă(8,2%), ouă(6,8%), oțet(4,7%), gălbenuș de ou(2,1%, din găini crescute in hale la sol), zahăr, sare, suc concentrat de lămâie, antioxidant(calciu disodiu etilendimină EDTA), aromă, extract de paprika), sos barbeque(ingrediente:apă, sirop de glucoză-fructoză, pastă de tomate(11%), oțet din vin alb, zahăr, amidon modificat de porumb, sare, sirop de zahăr caramelizat, acid (acid citric), pudră de ceapă, aromă de fum, condimente(chili, boia, piper), stabilizator(gumă de xantan), conservant(sorbat de sodiu)], roșii 50g, castraveți murați 20g(ingrediente:castraveți cornișon, apă, sare,oțet din alcool(0,8%), condimente:muștar boabe, mărar, indulcitor zaharină(0,01%)), salată eisberg 30g,brănză pentru burger 12g[ingrediente: brânză cheddar (36%), ulei de rapiță, cheddar procesat(brânză 7%), apă, lapte praf degresat, emulificatori E331, E339, proteină praf din zer, proteină din lapte, sare, amidon din porumb, regulator de aciditate:acid citric, conservant: sorbat de potasiu,colorant:extract de paprika, caroten ,antiaglomerant:lecitnă de flaorea soarelui,], ceapă roșie 10g.",
+        "allergenTraceText": "lapte, lactoză, susan, mustar, gluten, ouă, poate contine urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "724.66 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "173.2 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "7.12 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "18.29 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.9 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "8.1 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "4.08 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.48 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781170413213-eli7f",
+          "name": "Extra cheddar",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170413213-g7fl4",
+              "name": "Extra cheddar",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781170424803-vnumw",
+          "name": "Sosuri",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170424803-xh4dg",
+              "name": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170450773-hccay",
+              "name": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170455277-1j8a1",
+              "name": "Sos barbeque",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170460322-nb5y7",
+              "name": "Ketchup dulce",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170465939-wcw4x",
+              "name": "Ketchup picant",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781170474937-mogyx",
+          "name": "Cartofi",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170474937-w96gr",
+              "name": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170495135-b1jqi",
+              "name": "Cartofi crispy dippers 130gr",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781170736319",
+      "name": "Carbonara",
+      "description": "450gr: penne, crema de gatit, ou, bacon, grana padano\n\n",
+      "price": 43,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/37/bd5686ce9ef5d167b1571d885b90814a1d8ea205.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093078378",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "ngrediente:crema de gătit 260ml(ingrediente:apa, uleiuri vegetale din sâmburi de palmier, ulei de floareasoarelui, soia(in proporții diferite)complet hidrogenate,lapte și lapte praf degresat, maltodextrine, emulgatori:E472e,lecitina de soia,E471,agenți de îngroșare (E412,E410), stabilizatori E339ii), paste uscate 100g(ingrediente faina, apă), bacon 90g (ingrediente: piept de porc fara os(proveniență UE), pulpa de porc(proveniență UE), amidon, apă, sare, zaharuri(dextroză), stabilizatori(di și Tripoli fosfați de sodiu), antioxidanți (citrat de sodiu), agent gelifiant (caragenan), arome, colorant(suc de ridiche), conservant(nitrit de sodiu, acetat de sodiu), ulei(ulei de floarea-soarelui 80%, ulei măsline virgin 20%), brânză Italiană 15g (ingrediente: lapte, sare, cheag Lysozim din ou ¼), gălbenuș de ou 25g, sare<1g, piper <1g.",
+        "allergenTraceText": "lactoză,gluten, ou, soia, muștar",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1067 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "255 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "8.55 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "16.8 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "3.23 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781170666917-3swhg",
+          "name": "Varianta",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170666917-2p55n",
+              "name": "Penne carbonara",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170690932-tne6t",
+              "name": "Spaghete carbonara",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170695895-7skvf",
+              "name": "Tagliatelle carbonara",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781170911047",
+      "name": "Presto",
+      "description": "450gr: penne, sos quattro formagi, sunca, ciuperci, grana padano\n\n",
+      "price": 48,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/eb576843f6129e85d3f454e5a7ee27d4a673a0d4.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093078378",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "sos quatro formaggi 260g [ingrediente:crema de gătit(ingrediente:apa, uleiuri vegetale din sâmburi de palmier, ulei de floareasoarelui, soia(in proporții diferite)complet hidrogenate,lapte și lapte praf degresat, maltodextrine, emulgatori:E472e,lecitina de soia,E471,agenți de îngroșare (E412,E410), stabilizatori E339ii), bluecheese(ingrediente:lapte vacă(origine Republica Cehă),sare,cultură de lapte, mucegai nobil Penicilium roqueforti), mozarella(ingrediente: lapte de vacă(origine UE) pasteurizat, cheag, fermenți lactici, sare), brănza tare(ingrediente: lapte (origine UE), sare, fermeți lactici, cheag), sare, piper], paste uscate 100g (ingrediente faina, apă), șuncă[ingrediente:pulpă de porc(origine UE), apă, amidon modificat, dextroză, tabiliztori(trifosfați, politrifosfați),proteină de porc, agent de ingroșare(caragenan), antioxidanți(acid acorbic, eritorbat de sodiu), potețiator de aromă(monoglutamat de sodiu), arome, aromă de fum, corector de aciditate(citrat de sodiu), condimente, extracte de origine vegetală, sare nitrică(sare conservant: nitrit de sodiu), conservant (lactat de sodiu, acetat de sodiu), proteina vegetalădin soia, enzime(transglutaminază)], ciuperci 50g, ulei 20ml(ulei de floarea-soarelui 80%, ulei măsline virgin 20%), brânză Italiană 15g(ingrediente: lapte, sare, cheag Lysozim din ou ¼)",
+        "allergenTraceText": "lactoză,gluten, ou, soia, muștar",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "809.3 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "193.3 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "8.21 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "17.46 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "3 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "9.74 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "3.09 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1.22 g"
+          },
+          {
+            "label": "Sare",
+            "value": "2.06 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781170800410-46vvp",
+          "name": "Varianta",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170800410-zdu1x",
+              "name": "Penne presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170805795-aphll",
+              "name": "Spaghete presto",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170814607-ozq7u",
+              "name": "Tagliatelle presto",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "group-1781170839828-xq3i9",
+          "name": "Extra sos quatro formagi",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170839828-c1vf7",
+              "name": "Extra sos quatro formagi",
+              "priceDelta": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171019655",
+      "name": "Pollo e funghi",
+      "description": "450gr: penne, sos rosu(sos napoli), crema de gatit, ciuperci, piept de pui, bacon, grana padano\n\n",
+      "price": 44,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/fd01f25b823315933e9e15d19a57478b7c1c7d4b.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093078378",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente:paste uscate 100g (ingrediente faina, apă), sos Napoli 130g [ingrediente:sos de roșii(roșii decojite, sos de roșii, corector de aciditate: acid citric), ulei(ulei de floarea-soarelui 80%, ulei măsline virgin 20%),ceapă, morcovi, ardei gras, zahăr, sare, piper, busuioc uscat, usturoi],crema de gătit 130ml(ingrediente:apa, uleiuri vegetale din sâmburi de palmier, ulei de floareasoarelui, soia(in proporții diferite)complet hidrogenate,lapte și lapte praf degresat, maltodextrine, emulgatori:E472e,lecitina de soia,E471,agenți de îngroșare (E412,E410), stabilizatori E339ii), piept de pui 80g ,bacon 50g (ingrediente: piept de porc fara os(proveniență UE), pulpa de porc(proveniență UE), amidon, apă, sare, zaharuri(dextroză), stabilizatori(di și Tripoli fosfați de sodiu), antioxidanți (citrat de sodiu), agent gelifiant (caragenan), arome, colorant(suc de ridiche), conservant(nitrit de sodiu, acetat de sodiu), ciuperci 50g, 30ml ulei(ulei de floarea-soarelui 80%, ulei măsline virgin 20%),brânză Italiană 15g(ingrediente: lapte, sare, cheag Lysozim din ou ¼).",
+        "allergenTraceText": "lactoză,gluten, soia, muștar, poate conține urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "984.7 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "235.2 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "9 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "15.6 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "4.33 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "15.4 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "6.12 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.49 g"
+          },
+          {
+            "label": "Sare",
+            "value": "2.2 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781170977212-tda73",
+          "name": "Variante",
+          "required": false,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781170977212-wygmb",
+              "name": "Penne pollo e funghi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170984376-nk9kg",
+              "name": "Spaghete pollo e funghi",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781170989776-7zhyx",
+              "name": "Tagliatelle pollo e funghi",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171091040",
+      "name": "Noodles cu pui",
+      "description": "350 gr: piept de pui, ceapa, praz, morcov, ardei gras, ulei vegetal, sos soia, noodles, patrunjel, usturoi, ghimbir\n\n",
+      "price": 28.8,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/52e17e7daf661bf57d19ab179bd2d2150e7d9583.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093078378",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: noodels 100g(ingrediente:făină de orez apă),piept de pui 120g(Ingrediente: Piept de pui (95%), apa, proteina vegetala din soia, stabilizatori (di si trifosfati de sodiu), amidon modificat, sare, sirop de glucoza, corectori de aciditate (acetat de sodiu, carbonat de sodiu), potentiator de aroma (monoglutamat de sodiu), ulei vegetal de floarea-soarelui, agent de ingrosare (guma xantan), condimente (boia ardei dulce, boia ardei iute, usturoi, oregano, piper alb), zahar, maltodextrina, transglutaminaza, aroma fum. ), sos noodels 70ml(ingrediente:apă, sos soia light(ingrediente: apă, sare, boabe de soia 11%, zahăr, făină de grâu, conservant (benzoat de sodiu), potențiator de aromă (Disodium Inosinate, Disodium Guanylate), sos soia dark(apă, colorant (Caramel), zahăr, sare, boabe de soia 3%,colorant (amoniac caramel), grâu)), ulei 30ml(ulei de floarea-soarelui 80%, ulei măsline virgin 20%), ceapă 20g, praz 20g, morcov 30g, ardei kapia 30g, patrunjel, susan.",
+        "allergenTraceText": "gluten, soia, susan. Poate conține urme de mustar, țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "802.36 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "191.78 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "14.79 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "22.73 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.79 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "4.38 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "2 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.54 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.8 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781171166939",
+      "name": "Noodles cu vita",
+      "description": "350 gr: carne vita, ceapa, praz, morcov, ardei gras, ulei vegetal, sos soia, noodles, patrunjel, usturoi, ghimbir\n\n",
+      "price": 40,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/9ff79e77e1f8744587970f1ab8bc25dd51abab5e.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093078378",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: noodles 100g (ingrediente: făină de orez, apă), carne rotisată de vită 80g (INGREDIENTE: PIEPT DE MANZAT 73,4%20S,APA, LACTO- ZA DEXTROZA,CONDIMENTE,SARE,AROMA DE TE- LINA,SOIA,STABILIZATORI\n\nE451,E450,E262), sos noodels 70ml(ingrediente:apă, sos soia light(ingrediente: apă, sare, boabe de soia 11%, zahăr, făină de grâu, conservant (benzoat de sodiu), potențiator de aromă (Disodium Inosinate, Disodium Guanylate), sos soia dark(apă, colorant (Caramel), zahăr, sare, boabe de soia 3%,colorant (amoniac caramel), grâu)), ulei 30ml(ulei de floarea-soarelui 80%, ulei măsline virgin 20%), ceapă 20g, praz 20g, morcov 30g, ardei kapia 30g, patrunjel, susan.",
+        "allergenTraceText": "gluten, soia, susan. Poate conține urme de mustar, țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "811.94 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "194.06 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "7.34 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "24.85 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.8 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "7.06 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "3.2 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.56 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.87 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781171309732",
+      "name": "Salata caesar",
+      "description": "300gr: piept de pui, mix de salata, grana padano, crutoane + sos italian\n\n",
+      "price": 38.9,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/a63c726b6d132f3d6518bc89a30e6a635626864e.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093098883",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente:salată eisberg 150g ,piept de pui 110g, crutoane 40g(ingrediente: făină de grâu,apă, drojdie,sare iodată, gluten din grâu), brânză Italiană 30g (ingrediente: lapte, sare, cheag Lysozim din ou ¼)",
+        "allergenTraceText": "Alergeni:gluten,lapte,lactoză, poate conține urme de țelină,muștar sau susan",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "502.4 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "120 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "11.6 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "9 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.3 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "7.63 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "0.87 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1.33 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781171215004-buzko",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781171215004-rnhvp",
+              "name": "Sos french dressing",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171228271-aj8a5",
+              "name": "Sos balsamic",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171237551-pwybr",
+              "name": "Sos maioneza",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171247506-kuqzc",
+              "name": "Sos vinegrette",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171252942-km487",
+              "name": "Sos iaurt cu busuioc",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171263430-b04jm",
+              "name": "Sos italian",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171420359",
+      "name": "Salata greceasca",
+      "description": "380gr: telemea mixta (vaca si capra), mix de salata, ardei gras, castraveti, ceapa rosie, rosii proaspete, masline, oregano + sos iaurt cu busuioc\n\n",
+      "price": 30.32,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/1f8edae575ec931cb1f549d9d845d0d7118d6a7c.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093098883",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente:salată eisberg 100g, castraveți 30g, ardei gras 30g, roșii 80g, telemea de vacă 70g(Ingrediente: brânză telemea (lapte de vacă, sare, chea microbian, culturi lactice), saramură (apă,sare,acidifiant a lactic, agent de întărire: clorură de calciu)), măsline 40g(ingrediente:măsline, apă, sare, gluconat de fier, acid lactic), ceapă 20g roșie 80g, oregano.",
+        "allergenTraceText": "lapte,lactoză, susan, poate conține urme de țelină,muștar",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "298.5 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "71.3 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "3.57 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "3.68 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.31 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "4.4 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "0.99 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0.9 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.34 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781171363894-u5ykp",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781171363894-xv8lj",
+              "name": "Sos french dressing",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171374068-ozw74",
+              "name": "Sos balsamic",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171379052-jhcy9",
+              "name": "Sos maioneza",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171383820-554jk",
+              "name": "Sos vinegrette",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171388550-0elvt",
+              "name": "Sos iaurt cu busuioc",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171393130-dsy0w",
+              "name": "Sos italian",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171530499",
+      "name": "Salata vieneza",
+      "description": "400gr: stripsuri de pui, mix de salata, rosii proaspete, ciuperci, porumb + sos balsamic\n\n",
+      "price": 38.9,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/26df429a18355182cd53cac375c14df15d044f6c.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": false,
+      "categoryId": "cat-1781093098883",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente:salată eisberg, ciuperci 100g, roșii 100g, porumb 50g(ingrediente: porumb zaharat boabe, apă, zahăr, sare), stripsuri de pui 130g[ingrediente: piept de pui file(83%), făină de grâu, ulei de rapiță, sare, amidon de porumb, amidon din GRÂU, agemt de afânare( difosfați, carbonați de sodiu), maltodextrină, stabilizator(citrați de sodiu), legume uscate(uturoi, ceapă), condimente, fibre din citrice,, corector de aciditate(carbonați de sodiu), ierburi aromate, colorant(extract de ardei roșu)].",
+        "allergenTraceText": "gluten, poate conține urme de țelină",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "357.9 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "85.5 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "5.95 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "9.76 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "1.89 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "3 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "0.92 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1.02 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.02 g"
+          }
+        ]
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781171475610-uiu2i",
+          "name": "Sosuri",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781171475610-nd2ou",
+              "name": "Sos french dressing",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171485189-iad4f",
+              "name": "Sos balsamic",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171491564-1hxiz",
+              "name": "Sos maioneza",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171496702-3mph6",
+              "name": "Sos vinegrette",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171502372-c74oj",
+              "name": "Sos iaurt cu busuioc",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171507960-13th7",
+              "name": "Sos italian",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171682943",
+      "name": "Mini papanasi",
+      "description": "",
+      "price": 29,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/07643870f1bd102675140323f0868cec17862e14.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093120056",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Mini papanasi - aluat\n\nValoare energetica pentru 100gr\n\nKilojouli - 711.28 kj\nKilocalorii - 170 kcal\nProteine - 8.02 g\nGlucide - 33.15 g\nDin care zaharuri - 8.9 g\nGrasimi - 0.32 g\nDin care acizi grasi saturati - 0.13 g\nFibre - 0.8 g\nSare - 0.2 g\n\n \n\nNutella\n\nValoare energetica pentru 100g\n\nKilojouli - 2337 kj\nKilocalorii - 561 kcal\n\nProteine - 4,6 g\n\nGlucide - 55 g\nDin care zaharuri - 54 g\nGrăsimi - 35 g\nDin care acizi grași saturați - 16 g\nFibre - 0 g\nSare - 0,11 g\n\nDulceață de vișine \n\nValoare energetica pentru 100g\nKilojouli - 1096 kj\nKilocalorii - 262 kcal\n\nProteine - 0,57 g\n\nGlucide - 63,6 g\nDin care zaharuri - 60,0 g\nGrăsimi - 0,22 g\nDin care acizi grași saturați - 0,04 g\nFibre - 0,83 g\nSare - 0,03 g",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": []
+      },
+      "optionGroups": [
+        {
+          "id": "group-1781171596213-2mc6f",
+          "name": "Variante",
+          "required": true,
+          "selectionType": "single",
+          "choices": [
+            {
+              "id": "choice-1781171596213-t53m9",
+              "name": "Mini papanasi  cu dulceata visine",
+              "priceDelta": 0
+            },
+            {
+              "id": "choice-1781171609267-zptr2",
+              "name": "Mini papanasi  cu Nutella",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prod-1781171779543",
+      "name": "Tiramisu grande",
+      "description": "200gr: piscoturi, mascarpone, oua, spuma de frisca, zahar, cacao, amaretto\n\n",
+      "price": 27,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/a3e81ca80cef65f6f0c45e3f0a112ae5d9b6361c.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 25,
+      "isBestseller": true,
+      "categoryId": "cat-1781093120056",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "Ingrediente: Zahar(ingrediente:obtinut din trestie de zahar, cu origine din afara UE),ouă ,pișcoturi(Ingrediente:faină de grâu,zahăr,ouă 26%, agenti de afânare:carbonat,acid de sodiu,  acid de amoniu, sirop glucoza,arome natural,sare),mascarpone(ingrediente:branza grasa,continut de grasime raportat la substanta uscata 87%,smantana pasteurizata,acidifiant,acid citric, Amareto(ingrediente:rom,vodka sau whisky, arome fructe)Frisca praf(ingrediente:zahar,sirop glucoza,ulei vegetal palmier emulsifiant esteri ai acidului lactic cu mono si gliceridele acizilor grasi, lapte praf degresat, proteine din lapte, agent gelatizat, guma de glucoza, aroma, contine lapte) Cacao(ingrediente:cacao alcalinizata(20-22%0unt de cacao)Cafea(ingrediente:cafea prajita si macinta).",
+        "allergenTraceText": "lapte, lactoză, ouă. Produs intr-o unitate unde se folosesc susan, nuci, mustar.",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1155 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "276 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "4 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "36 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "18 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "11 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "9.1 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.1 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781171892626",
+      "name": "Sos dulce",
+      "description": "Sos dulce 50 gr",
+      "price": 5.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/ad510a4b472d362ccd3f6d22a2ba73ae1339db24.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781169029940",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "118 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "29 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "0.1 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "0.8 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.8 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "2.8 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "0.4 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.1 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781171943797",
+      "name": "Sos picant",
+      "description": "Sos picant 50 gr\n",
+      "price": 5.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/c0391398d402fce20ce88c7e680d0e342cdd2309.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781169029940",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "118 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "29 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "0.1 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "0.8 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0.8 g"
+          },
+          {
+            "label": "Grasimi",
+            "value": "2.8 g"
+          },
+          {
+            "label": "Din care acizi grasi saturati",
+            "value": "0.4 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "0.1 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781171987008",
+      "name": "Ketchup dulce",
+      "description": "Ketchup dulce 50 gr\n",
+      "price": 5.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/1858028a737a6e799c99170d29c09af29415e684.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781169029940",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "163 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "39 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "0 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "2g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "0,9 g"
+          },
+          {
+            "label": "Grăsimi",
+            "value": "1,5 g"
+          },
+          {
+            "label": "Din care acizi grași saturați",
+            "value": "0,3 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1.2 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781172029242",
+      "name": "Ketchup picant",
+      "description": "Ketchup picant 50 gr",
+      "price": 5.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/b22be4b6e27a0b7b528d90ef2c13c524f9dd9453.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781169029940",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "391 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "92 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "1,3 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "21,1 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "16,9 g"
+          },
+          {
+            "label": "Grăsimi",
+            "value": "0 g"
+          },
+          {
+            "label": "Din care acizi grași saturați",
+            "value": "0,0 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "1,3 g"
+          },
+          {
+            "label": "Sare",
+            "value": "2,6 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781172076925",
+      "name": "Sos maioneza cu usturoi",
+      "description": "Sos maioneza cu usturoi  50 gr\n\n",
+      "price": 5.5,
+      "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/a781b7382adcaa54cb7b66c03f55643de6e2f774.jpeg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781169029940",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Valoare energetica pentru 100 gr",
+        "valuesPer100g": [
+          {
+            "label": "Kilojouli",
+            "value": "1476 kj"
+          },
+          {
+            "label": "Kilocalorii",
+            "value": "358 kcal"
+          },
+          {
+            "label": "Proteine",
+            "value": "0,6 g"
+          },
+          {
+            "label": "Glucide",
+            "value": "10,1 g"
+          },
+          {
+            "label": "Din care zaharuri",
+            "value": "5,6 g"
+          },
+          {
+            "label": "Grăsimi",
+            "value": "35,0 g"
+          },
+          {
+            "label": "Din care acizi grași saturați",
+            "value": "3,7 g"
+          },
+          {
+            "label": "Fibre",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "1,3 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781172651353",
+      "name": "Heineken Draft",
+      "description": "",
+      "price": 15,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781172427/WhatsApp_Image_2026-06-10_at_02.12.30_jooyqs.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": true,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "nutritionInfo": {
+        "ingredientsText": "",
+        "valuesHeading": "Pentru 100 ml de bere Heineken Draught (la draft), valorile nutriționale sunt următoarele:",
+        "valuesPer100g": [
+          {
+            "label": "Energie",
+            "value": "176 kJ (42 kcal)"
+          },
+          {
+            "label": "Carbohidrați",
+            "value": "3.2 g"
+          },
+          {
+            "label": "Zaharuri",
+            "value": "0 g"
+          },
+          {
+            "label": "Proteine",
+            "value": "0.4 g"
+          },
+          {
+            "label": "Grăsimi",
+            "value": "0 g"
+          },
+          {
+            "label": "Sare",
+            "value": "<0.01 g"
+          }
+        ]
+      },
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781172765448",
+      "name": "Birra Moretti",
+      "description": "",
+      "price": 15,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781172800/moretti_c1_06191_fm_v02_a_f9ffb9.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781172944919",
+      "name": "Ciuc Premium",
+      "description": "",
+      "price": 15,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781172915/Ciuc_moi5io.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173117257",
+      "name": "Heineken 0.33",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173039/APN192_dqj1lz.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": true,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173200939",
+      "name": "Desperados",
+      "description": "",
+      "price": 22,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173176/01_original_gsejfh.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": true,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173257349",
+      "name": "Edelweiss",
+      "description": "",
+      "price": 26,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173235/edelweiss-featured-image_sw1fzt.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": true,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173346646",
+      "name": "Espresso Scurt",
+      "description": "",
+      "price": 13,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173324/set-de-cesti-cafea-lavazza-espresso-inscriptionate-12-bucati_mjygvr.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173403167",
+      "name": "Espresso Lung",
+      "description": "",
+      "price": 14,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173324/set-de-cesti-cafea-lavazza-espresso-inscriptionate-12-bucati_mjygvr.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173448074",
+      "name": "Espresso Macchiato",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173324/set-de-cesti-cafea-lavazza-espresso-inscriptionate-12-bucati_mjygvr.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173473083",
+      "name": "Espresso Decaf",
+      "description": "",
+      "price": 13,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173324/set-de-cesti-cafea-lavazza-espresso-inscriptionate-12-bucati_mjygvr.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173528005",
+      "name": "Cappuccino",
+      "description": "",
+      "price": 19,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173501/lavazza_cesti_cappuccino_ceramica_si_farfurii_set_6_buc_uxcvca.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": true,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173550536",
+      "name": "Cappuccino Decaf",
+      "description": "",
+      "price": 19,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173501/lavazza_cesti_cappuccino_ceramica_si_farfurii_set_6_buc_uxcvca.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173642466",
+      "name": "Latte Classic",
+      "description": "",
+      "price": 22,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173618/delicious-organic-latte-macchiato-with-milk_23-2148420330_ahqfm7.avif",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173743724",
+      "name": "Latte Vanilie / Caramel",
+      "description": "",
+      "price": 23,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173717/0f24a791-fb6b-4269-bbab-b3882e91d6ff_gssh91.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173837070",
+      "name": "Frappe Classic",
+      "description": "",
+      "price": 25,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173812/Frappe_i1pzem.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781173932586",
+      "name": "Ciocolata Calda",
+      "description": "",
+      "price": 22,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781173909/recipe-ro-1308_ciocolata-calda_rrdukm.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174068213",
+      "name": "Ceai Diverse Arome",
+      "description": "",
+      "price": 20,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174037/dmbio-ceai-de-menta_eelfad.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093322312",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174126255",
+      "name": "Pepsi Zero",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174110/pepsi-zero_e1khr2.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174193147",
+      "name": "Pepsi Twist",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174173/pepsi-twist-600x600_ridom5.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174231421",
+      "name": "Seven Up",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174212/seven-up_p6aai1.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174300643",
+      "name": "Mirinda",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174287/mirinda_tgya02.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174358363",
+      "name": "Evervess Tonic",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174342/evervess-tonic-0-25l_30941_yzjt8b.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174419079",
+      "name": "Aqua Carpatica Plata 0.33L",
+      "description": "",
+      "price": 12,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174394/apa-plata-aqua-carpatica-0-33-l-sgr_kl4lqn.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174472306",
+      "name": "Aqua Carpatica Minerala 0.33L",
+      "description": "",
+      "price": 12,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174446/1163-1708503723544_jadgki.avif",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174561512",
+      "name": "Aqua Carpatica Forte 0.75L",
+      "description": "",
+      "price": 20,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174540/Screenshot_2026-06-11_134210_swuybm.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174620543",
+      "name": "Prigat Kiwi & Pere",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174598/prigat-still-cu-suc-de-kiwi-si-pere-12x250ml_23674_zzzfcu.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174680523",
+      "name": "Prigat Capsuni Mar Banana",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174664/prigat-still-cu-suc-de-banane-mar-si-capsuni-12x250ml_23672_vhpb5d.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174755301",
+      "name": "Prigat Mar",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174737/Screenshot_2026-06-11_134528_kxzgdc.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174808181",
+      "name": "Prigat Portocala",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174790/prigat-portocale_pggws4.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174864436",
+      "name": "Lipton Piersica",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174848/product_5942204005830_0-scaled_wwkw4c.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174908804",
+      "name": "Lipton Lamaie",
+      "description": "",
+      "price": 17,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174894/Screenshot_2026-06-11_134803_qfv7nq.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781174998850",
+      "name": "Purcari Pinot Grigio  / Sticla",
+      "description": "",
+      "price": 129,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781174959/res_b192f83a781d7dcc1719c4daafbc8631_udnt7d.avif",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": true,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175076601",
+      "name": "Purcari Nocturne Rose / Sticla",
+      "description": "",
+      "price": 129,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175051/purcari-nocturne-rose-0-75-l-nou_kxxhs1.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 7,
+      "isBestseller": true,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175136478",
+      "name": "Sole Chardonnay / Sticla",
+      "description": "",
+      "price": 155,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175116/sle-ch_adf6rc.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175190770",
+      "name": "Sole Rose",
+      "description": "",
+      "price": 155,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175166/sole-rose_zrds1o.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": true,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175246784",
+      "name": "Muse White",
+      "description": "",
+      "price": 155,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175225/muse-white_1_fgopco.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175299984",
+      "name": "Muse Night / Sticla",
+      "description": "",
+      "price": 159,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175279/muse-n_idvhox.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175381655",
+      "name": "Solo Quinta / Sticla",
+      "description": "",
+      "price": 189,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175353/res_20127c3c5f6cfa0135004b8e583ec3d5_qrxalp.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175451797",
+      "name": "Caii de la Letea Alb / Sticla",
+      "description": "",
+      "price": 129,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175420/res_9869a1a51e1e0eb2b1ae0898541e946d_ie6dss.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175508919",
+      "name": "Caii de la Letea Rose",
+      "description": "",
+      "price": 129,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175490/SN011-654x615_utaphv.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175555802",
+      "name": "Lambrusco Viala Rose / Sticla",
+      "description": "",
+      "price": 75,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175535/6094524438429_22b7ea7d_ln51tg.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175617478",
+      "name": "Prosecco Santinel / Sticla",
+      "description": "",
+      "price": 129,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175596/6427934331057_b2ed8873_z5wmrx.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093373385",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175727130",
+      "name": "Limonada Clasica",
+      "description": "",
+      "price": 23,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175941/Screenshot_2026-06-11_140520_qkszdm.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": false,
+      "categoryId": "cat-1781093404449",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175803084",
+      "name": "Limonada Mango",
+      "description": "",
+      "price": 28,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175703/Screenshot_2026-06-11_140135_g2xl9c.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093404449",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781175856759",
+      "name": "Limonada Capsuni",
+      "description": "",
+      "price": 28,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175784/Screenshot_2026-06-11_140249_ikxoll.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093404449",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176004554",
+      "name": "Limonada Pepene Galben",
+      "description": "",
+      "price": 28,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175897/Screenshot_2026-06-11_140441_tjq6gl.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": false,
+      "categoryId": "cat-1781093404449",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176068264",
+      "name": "Chivas Regal 12 YO",
+      "description": "",
+      "price": 28,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176051/Screenshot_2026-06-11_140720_jmpg1f.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": false,
+      "categoryId": "cat-1781093447328",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176130186",
+      "name": "Martell Cognac",
+      "description": "",
+      "price": 30,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176106/Screenshot_2026-06-11_140818_jwld9h.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093447328",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176191213",
+      "name": "Grey Goose / Sticla",
+      "description": "",
+      "price": 400,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176173/Screenshot_2026-06-11_140924_phcdmj.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093447328",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176262364",
+      "name": "Lay's Cascaval",
+      "description": "",
+      "price": 11,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176246/1_org_zoom_s9njx3.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093578680",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176330558",
+      "name": "Lay's Sare",
+      "description": "",
+      "price": 11,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176302/1_org_zoom_iyj7iv.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": true,
+      "categoryId": "cat-1781093578680",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176375475",
+      "name": "Doritos Cascaval",
+      "description": "",
+      "price": 18,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176354/9314651635742_bxjnp1.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093578680",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176445458",
+      "name": "Doritos Smantana",
+      "description": "",
+      "price": 18,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176407/40483-1757426666717246356_wag7wn.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093347906",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176522611",
+      "name": "Hugo",
+      "description": "",
+      "price": 37,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176507/Screenshot_2026-06-11_141450_vx9lqp.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176576660",
+      "name": "Amaretto Cocktail",
+      "description": "",
+      "price": 37,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176555/Screenshot_2026-06-11_141545_eaphbb.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176638869",
+      "name": "Cuba Libre",
+      "description": "",
+      "price": 34,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176614/cuba-libre_exjzhs.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": false,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176708100",
+      "name": "Aperol Spritz",
+      "description": "",
+      "price": 37,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176681/stockfood_12488413_xxl_classic_italian_aperol_spritz_cocktail_xnx5gk.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 15,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176786202",
+      "name": "Pornstar Martini",
+      "description": "",
+      "price": 38,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176768/pornstar-martini-original-4_dchtxp.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176841678",
+      "name": "Bumbu Cherry",
+      "description": "",
+      "price": 38,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176822/Bumbu-The-Original-Bottle-and-Glass_fnq1ou.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 14,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176893350",
+      "name": "Gin Tonic",
+      "description": "",
+      "price": 34,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176863/__opt__aboutcom__coeus__resources__content_migration__liquor__2019__09__18090535__Gin-and-Tonic-720x720-recipe-c2e32c4cf53c4ed7a4de20af8e862a12_vwql1o.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781176953538",
+      "name": "Pina Colada",
+      "description": "",
+      "price": 30,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781176933/Screenshot_2026-06-11_142200_b5fh6t.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": false,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781177040964",
+      "name": "Green Apple",
+      "description": "",
+      "price": 30,
+      "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781177028/Screenshot_2026-06-11_142252_wbmk8h.png",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 10,
+      "isBestseller": true,
+      "categoryId": "cat-1781093471703",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
     }
   ],
   "ingredients": [],
-  "orders": [],
-  "reviews": [],
-  "bills": [],
+  "orders": [
+    {
+      "id": "ord-1781177410060",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781177410060",
+      "orderNumber": "ORD-9513",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781177410060-0",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781177410060-1",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 32.1,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168934412-m1hgq",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168934412-7koip",
+              "choiceName": "Blat subtire",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781177410060-2",
+          "productId": "prod-1781169729258",
+          "productName": "Bacon Cheeseburger vita",
+          "price": 68.5,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781169635837-xpwhp",
+              "groupName": "Sosuri",
+              "choiceId": "choice-1781169635837-6sh4i",
+              "choiceName": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "groupId": "group-1781169687301-tzf2r",
+              "groupName": "Extra cheddar",
+              "choiceId": "choice-1781169687301-svlhr",
+              "choiceName": "Extra cheddar",
+              "priceDelta": 4.5
+            },
+            {
+              "groupId": "group-1781169843569-bvmd4",
+              "groupName": "Cartofi",
+              "choiceId": "choice-1781169843569-zj82f",
+              "choiceName": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "subtotal": 200.6,
+      "createdAt": "2026-06-11T11:30:10.060Z",
+      "updatedAt": "2026-06-11T11:31:47.446Z",
+      "prepTimeEstimate": 15,
+      "approvedAt": "2026-06-11T11:30:41.637Z",
+      "startedAt": "2026-06-11T11:31:33.270Z",
+      "readyAt": "2026-06-11T11:31:43.526Z",
+      "completedAt": "2026-06-11T11:31:47.446Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev-1781177513654",
+      "orderId": "ord-1781177410060",
+      "productId": "prod-1781093779291",
+      "productName": "Narghilea Premium",
+      "rating": 5,
+      "comment": "",
+      "customerName": "Masa 1",
+      "createdAt": "2026-06-11T11:31:53.654Z"
+    }
+  ],
+  "bills": [
+    {
+      "id": "bill-1781177560901",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781177410060",
+      "orderIds": [
+        "ord-1781177410060"
+      ],
+      "status": "PAID",
+      "subtotal": 200.6,
+      "paymentMethod": "CARD",
+      "createdAt": "2026-06-11T11:32:40.901Z",
+      "updatedAt": "2026-06-11T11:32:49.991Z"
+    },
+    {
+      "id": "bill-1781177521152",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781177410060",
+      "orderIds": [
+        "ord-1781177410060"
+      ],
+      "status": "PAID",
+      "subtotal": 200.6,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-11T11:32:01.152Z",
+      "updatedAt": "2026-06-11T11:32:32.628Z"
+    }
+  ],
   "waiterRequests": []
 }
