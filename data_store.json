@@ -1,6 +1,6 @@
 {
   "settings": {
-    "customerOrderingEnabled": false
+    "customerOrderingEnabled": true
   },
   "accessControl": {
     "adminUsername": "admin",
@@ -803,7 +803,7 @@
       "id": "prod-1781103635020",
       "name": "Cheeseburger vita",
       "description": "Cheeseburger + cartofi prajiti 130gr + sos",
-      "price": 66,
+      "price": 61,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/badbcdb5a7b8d173356f1543971405dfab3ad1e2.png",
       "rating": 5,
       "reviewsCount": 12,
@@ -1669,7 +1669,7 @@
       "id": "prod-1781171091040",
       "name": "Noodles cu pui",
       "description": "350 gr: piept de pui, ceapa, praz, morcov, ardei gras, ulei vegetal, sos soia, noodles, patrunjel, usturoi, ghimbir\n\n",
-      "price": 28.8,
+      "price": 36,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/52e17e7daf661bf57d19ab179bd2d2150e7d9583.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -1881,7 +1881,7 @@
       "id": "prod-1781171420359",
       "name": "Salata greceasca",
       "description": "380gr: telemea mixta (vaca si capra), mix de salata, ardei gras, castraveti, ceapa rosie, rosii proaspete, masline, oregano + sos iaurt cu busuioc\n\n",
-      "price": 30.32,
+      "price": 37.9,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/1f8edae575ec931cb1f549d9d845d0d7118d6a7c.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -3488,181 +3488,173 @@
   "ingredients": [],
   "orders": [
     {
-      "id": "ord-1781177410060",
+      "id": "ord-1781185714532",
       "tableId": "1",
       "tableNumber": 1,
-      "sessionId": "session-table-1-1781177410060",
-      "orderNumber": "ORD-9513",
-      "status": "DELIVERED",
+      "sessionId": "session-table-1-1781185714532",
+      "orderNumber": "ORD-5701",
+      "status": "CANCELLED",
       "source": "CUSTOMER",
       "items": [
         {
-          "id": "item-1781177410060-0",
+          "id": "item-1781185714532-0",
           "productId": "prod-1781093779291",
           "productName": "Narghilea Premium",
           "price": 100,
           "quantity": 1,
-          "sendToKitchen": false,
           "selectedOptions": []
-        },
+        }
+      ],
+      "subtotal": 100,
+      "createdAt": "2026-06-11T13:48:34.532Z",
+      "updatedAt": "2026-06-11T13:49:12.832Z",
+      "cancelledAt": "2026-06-11T13:49:12.832Z"
+    },
+    {
+      "id": "ord-1781185843169",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781185860628",
+      "orderNumber": "ORD-2401",
+      "status": "CANCELLED",
+      "source": "CUSTOMER",
+      "items": [
         {
-          "id": "item-1781177410060-1",
+          "id": "item-1781185843168-0",
           "productId": "prod-1781099658634",
           "productName": "Pizza quattro stagioni 30 cm",
-          "price": 32.1,
+          "price": 53.5,
           "quantity": 1,
           "sendToKitchen": true,
-          "selectedOptions": [
-            {
-              "groupId": "group-1781168934412-m1hgq",
-              "groupName": "Blat",
-              "choiceId": "choice-1781168934412-7koip",
-              "choiceName": "Blat subtire",
-              "priceDelta": 0
-            }
-          ]
-        },
-        {
-          "id": "item-1781177410060-2",
-          "productId": "prod-1781169729258",
-          "productName": "Bacon Cheeseburger vita",
-          "price": 68.5,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": [
-            {
-              "groupId": "group-1781169635837-xpwhp",
-              "groupName": "Sosuri",
-              "choiceId": "choice-1781169635837-6sh4i",
-              "choiceName": "Sos maioneza cu usturoi",
-              "priceDelta": 0
-            },
-            {
-              "groupId": "group-1781169687301-tzf2r",
-              "groupName": "Extra cheddar",
-              "choiceId": "choice-1781169687301-svlhr",
-              "choiceName": "Extra cheddar",
-              "priceDelta": 4.5
-            },
-            {
-              "groupId": "group-1781169843569-bvmd4",
-              "groupName": "Cartofi",
-              "choiceId": "choice-1781169843569-zj82f",
-              "choiceName": "Cartofi prajiti 130gr",
-              "priceDelta": 0
-            }
-          ]
+          "selectedOptions": []
         }
       ],
-      "subtotal": 200.6,
-      "createdAt": "2026-06-11T11:30:10.060Z",
-      "updatedAt": "2026-06-11T11:31:47.446Z",
-      "prepTimeEstimate": 15,
-      "approvedAt": "2026-06-11T11:30:41.637Z",
-      "startedAt": "2026-06-11T11:31:33.270Z",
-      "readyAt": "2026-06-11T11:31:43.526Z",
-      "completedAt": "2026-06-11T11:31:47.446Z"
+      "subtotal": 53.5,
+      "createdAt": "2026-06-11T13:50:43.168Z",
+      "updatedAt": "2026-06-11T13:59:20.694Z",
+      "approvedAt": "2026-06-11T13:51:00.627Z",
+      "cancelledAt": "2026-06-11T13:59:20.694Z"
     },
     {
-      "id": "ord-1781181240804",
+      "id": "ord-1781186202275",
       "tableId": "1",
       "tableNumber": 1,
-      "sessionId": "session-table-1-1781181240804",
-      "orderNumber": "ORD-9293",
-      "status": "DELIVERED",
+      "sessionId": "session-table-1-1781185714532",
+      "orderNumber": "ORD-8125",
+      "status": "CANCELLED",
       "source": "CUSTOMER",
       "items": [
         {
-          "id": "item-1781181240804-0",
+          "id": "item-1781186202275-0",
           "productId": "prod-1781093779291",
           "productName": "Narghilea Premium",
           "price": 100,
           "quantity": 1,
-          "sendToKitchen": false,
           "selectedOptions": []
-        },
-        {
-          "id": "item-1781181240804-1",
-          "productId": "prod-1781099815446",
-          "productName": "Pizza capriciosa 30 cm",
-          "price": 33.6,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": [
-            {
-              "groupId": "group-1781168545426-nifbz",
-              "groupName": "Blat",
-              "choiceId": "choice-1781168545426-y3bmk",
-              "choiceName": "Blat Normal",
-              "priceDelta": 0
-            }
-          ]
         }
       ],
-      "subtotal": 133.6,
-      "createdAt": "2026-06-11T12:34:00.804Z",
-      "updatedAt": "2026-06-11T12:35:23.912Z",
-      "prepTimeEstimate": 15,
-      "approvedAt": "2026-06-11T12:34:41.986Z",
-      "startedAt": "2026-06-11T12:35:14.101Z",
-      "readyAt": "2026-06-11T12:35:20.225Z",
-      "completedAt": "2026-06-11T12:35:23.912Z"
-    }
-  ],
-  "reviews": [
+      "subtotal": 100,
+      "createdAt": "2026-06-11T13:56:42.274Z",
+      "updatedAt": "2026-06-11T13:56:57.380Z",
+      "cancelledAt": "2026-06-11T13:56:57.380Z"
+    },
     {
-      "id": "rev-1781177513654",
-      "orderId": "ord-1781177410060",
-      "productId": "prod-1781093779291",
-      "productName": "Narghilea Premium",
-      "rating": 5,
-      "comment": "",
-      "customerName": "Masa 1",
-      "createdAt": "2026-06-11T11:31:53.654Z"
+      "id": "ord-1781186564317",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781186564317",
+      "orderNumber": "ORD-2418",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "selectedOptions": [],
+          "id": "item-1781186564317-0",
+          "sendToKitchen": false
+        },
+        {
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 53.5,
+          "quantity": 1,
+          "selectedOptions": [],
+          "id": "item-1781186564317-1",
+          "sendToKitchen": true
+        }
+      ],
+      "notes": "",
+      "subtotal": 153.5,
+      "createdAt": "2026-06-11T14:02:44.317Z",
+      "updatedAt": "2026-06-11T14:03:16.346Z",
+      "approvedAt": "2026-06-11T14:02:51.042Z",
+      "readyAt": "2026-06-11T14:03:15.399Z",
+      "prepTimeEstimate": 15,
+      "startedAt": "2026-06-11T14:03:12.174Z",
+      "completedAt": "2026-06-11T14:03:16.346Z"
+    },
+    {
+      "id": "ord-1781186626677",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781186626677",
+      "orderNumber": "ORD-6721",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "selectedOptions": [],
+          "id": "item-1781186626677-0",
+          "sendToKitchen": false
+        }
+      ],
+      "notes": "",
+      "subtotal": 100,
+      "createdAt": "2026-06-11T14:03:46.677Z",
+      "updatedAt": "2026-06-11T14:04:19.631Z",
+      "approvedAt": "2026-06-11T14:03:57.466Z",
+      "readyAt": "2026-06-11T14:03:57.466Z",
+      "completedAt": "2026-06-11T14:04:00.966Z",
+      "paymentMethod": "PROTOCOL",
+      "settledAt": "2026-06-11T14:04:19.631Z"
     }
   ],
+  "reviews": [],
   "bills": [
     {
-      "id": "bill-1781181333684",
+      "id": "bill-1781186604866",
       "tableId": "1",
       "tableNumber": 1,
-      "sessionId": "session-table-1-1781181240804",
+      "sessionId": "session-table-1-1781186564317",
       "orderIds": [
-        "ord-1781181240804"
+        "ord-1781186564317"
       ],
       "status": "PAID",
-      "subtotal": 133.6,
+      "subtotal": 153.5,
       "paymentMethod": "CASH",
-      "createdAt": "2026-06-11T12:35:33.684Z",
-      "updatedAt": "2026-06-11T12:36:22.316Z"
+      "createdAt": "2026-06-11T14:03:24.866Z",
+      "updatedAt": "2026-06-11T14:03:36.958Z"
     },
     {
-      "id": "bill-1781177560901",
+      "id": "bill-1781186653189",
       "tableId": "1",
       "tableNumber": 1,
-      "sessionId": "session-table-1-1781177410060",
+      "sessionId": "session-table-1-1781186626677",
       "orderIds": [
-        "ord-1781177410060"
+        "ord-1781186626677"
       ],
       "status": "PAID",
-      "subtotal": 200.6,
-      "paymentMethod": "CARD",
-      "createdAt": "2026-06-11T11:32:40.901Z",
-      "updatedAt": "2026-06-11T11:32:49.991Z"
-    },
-    {
-      "id": "bill-1781177521152",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781177410060",
-      "orderIds": [
-        "ord-1781177410060"
-      ],
-      "status": "PAID",
-      "subtotal": 200.6,
-      "paymentMethod": "CASH",
-      "createdAt": "2026-06-11T11:32:01.152Z",
-      "updatedAt": "2026-06-11T11:32:32.628Z"
+      "subtotal": 100,
+      "paymentMethod": "PROTOCOL",
+      "createdAt": "2026-06-11T14:04:13.189Z",
+      "updatedAt": "2026-06-11T14:04:19.631Z"
     }
   ],
   "waiterRequests": []

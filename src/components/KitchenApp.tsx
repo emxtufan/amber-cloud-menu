@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { BellRing, ChefHat, CheckCircle2, Clock3, Flame, History, XCircle } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { BellOff, BellRing, ChefHat, CheckCircle2, Clock3, Flame, History, XCircle } from 'lucide-react';
 import { api } from '../services/api.js';
 import { Order, OrderStatus } from '../types.js';
 import { formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, groupSelectedOptions } from '../utils.js';
@@ -12,31 +12,7 @@ function hasKitchenItems(order: Order) {
   return getKitchenItems(order).length > 0;
 }
 
-function playKitchenNotificationSound() {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(990, audioContext.currentTime + 0.15);
-
-    gainNode.gain.setValueAtTime(0.18, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.45);
-  } catch (error) {
-    console.log('Contextul audio nu este pregatit inca.', error);
-  }
-}
+const KITCHEN_ALERT_SOUND_URL = new URL('../../sound.mp3', import.meta.url).href;
 
 export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promise<void> }) {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -44,7 +20,61 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedOrderView, setSelectedOrderView] = useState<'prep' | 'history'>('prep');
   const [prepTimeInput, setPrepTimeInput] = useState(15);
+  const [isKitchenAlertLoopActive, setIsKitchenAlertLoopActive] = useState(false);
   const [, setTimerTick] = useState(0);
+  const kitchenAlertAudioRef = useRef<HTMLAudioElement | null>(null);
+  const kitchenAlertLoopActiveRef = useRef(false);
+
+  const stopKitchenAlertLoop = () => {
+    const audio = kitchenAlertAudioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    kitchenAlertLoopActiveRef.current = false;
+    setIsKitchenAlertLoopActive(false);
+  };
+
+  const startKitchenAlertLoop = () => {
+    if (kitchenAlertLoopActiveRef.current) {
+      return;
+    }
+
+    const audio =
+      kitchenAlertAudioRef.current ||
+      (() => {
+        const nextAudio = new Audio(KITCHEN_ALERT_SOUND_URL);
+        nextAudio.loop = true;
+        nextAudio.preload = 'auto';
+        kitchenAlertAudioRef.current = nextAudio;
+        return nextAudio;
+      })();
+
+    audio.currentTime = 0;
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch((error) => {
+        console.error('Nu am putut porni sunetul pentru bucatarie', error);
+        kitchenAlertLoopActiveRef.current = false;
+        setIsKitchenAlertLoopActive(false);
+      });
+    }
+
+    kitchenAlertLoopActiveRef.current = true;
+    setIsKitchenAlertLoopActive(true);
+  };
+
+  const testKitchenAlertSound = () => {
+    if (kitchenAlertLoopActiveRef.current) {
+      stopKitchenAlertLoop();
+      return;
+    }
+
+    startKitchenAlertLoop();
+    setAlertMessage('Test sunet bucatarie pornit. Se opreste la prima actiune in panou sau daca apesi din nou pe iconita.');
+    setTimeout(() => setAlertMessage(null), 5000);
+  };
 
   const fetchOrders = async () => {
     try {
@@ -81,7 +111,7 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
       }
 
       refreshOrder(incomingOrder);
-      playKitchenNotificationSound();
+      startKitchenAlertLoop();
       setAlertMessage(`Comanda aprobata noua ${incomingOrder.orderNumber} de la masa ${incomingOrder.tableNumber}`);
       setTimeout(() => setAlertMessage(null), 4500);
     });
@@ -94,6 +124,39 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
       unsubNewOrder();
       unsubOrderUpdate();
       unsubDatabaseReset();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isKitchenAlertLoopActive) {
+      return;
+    }
+
+    const acknowledgeKitchenAlert = () => {
+      stopKitchenAlertLoop();
+    };
+
+    const eventOptions: AddEventListenerOptions = { capture: true, passive: true };
+    window.addEventListener('pointerdown', acknowledgeKitchenAlert, eventOptions);
+    window.addEventListener('touchstart', acknowledgeKitchenAlert, eventOptions);
+    window.addEventListener('keydown', acknowledgeKitchenAlert, { capture: true });
+    window.addEventListener('wheel', acknowledgeKitchenAlert, eventOptions);
+
+    return () => {
+      window.removeEventListener('pointerdown', acknowledgeKitchenAlert, eventOptions);
+      window.removeEventListener('touchstart', acknowledgeKitchenAlert, eventOptions);
+      window.removeEventListener('keydown', acknowledgeKitchenAlert, { capture: true });
+      window.removeEventListener('wheel', acknowledgeKitchenAlert, eventOptions);
+    };
+  }, [isKitchenAlertLoopActive]);
+
+  useEffect(() => {
+    return () => {
+      const audio = kitchenAlertAudioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
     };
   }, []);
 
@@ -226,10 +289,20 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
 
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={playKitchenNotificationSound}
-              className="rounded-2xl border border-white/8 bg-card px-4 py-3 text-sm text-muted"
+              type="button"
+              onClick={testKitchenAlertSound}
+              className={`rounded-2xl border px-4 py-3 text-sm transition ${
+                isKitchenAlertLoopActive
+                  ? 'border-primary/40 bg-primary/12 text-primary'
+                  : 'border-white/8 bg-card text-muted'
+              }`}
+              aria-label={isKitchenAlertLoopActive ? 'Opreste sunetul din bucatarie' : 'Porneste testul de sunet pentru bucatarie'}
             >
-              Test sunet bucatarie
+              {isKitchenAlertLoopActive ? (
+                <BellRing className="h-5 w-5 waiter-sound-vibrate" />
+              ) : (
+                <BellOff className="h-5 w-5" />
+              )}
             </button>
             <button
               onClick={() => void onLogout?.()}

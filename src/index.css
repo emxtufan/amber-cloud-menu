@@ -111,3 +111,34 @@ body {
     box-shadow: 0 0 0 0 rgba(201, 168, 76, 0);
   }
 }
+
+.waiter-sound-vibrate {
+  animation: waiterSoundVibrate 0.45s linear infinite;
+  transform-origin: 50% 12%;
+}
+
+@keyframes waiterSoundVibrate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  20% {
+    transform: rotate(-14deg) scale(1.05);
+  }
+
+  40% {
+    transform: rotate(14deg) scale(1.05);
+  }
+
+  60% {
+    transform: rotate(-10deg) scale(1.03);
+  }
+
+  80% {
+    transform: rotate(10deg) scale(1.03);
+  }
+
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}

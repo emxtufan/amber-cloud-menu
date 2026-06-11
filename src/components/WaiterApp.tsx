@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  BellOff,
   BellRing,
   CheckCircle2,
   ClipboardList,
@@ -86,6 +87,8 @@ function getManualLineUnitPrice(product: Product, selectedOptions?: SelectedOrde
   return product.price + getSelectedOptionsTotal(selectedOptions);
 }
 
+const WAITER_ALERT_SOUND_URL = new URL('../../sound.mp3', import.meta.url).href;
+
 export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promise<void> }) {
   const [tables, setTables] = useState<Table[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -110,6 +113,64 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
   const [alerts, setAlerts] = useState<WaiterAlert[]>([]);
   const [highlightedTables, setHighlightedTables] = useState<Record<string, number>>({});
   const [approvalSelections, setApprovalSelections] = useState<Record<string, Record<string, boolean>>>({});
+  const [isWaiterAlertLoopActive, setIsWaiterAlertLoopActive] = useState(false);
+  const waiterAlertAudioRef = useRef<HTMLAudioElement | null>(null);
+  const waiterAlertLoopActiveRef = useRef(false);
+
+  const stopWaiterAlertLoop = () => {
+    const audio = waiterAlertAudioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    waiterAlertLoopActiveRef.current = false;
+    setIsWaiterAlertLoopActive(false);
+  };
+
+  const startWaiterAlertLoop = () => {
+    if (waiterAlertLoopActiveRef.current) {
+      return;
+    }
+
+    const audio =
+      waiterAlertAudioRef.current ||
+      (() => {
+        const nextAudio = new Audio(WAITER_ALERT_SOUND_URL);
+        nextAudio.loop = true;
+        nextAudio.preload = 'auto';
+        waiterAlertAudioRef.current = nextAudio;
+        return nextAudio;
+      })();
+
+    audio.currentTime = 0;
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch((error) => {
+        console.error('Nu am putut porni sunetul pentru ospatar', error);
+        waiterAlertLoopActiveRef.current = false;
+        setIsWaiterAlertLoopActive(false);
+      });
+    }
+
+    waiterAlertLoopActiveRef.current = true;
+    setIsWaiterAlertLoopActive(true);
+  };
+
+  const testWaiterAlertSound = () => {
+    if (waiterAlertLoopActiveRef.current) {
+      stopWaiterAlertLoop();
+      return;
+    }
+
+    startWaiterAlertLoop();
+    pushAlert({
+      tableId: selectedTableId || tables[0]?.id || 'waiter-audio-test',
+      title: 'Test sunet ospatar pornit',
+      detail: 'Sunetul ruleaza in bucla pana la prima actiune din panou sau pana apesi din nou pe buton.',
+      tone: 'call',
+    });
+  };
 
   const pushAlert = (alert: Omit<WaiterAlert, 'id'>) => {
     const id = `waiter-alert-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -128,6 +189,39 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       });
     }, 6500);
   };
+
+  useEffect(() => {
+    if (!isWaiterAlertLoopActive) {
+      return;
+    }
+
+    const acknowledgeWaiterAlert = () => {
+      stopWaiterAlertLoop();
+    };
+
+    const eventOptions: AddEventListenerOptions = { capture: true, passive: true };
+    window.addEventListener('pointerdown', acknowledgeWaiterAlert, eventOptions);
+    window.addEventListener('touchstart', acknowledgeWaiterAlert, eventOptions);
+    window.addEventListener('keydown', acknowledgeWaiterAlert, { capture: true });
+    window.addEventListener('wheel', acknowledgeWaiterAlert, eventOptions);
+
+    return () => {
+      window.removeEventListener('pointerdown', acknowledgeWaiterAlert, eventOptions);
+      window.removeEventListener('touchstart', acknowledgeWaiterAlert, eventOptions);
+      window.removeEventListener('keydown', acknowledgeWaiterAlert, { capture: true });
+      window.removeEventListener('wheel', acknowledgeWaiterAlert, eventOptions);
+    };
+  }, [isWaiterAlertLoopActive]);
+
+  useEffect(() => {
+    return () => {
+      const audio = waiterAlertAudioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
 
   const resolveWaiterRequestsForTable = async (tableId: string) => {
     const openRequests = waiterRequests.filter((request) => request.tableId === tableId && request.status === 'OPEN');
@@ -209,6 +303,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
         detail: `${order.orderNumber} asteapta aprobarea ospatarului.`,
         tone: 'order',
       });
+      startWaiterAlertLoop();
       refresh();
     });
     const unsubBill = api.subscribe('bill-update', (bill: Bill) => {
@@ -219,6 +314,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           detail: `Metoda de plata: ${getPaymentMethodLabel(bill.paymentMethod || 'CASH')}.`,
           tone: 'bill',
         });
+        startWaiterAlertLoop();
       }
       refresh();
     });
@@ -229,6 +325,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
         detail: `${waiterRequest.items.reduce((sum, item) => sum + item.quantity, 0)} produse pregatite in cos pentru discutie.`,
         tone: 'call',
       });
+      startWaiterAlertLoop();
       refresh();
     });
     const unsubWaiterRequestUpdate = api.subscribe('waiter-request-update', refresh);
@@ -490,6 +587,8 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
 
   const getSelectedKitchenItemCount = (order: Order) => getSelectedKitchenItemIds(order).length;
   const getKitchenItemCount = (order: Order) => order.items.filter((item) => item.sendToKitchen !== false).length;
+  const getPendingApprovalActionLabel = (order: Order) =>
+    getSelectedKitchenItemCount(order) === 0 ? 'Proceseaza comanda' : 'Aproba spre bucatarie';
 
   const getKitchenStatusMeta = (order: Order) => {
     const kitchenItemCount = getKitchenItemCount(order);
@@ -1080,7 +1179,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
               <h1 className="mt-2 text-3xl font-display font-bold">Aproba cererile meselor inainte de bucatarie</h1>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-white/8 bg-card px-4 py-3 text-sm text-muted">
               Aprobari in asteptare: <span className="text-white font-semibold">{pendingApprovals.length}</span>
             </div>
@@ -1088,6 +1187,22 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
               Coada manuala: <span className="font-semibold">{manualQueuedOrders.length}</span>
               <span className="ml-2 text-white/70">({manualQueueItemCount} produse)</span>
             </div>
+            <button
+              onClick={testWaiterAlertSound}
+              title={isWaiterAlertLoopActive ? 'Opreste sunetul ospatarului' : 'Testeaza sunetul ospatarului'}
+              aria-label={isWaiterAlertLoopActive ? 'Opreste sunetul ospatarului' : 'Testeaza sunetul ospatarului'}
+              className={`flex h-[52px] w-full items-center justify-center rounded-2xl transition ${
+                isWaiterAlertLoopActive
+                  ? 'border border-warning/30 bg-warning/15 text-warning shadow-[0_0_0_1px_rgba(212,162,67,0.16)]'
+                  : 'border border-white/8 bg-card text-white hover:border-white/15'
+              }`}
+            >
+              {isWaiterAlertLoopActive ? (
+                <BellRing className="waiter-sound-vibrate h-6 w-6" />
+              ) : (
+                <BellOff className="h-6 w-6" />
+              )}
+            </button>
             <button
               onClick={() => void onLogout?.()}
               className="rounded-2xl border border-white/8 bg-background px-4 py-3 text-sm font-semibold text-white transition hover:border-white/15"
@@ -1171,8 +1286,9 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                   </div>
 
                   <div className="mt-4 rounded-2xl border border-white/8 bg-card px-3 py-3 text-xs text-muted">
-                    Selectate pentru bucatarie: {getSelectedKitchenItemCount(order)} / {order.items.length}. Ce debifezi
-                    ramane pe comanda, dar nu ajunge in panoul bucatariei.
+                    {getSelectedKitchenItemCount(order) === 0
+                      ? 'Nu ai nimic trimis in bucatarie. Comanda va ramane doar pentru servire / bar, dar se salveaza complet in istoric.'
+                      : `Selectate pentru bucatarie: ${getSelectedKitchenItemCount(order)} / ${order.items.length}. Ce debifezi ramane pe comanda, dar nu ajunge in panoul bucatariei.`}
                   </div>
 
                   {order.notes && (
@@ -1199,7 +1315,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                       onClick={() => approveOrder(order.id)}
                       className="rounded-2xl bg-primary px-4 py-3 text-sm font-semibold"
                     >
-                      Aproba spre bucatarie
+                      {getPendingApprovalActionLabel(order)}
                     </button>
                   </div>
                 </div>
