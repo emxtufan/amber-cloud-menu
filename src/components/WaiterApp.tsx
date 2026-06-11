@@ -232,6 +232,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       refresh();
     });
     const unsubWaiterRequestUpdate = api.subscribe('waiter-request-update', refresh);
+    const unsubDatabaseReset = api.subscribe('database-reset', refresh);
 
     return () => {
       unsubTable();
@@ -241,6 +242,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       unsubBill();
       unsubNewWaiterRequest();
       unsubWaiterRequestUpdate();
+      unsubDatabaseReset();
     };
   }, []);
 

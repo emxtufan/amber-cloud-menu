@@ -1519,6 +1519,39 @@ export class DatabaseEngine {
     return request;
   }
 
+  static resetOperationalData() {
+    this.load();
+
+    const clearedAt = new Date().toISOString();
+    const cleared = {
+      orders: this.data?.orders.length || 0,
+      bills: this.data?.bills.length || 0,
+      reviews: this.data?.reviews.length || 0,
+      waiterRequests: this.data?.waiterRequests.length || 0,
+      activeTableSessions: (this.data?.tables || []).filter((table) => table.activeSessionId).length,
+    };
+
+    if (this.data) {
+      this.data.orders = [];
+      this.data.bills = [];
+      this.data.reviews = [];
+      this.data.waiterRequests = [];
+      this.data.tables = this.data.tables.map((table) => ({
+        ...table,
+        status: TableStatus.AVAILABLE,
+        activeSessionId: undefined,
+      }));
+    }
+
+    this.save();
+
+    return {
+      clearedAt,
+      cleared,
+      preserved: ['settings', 'accessControl', 'tables', 'categories', 'products', 'ingredients'],
+    };
+  }
+
   static getSettings(): RestaurantSettings {
     this.load();
     return {

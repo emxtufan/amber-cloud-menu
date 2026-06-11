@@ -215,6 +215,18 @@ export interface AccessControlSummary {
   kitchenPinConfigured: boolean;
 }
 
+export interface ResetOperationalDataResult {
+  clearedAt: string;
+  cleared: {
+    orders: number;
+    bills: number;
+    reviews: number;
+    waiterRequests: number;
+    activeTableSessions: number;
+  };
+  preserved: string[];
+}
+
 export interface SystemStats {
   revenueToday: number;
   revenueThisWeek: number;

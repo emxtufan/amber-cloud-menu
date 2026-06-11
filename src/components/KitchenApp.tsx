@@ -87,11 +87,13 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
     });
 
     const unsubOrderUpdate = api.subscribe('order-update', refreshOrder);
+    const unsubDatabaseReset = api.subscribe('database-reset', fetchOrders);
 
     return () => {
       clearInterval(timer);
       unsubNewOrder();
       unsubOrderUpdate();
+      unsubDatabaseReset();
     };
   }, []);
 

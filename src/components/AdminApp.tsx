@@ -436,6 +436,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
     const unsubReview = api.subscribe('new-review', (review: Review) => {
       upsertReview(review);
     });
+    const unsubDatabaseReset = api.subscribe('database-reset', loadAdminDb);
 
     return () => {
       unsubOrder();
@@ -446,6 +447,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       unsubMenu();
       unsubSettings();
       unsubReview();
+      unsubDatabaseReset();
     };
   }, []);
 
@@ -767,6 +769,27 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       console.error('Nu am putut actualiza credentialele de admin', error);
       showToast('Nu am putut salva credentialele de admin.', 'error');
     }
+  };
+
+  const resetOperationalData = async () => {
+    openConfirmDialog({
+      title: 'Stergi toate datele de test?',
+      message:
+        'Se vor sterge toate comenzile, notele, recenziile, cererile de ospatar si sesiunile active. Meniul, mesele, setarile si datele de acces raman pastrate.',
+      confirmLabel: 'Sterge datele de test',
+      onConfirm: async () => {
+        try {
+          const result = await api.resetOperationalData();
+          await loadAdminDb();
+          showToast(
+            `Am sters ${result.cleared.orders} comenzi, ${result.cleared.bills} note, ${result.cleared.reviews} recenzii si ${result.cleared.waiterRequests} cereri de ospatar.`
+          );
+        } catch (error) {
+          console.error('Nu am putut sterge datele de test', error);
+          showToast('Nu am putut sterge datele de test.', 'error');
+        }
+      },
+    });
   };
 
   // Printable QR utilities
@@ -2439,6 +2462,25 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
                   {accessControl.adminPasswordConfigured ? 'Parola setata' : 'Parola lipsa'}
                 </span>
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-[18px] border border-danger/20 bg-danger/10 px-4 py-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-danger">Reset date de test</p>
+                <h3 className="mt-1 text-sm font-display font-bold text-white">Curata baza operationala inainte de lansare</h3>
+                <p className="mt-1 text-xs leading-5 text-white/75">
+                  Sterge comenzile, notele, recenziile, cererile de ospatar si sesiunile active. Pastreaza meniul, mesele, setarile si accesul intern.
+                </p>
+              </div>
+
+              <button
+                onClick={resetOperationalData}
+                className="rounded-xl border border-danger/30 bg-danger px-4 py-2.5 text-sm font-semibold text-white"
+              >
+                Curata datele de test
+              </button>
             </div>
           </div>
         </div>

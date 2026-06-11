@@ -458,6 +458,16 @@ async function startServer() {
     res.json(accessControlSummary);
   }));
 
+  app.post('/api/admin/reset-operational-data', requireAuth(['ADMIN']), asyncHandler(async (req: Request, res: Response) => {
+    const result = DatabaseEngine.resetOperationalData();
+    await DatabaseEngine.flush();
+    DatabaseEngine.getTables().forEach((table) => {
+      broadcastEvent('table-update', table);
+    });
+    broadcastEvent('database-reset', result);
+    res.json(result);
+  }));
+
   // Error handling middleware
   app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error('Unhandled Server Error:', err);

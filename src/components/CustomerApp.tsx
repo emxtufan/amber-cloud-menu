@@ -354,6 +354,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       setSettings(nextSettings);
     });
     const unsubBill = api.subscribe('bill-update', loadData);
+    const unsubDatabaseReset = api.subscribe('database-reset', loadData);
 
     return () => {
       unsubOrderUpdate();
@@ -363,6 +364,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       unsubMenu();
       unsubSettings();
       unsubBill();
+      unsubDatabaseReset();
     };
   }, [tableId]);
 
