@@ -14,9 +14,9 @@ function getRoute(): AppRoute {
   }
 
   const path = window.location.pathname.toLowerCase();
-  if (path.startsWith('/customer')) return 'customer';
+  if (path.startsWith('/meniu') || path.startsWith('/customer')) return 'customer';
   if (path.startsWith('/waiter')) return 'waiter';
-  if (path.startsWith('/kitchen')) return 'kitchen';
+  if (path.startsWith('/kitchen') || path.startsWith('/bucatarie')) return 'kitchen';
   if (path.startsWith('/admin')) return 'admin';
   return 'home';
 }

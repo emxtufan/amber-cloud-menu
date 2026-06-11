@@ -11,7 +11,7 @@ const roleCards = [
   {
     title: 'Meniu client',
     description: 'Deschide linkul de meniu care merge pe codul QR al fiecarei mese.',
-    href: '/customer',
+    href: '/meniu',
     icon: QrCode,
     accent: 'text-primary border-primary/30 bg-primary/10',
   },
@@ -90,13 +90,13 @@ export default function HomeApp({ tables }: HomeAppProps) {
             {tables.map((table) => (
               <a
                 key={table.id}
-                href={`/customer?table=${table.number}`}
+                href={`/meniu?table=${table.number}`}
                 className="rounded-2xl border border-white/8 bg-background/50 px-4 py-4 flex items-center justify-between hover:border-primary/40 transition-all"
               >
                 <div>
                   <p className="text-xs font-mono uppercase tracking-[0.25em] text-muted">Masa {table.number}</p>
                   <p className="mt-1 text-[11px] font-mono text-primary uppercase">{getTableAreaLabel(table.area)}</p>
-                  <p className="mt-1 text-sm text-white">{`/customer?table=${table.number}`}</p>
+                  <p className="mt-1 text-sm text-white">{`/meniu?table=${table.number}`}</p>
                 </div>
                 <span className="text-xs font-mono text-primary uppercase">{getTableStatusLabel(table.status)}</span>
               </a>

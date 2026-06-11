@@ -729,7 +729,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
           <p className="text-xs font-mono uppercase tracking-[0.35em] text-muted">Lipseste linkul mesei</p>
           <h1 className="mt-3 text-2xl font-display font-bold">Acest meniu are nevoie de un numar de masa.</h1>
           <p className="mt-3 text-sm text-muted leading-6">
-            Deschide linkul QR generat pentru o masa, de exemplu <span className="text-white">/customer?table=3</span>.
+            Deschide linkul QR generat pentru o masa, de exemplu <span className="text-white">/meniu?table=3</span>.
           </p>
         </div>
       </div>

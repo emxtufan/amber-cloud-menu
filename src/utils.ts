@@ -180,7 +180,7 @@ export function getPaymentMethodLabel(paymentMethod?: 'CASH' | 'CARD' | 'PROTOCO
 }
 
 export function generateQrSvg(tableNumber: number, baseUrl: string, centerLabel?: string): { svgMarkup: string; targetUrl: string } {
-  const targetUrl = `${baseUrl}/customer?table=${tableNumber}`;
+  const targetUrl = `${baseUrl}/meniu?table=${tableNumber}`;
   const qr = qrcode(0, 'H');
   qr.addData(targetUrl);
   qr.make();

@@ -12,62 +12,106 @@
     {
       "id": "1",
       "number": 1,
-      "status": "PREPARING",
-      "activeSessionId": "session-table-1-1781107729413",
-      "area": "INTERIOR"
+      "status": "AVAILABLE",
+      "name": "Terasa 1",
+      "area": "TERASA"
     },
     {
       "id": "2",
       "number": 2,
       "status": "AVAILABLE",
-      "area": "INTERIOR"
+      "name": "Terasa 2",
+      "area": "TERASA"
     },
     {
       "id": "3",
       "number": 3,
       "status": "AVAILABLE",
-      "area": "INTERIOR"
+      "name": "Terasa 3",
+      "area": "TERASA"
     },
     {
       "id": "4",
       "number": 4,
       "status": "AVAILABLE",
-      "area": "INTERIOR"
+      "name": "Terasa 4",
+      "area": "TERASA"
     },
     {
       "id": "5",
       "number": 5,
       "status": "AVAILABLE",
-      "area": "INTERIOR"
+      "name": "Terasa 5",
+      "area": "TERASA"
     },
     {
       "id": "6",
       "number": 6,
       "status": "AVAILABLE",
+      "name": "Interior 1",
       "area": "INTERIOR"
     },
     {
       "id": "7",
       "number": 7,
       "status": "AVAILABLE",
+      "name": "Interior 2",
       "area": "INTERIOR"
     },
     {
       "id": "8",
       "number": 8,
       "status": "AVAILABLE",
+      "name": "Interior 3",
       "area": "INTERIOR"
     },
     {
       "id": "9",
       "number": 9,
       "status": "AVAILABLE",
+      "name": "Interior 4",
       "area": "INTERIOR"
     },
     {
       "id": "10",
       "number": 10,
       "status": "AVAILABLE",
+      "name": "Interior 5",
+      "area": "INTERIOR"
+    },
+    {
+      "id": "11",
+      "number": 11,
+      "status": "AVAILABLE",
+      "name": "Interior 6",
+      "area": "INTERIOR"
+    },
+    {
+      "id": "12",
+      "number": 12,
+      "status": "AVAILABLE",
+      "name": "Interior 7",
+      "area": "INTERIOR"
+    },
+    {
+      "id": "13",
+      "number": 13,
+      "status": "AVAILABLE",
+      "name": "Interior 8",
+      "area": "INTERIOR"
+    },
+    {
+      "id": "14",
+      "number": 14,
+      "status": "AVAILABLE",
+      "name": "Interior 9",
+      "area": "INTERIOR"
+    },
+    {
+      "id": "15",
+      "number": 15,
+      "status": "AVAILABLE",
+      "name": "Interior 10",
       "area": "INTERIOR"
     }
   ],
@@ -653,216 +697,8 @@
     }
   ],
   "ingredients": [],
-  "orders": [
-    {
-      "id": "ord-1781100170454",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781100170454",
-      "orderNumber": "ORD-6624",
-      "status": "DELIVERED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781100170454-0",
-          "productId": "prod-1781099952253",
-          "productName": "Pizza diavollo 30 cm",
-          "price": 32.4,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781100170454-1",
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
-          "quantity": 1,
-          "sendToKitchen": false,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 132.4,
-      "createdAt": "2026-06-10T14:02:50.454Z",
-      "updatedAt": "2026-06-10T14:05:11.181Z",
-      "prepTimeEstimate": 15,
-      "approvedAt": "2026-06-10T14:03:57.398Z",
-      "startedAt": "2026-06-10T14:04:55.523Z",
-      "readyAt": "2026-06-10T14:05:07.608Z",
-      "completedAt": "2026-06-10T14:05:11.181Z"
-    },
-    {
-      "id": "ord-1781104864006",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781104864005",
-      "orderNumber": "ORD-5815",
-      "status": "CANCELLED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781104864005-0",
-          "productId": "prod-1781099658634",
-          "productName": "Pizza quattro stagioni 30 cm",
-          "price": 32.1,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781105193683-1",
-          "productId": "prod-1781099815446",
-          "productName": "Pizza capriciosa 30 cm",
-          "price": 33.6,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 65.7,
-      "createdAt": "2026-06-10T15:21:04.005Z",
-      "updatedAt": "2026-06-10T15:45:15.262Z",
-      "approvedAt": "2026-06-10T15:26:53.253Z",
-      "cancelledAt": "2026-06-10T15:45:15.262Z"
-    },
-    {
-      "id": "ord-1781105227875",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781107729413",
-      "orderNumber": "ORD-1175",
-      "status": "CONFIRMED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781105227875-0",
-          "productId": "prod-1781099952253",
-          "productName": "Pizza diavollo 30 cm",
-          "price": 32.4,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781105247249-1",
-          "productId": "prod-1781103635020",
-          "productName": "Cheeseburger vita",
-          "price": 66,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781105247249-2",
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
-          "quantity": 1,
-          "sendToKitchen": false,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781105247249-3",
-          "productId": "prod-1781100599304",
-          "productName": "Pizza deliciosa 30 cm",
-          "price": 31.2,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        },
-        {
-          "id": "item-1781105247249-4",
-          "productId": "prod-1781099815446",
-          "productName": "Pizza capriciosa 30 cm",
-          "price": 33.6,
-          "quantity": 1,
-          "sendToKitchen": true,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 263.2,
-      "createdAt": "2026-06-10T15:27:07.874Z",
-      "updatedAt": "2026-06-10T16:08:51.185Z",
-      "approvedAt": "2026-06-10T16:08:51.185Z"
-    },
-    {
-      "id": "ord-1781107701803",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781107729413",
-      "orderNumber": "ORD-5580",
-      "status": "DELIVERED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781107701803-0",
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
-          "quantity": 1,
-          "sendToKitchen": false,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 100,
-      "createdAt": "2026-06-10T16:08:21.803Z",
-      "updatedAt": "2026-06-10T16:08:57.559Z",
-      "approvedAt": "2026-06-10T16:08:49.413Z",
-      "readyAt": "2026-06-10T16:08:49.413Z",
-      "completedAt": "2026-06-10T16:08:57.559Z"
-    }
-  ],
-  "reviews": [
-    {
-      "id": "rev-1781100318857",
-      "orderId": "ord-1781100170454",
-      "productId": "prod-1781099952253",
-      "productName": "Pizza diavollo 30 cm",
-      "rating": 5,
-      "comment": "",
-      "customerName": "Masa 1",
-      "createdAt": "2026-06-10T14:05:18.857Z"
-    },
-    {
-      "id": "rev-1781107752333",
-      "orderId": "ord-1781107701803",
-      "productId": "prod-1781093779291",
-      "productName": "Narghilea Premium",
-      "rating": 5,
-      "comment": "dwqdqwdqwdqw",
-      "customerName": "Masa 1",
-      "createdAt": "2026-06-10T16:09:12.333Z"
-    }
-  ],
-  "bills": [
-    {
-      "id": "bill-1781107232817",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781104864005",
-      "orderIds": [
-        "ord-1781105227875"
-      ],
-      "status": "PAID",
-      "subtotal": 263.2,
-      "paymentMethod": "CASH",
-      "createdAt": "2026-06-10T16:00:32.816Z",
-      "updatedAt": "2026-06-10T16:08:54.770Z"
-    },
-    {
-      "id": "bill-1781100337979",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781100170454",
-      "orderIds": [
-        "ord-1781100170454"
-      ],
-      "status": "PAID",
-      "subtotal": 132.4,
-      "paymentMethod": "CASH",
-      "createdAt": "2026-06-10T14:05:37.979Z",
-      "updatedAt": "2026-06-10T14:06:09.939Z"
-    }
-  ],
+  "orders": [],
+  "reviews": [],
+  "bills": [],
   "waiterRequests": []
 }
