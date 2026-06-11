@@ -18,6 +18,7 @@ import {
   Table,
   TableStatus,
   WaiterRequest,
+  InternalRole,
 } from './src/types.js';
 
 const DB_FILE = path.join(process.cwd(), 'data_store.json');
@@ -49,6 +50,7 @@ interface SupabaseAppStateRow {
 
 const DEFAULT_SETTINGS: RestaurantSettings = {
   customerOrderingEnabled: true,
+  roundPricesEnabled: false,
 };
 
 interface AccessControlData {
@@ -127,6 +129,50 @@ const DEFAULT_ORDERS: Order[] = [];
 const DEFAULT_REVIEWS: Review[] = [];
 
 const DEFAULT_BILLS: Bill[] = [];
+const FRONT_ONLY_KEYWORDS = [
+  'baut',
+  'drink',
+  'bar',
+  'nargh',
+  'hookah',
+  'cafea',
+  'coffee',
+  'cocktail',
+  'coktail',
+  'mocktail',
+  'vin',
+  'bere',
+  'suc',
+  'racor',
+  'limonad',
+  'lemonade',
+  'fresh',
+  'smoothie',
+  'shake',
+  'milkshake',
+  'ceai',
+  'tea',
+  'frappe',
+  'mojito',
+  'spritz',
+  'prosecco',
+  'whisky',
+  'vodka',
+  'gin',
+  'rom',
+  'tequila',
+  'apa',
+  'water',
+  'energizant',
+  'energy',
+  'cola',
+  'fanta',
+  'sprite',
+  'pepsi',
+  'schweppes',
+  'tonic',
+  'red bull',
+];
 
 function slugify(value: string) {
   return value
@@ -206,6 +252,15 @@ function getAreaSequenceLabel(area: string, existingTables: Table[]) {
   const sameAreaCount = existingTables.filter((table) => (table.area || 'INTERIOR') === area).length;
   const nextIndex = sameAreaCount + 1;
   return area === 'TERASA' ? `Terasa ${nextIndex}` : `Interior ${nextIndex}`;
+}
+
+function textMatchesFrontOnlyKeywords(value?: string) {
+  if (!value) {
+    return false;
+  }
+
+  const haystack = value.toLowerCase();
+  return FRONT_ONLY_KEYWORDS.some((keyword) => haystack.includes(keyword));
 }
 
 export class DatabaseEngine {
@@ -508,6 +563,11 @@ export class DatabaseEngine {
           readyAt: order.readyAt ? String(order.readyAt) : undefined,
           completedAt: order.completedAt ? String(order.completedAt) : undefined,
           cancelledAt: order.cancelledAt ? String(order.cancelledAt) : undefined,
+          cancelledByRole:
+            order.cancelledByRole === 'ADMIN' || order.cancelledByRole === 'WAITER' || order.cancelledByRole === 'KITCHEN'
+              ? order.cancelledByRole
+              : undefined,
+          cancellationReason: order.cancellationReason ? String(order.cancellationReason) : undefined,
           paymentMethod:
             order.paymentMethod === 'CARD' || order.paymentMethod === 'CASH' || order.paymentMethod === 'PROTOCOL'
               ? order.paymentMethod
@@ -583,6 +643,10 @@ export class DatabaseEngine {
           raw.settings?.customerOrderingEnabled !== undefined
             ? Boolean(raw.settings.customerOrderingEnabled)
             : DEFAULT_SETTINGS.customerOrderingEnabled,
+        roundPricesEnabled:
+          raw.settings?.roundPricesEnabled !== undefined
+            ? Boolean(raw.settings.roundPricesEnabled)
+            : DEFAULT_SETTINGS.roundPricesEnabled,
       },
       accessControl: {
         adminUsername:
@@ -615,6 +679,7 @@ export class DatabaseEngine {
     };
 
     this.data = migrated;
+    this.normalizeAllOrderKitchenRouting();
     this.compactOpenBills();
     this.recalculateAllTableStatuses();
     return this.data;
@@ -642,6 +707,81 @@ export class DatabaseEngine {
     }
 
     this.data.tables.forEach((table) => this.recalculateTableStatus(table.id));
+  }
+
+  private static isFrontOnlyCategory(category?: Category) {
+    if (!category) {
+      return false;
+    }
+
+    return textMatchesFrontOnlyKeywords(`${category.name} ${category.slug}`);
+  }
+
+  private static isFrontOnlyProduct(productId: string) {
+    if (!this.data) {
+      return false;
+    }
+
+    const product = this.data.products.find((entry) => entry.id === productId);
+    if (!product) {
+      return false;
+    }
+
+    const category = this.data.categories.find((entry) => entry.id === product.categoryId);
+    return (
+      this.isFrontOnlyCategory(category) ||
+      textMatchesFrontOnlyKeywords(product.name) ||
+      textMatchesFrontOnlyKeywords(product.description)
+    );
+  }
+
+  private static itemShouldReachKitchen(item: OrderItem) {
+    if (this.isFrontOnlyProduct(item.productId)) {
+      return false;
+    }
+
+    return item.sendToKitchen !== false;
+  }
+
+  private static normalizeOrderKitchenRouting(order: Order) {
+    let changed = false;
+
+    order.items = order.items.map((item) => {
+      if (!this.isFrontOnlyProduct(item.productId) || item.sendToKitchen === false) {
+        return item;
+      }
+
+      changed = true;
+      return {
+        ...item,
+        sendToKitchen: false,
+      };
+    });
+
+    const hasKitchenItems = order.items.some((item) => this.itemShouldReachKitchen(item));
+    if (!hasKitchenItems && [OrderStatus.CONFIRMED, OrderStatus.PREPARING].includes(order.status)) {
+      order.status = OrderStatus.READY;
+      order.approvedAt = order.approvedAt || order.updatedAt || order.createdAt;
+      order.readyAt = order.readyAt || order.updatedAt || order.createdAt;
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  private static normalizeAllOrderKitchenRouting() {
+    if (!this.data) {
+      return false;
+    }
+
+    let changed = false;
+    this.data.orders.forEach((order) => {
+      if (this.normalizeOrderKitchenRouting(order)) {
+        changed = true;
+      }
+    });
+
+    return changed;
   }
 
   private static compactOpenBills() {
@@ -812,6 +952,67 @@ export class DatabaseEngine {
     return table;
   }
 
+  static clearTableSession(tableId: string) {
+    this.load();
+    if (!this.data) {
+      throw new Error('Database not initialized');
+    }
+
+    const table = this.data.tables.find((entry) => entry.id === tableId);
+    if (!table) {
+      throw new Error('Table not found');
+    }
+
+    const clearedSessionId = table.activeSessionId;
+    const targetSessionIds = new Set<string>();
+    if (clearedSessionId) {
+      targetSessionIds.add(clearedSessionId);
+    }
+
+    this.data.orders.forEach((order) => {
+      if (order.tableId === tableId && order.sessionId && !order.settledAt) {
+        targetSessionIds.add(order.sessionId);
+      }
+    });
+
+    this.data.bills.forEach((bill) => {
+      if (bill.tableId === tableId && bill.sessionId && bill.status !== BillStatus.PAID) {
+        targetSessionIds.add(bill.sessionId);
+      }
+    });
+
+    const removedOrderIds = this.data.orders
+      .filter((order) => order.tableId === tableId && targetSessionIds.has(order.sessionId))
+      .map((order) => order.id);
+    const removedBillIds = this.data.bills
+      .filter((bill) => bill.tableId === tableId && targetSessionIds.has(bill.sessionId))
+      .map((bill) => bill.id);
+    const removedWaiterRequestIds = this.data.waiterRequests
+      .filter((request) => request.tableId === tableId)
+      .map((request) => request.id);
+
+    this.data.orders = this.data.orders.filter(
+      (order) => !(order.tableId === tableId && targetSessionIds.has(order.sessionId))
+    );
+    this.data.bills = this.data.bills.filter(
+      (bill) => !(bill.tableId === tableId && targetSessionIds.has(bill.sessionId))
+    );
+    this.data.waiterRequests = this.data.waiterRequests.filter((request) => request.tableId !== tableId);
+
+    table.activeSessionId = undefined;
+    table.status = TableStatus.AVAILABLE;
+
+    this.save();
+
+    return {
+      table: { ...table },
+      sessionId: clearedSessionId,
+      removedOrderIds,
+      removedBillIds,
+      removedWaiterRequestIds,
+    };
+  }
+
   static createTable(number: number, area = 'INTERIOR', name?: string): Table {
     this.load();
     const exists = this.data?.tables.find((table) => table.number === number);
@@ -969,6 +1170,11 @@ export class DatabaseEngine {
 
   static getOrders(): Order[] {
     this.load();
+    const changed = this.normalizeAllOrderKitchenRouting();
+    if (changed) {
+      this.recalculateAllTableStatuses();
+      this.save();
+    }
     return [...(this.data?.orders || [])].sort(
       (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
     );
@@ -1021,10 +1227,16 @@ export class DatabaseEngine {
       ...item,
       id: `item-${Date.now()}-${index}`,
       sendToKitchen:
-        item.sendToKitchen !== undefined ? item.sendToKitchen : source === OrderSource.WAITER ? true : undefined,
+        item.sendToKitchen !== undefined
+          ? item.sendToKitchen
+          : this.isFrontOnlyProduct(item.productId)
+            ? false
+            : source === OrderSource.WAITER
+              ? true
+              : undefined,
     }));
 
-    const hasKitchenItems = normalizedItems.some((item) => item.sendToKitchen !== false);
+    const hasKitchenItems = normalizedItems.some((item) => this.itemShouldReachKitchen(item));
     const resolvedStatus =
       status === OrderStatus.CONFIRMED && !hasKitchenItems
         ? OrderStatus.READY
@@ -1059,7 +1271,8 @@ export class DatabaseEngine {
     status: OrderStatus,
     prepTimeEstimate?: number,
     startNewSession = false,
-    kitchenItemIds?: string[]
+    kitchenItemIds?: string[],
+    actorRole?: InternalRole
   ): Order {
     this.load();
     const order = this.data?.orders.find((entry) => entry.id === id);
@@ -1096,7 +1309,9 @@ export class DatabaseEngine {
       }));
     }
 
-    const hasKitchenItems = order.items.some((item) => item.sendToKitchen !== false);
+    this.normalizeOrderKitchenRouting(order);
+
+    const hasKitchenItems = order.items.some((item) => this.itemShouldReachKitchen(item));
     const resolvedStatus =
       status === OrderStatus.CONFIRMED && !hasKitchenItems
         ? OrderStatus.READY
@@ -1110,20 +1325,34 @@ export class DatabaseEngine {
     }
 
     if (resolvedStatus === OrderStatus.CONFIRMED) {
-      order.approvedAt = now;
+      order.approvedAt = order.approvedAt || now;
+      if (prepTimeEstimate !== undefined && hasKitchenItems) {
+        order.startedAt = order.startedAt || now;
+      }
     }
     if (resolvedStatus === OrderStatus.PREPARING) {
-      order.startedAt = now;
+      order.startedAt = order.startedAt || now;
     }
     if (resolvedStatus === OrderStatus.READY) {
       order.approvedAt = order.approvedAt || now;
+      order.startedAt = order.startedAt || order.approvedAt || now;
       order.readyAt = now;
     }
     if (resolvedStatus === OrderStatus.DELIVERED) {
+      order.startedAt = order.startedAt || order.readyAt || order.approvedAt || now;
       order.completedAt = now;
     }
     if (resolvedStatus === OrderStatus.CANCELLED) {
       order.cancelledAt = now;
+      order.cancelledByRole = actorRole;
+      order.cancellationReason =
+        actorRole === 'WAITER'
+          ? 'Anulata de ospatar'
+          : actorRole === 'KITCHEN'
+            ? 'Anulata de bucatarie'
+            : actorRole === 'ADMIN'
+              ? 'Anulata de admin'
+              : 'Anulata';
     }
 
     this.recalculateTableStatus(order.tableId);
@@ -1147,9 +1376,15 @@ export class DatabaseEngine {
     }
 
     const now = new Date().toISOString();
-    const appendedItems = items.map((item, index) =>
-      normalizeOrderItem(item, `item-${Date.now()}-${order.items.length + index}`)
-    );
+    const appendedItems = items.map((item, index) => ({
+      ...normalizeOrderItem(item, `item-${Date.now()}-${order.items.length + index}`),
+      sendToKitchen:
+        typeof item.sendToKitchen === 'boolean'
+          ? item.sendToKitchen
+          : this.isFrontOnlyProduct(String(item.productId || ''))
+            ? false
+            : undefined,
+    }));
 
     order.items = [...order.items, ...appendedItems];
     order.subtotal = Number(
@@ -1556,6 +1791,7 @@ export class DatabaseEngine {
     this.load();
     return {
       customerOrderingEnabled: this.data?.settings.customerOrderingEnabled ?? DEFAULT_SETTINGS.customerOrderingEnabled,
+      roundPricesEnabled: this.data?.settings.roundPricesEnabled ?? DEFAULT_SETTINGS.roundPricesEnabled,
     };
   }
 
@@ -1569,6 +1805,9 @@ export class DatabaseEngine {
       ...this.data.settings,
       ...(settings.customerOrderingEnabled !== undefined
         ? { customerOrderingEnabled: Boolean(settings.customerOrderingEnabled) }
+        : {}),
+      ...(settings.roundPricesEnabled !== undefined
+        ? { roundPricesEnabled: Boolean(settings.roundPricesEnabled) }
         : {}),
     };
     this.save();

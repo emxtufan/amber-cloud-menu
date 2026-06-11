@@ -4,11 +4,11 @@ import path from 'path';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { DatabaseEngine } from './server_db.js';
-import { OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod, InternalRole } from './src/types.js';
+import { OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod, InternalRole, TableSessionClearResult } from './src/types.js';
 
 let sseClients: Response[] = [];
 const AUTH_COOKIE_NAME = 'restaurant_internal_session';
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 interface AuthSessionRecord {
   id: string;
@@ -217,6 +217,14 @@ async function startServer() {
     res.json(table);
   }));
 
+  app.post('/api/tables/:id/clear-session', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
+    const result = DatabaseEngine.clearTableSession(req.params.id) as TableSessionClearResult;
+    await DatabaseEngine.flush();
+    broadcastEvent('table-update', result.table);
+    broadcastEvent('session-cleared', result);
+    res.json(result);
+  }));
+
   app.post('/api/tables/:id/settle', requireAuth(['ADMIN', 'WAITER']), asyncHandler(async (req: Request, res: Response) => {
     const { paymentMethod } = req.body;
     if (!paymentMethod) return res.status(400).json({ error: 'paymentMethod is required' });
@@ -317,13 +325,15 @@ async function startServer() {
   app.post('/api/orders/:id/status', requireAuth(['ADMIN', 'WAITER', 'KITCHEN']), asyncHandler(async (req: Request, res: Response) => {
     const { status, prepTimeEstimate, startNewSession, kitchenItemIds } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
+    const session = readAuthSession(req);
     
     const order = DatabaseEngine.updateOrderStatus(
       req.params.id,
       status as OrderStatus,
       prepTimeEstimate,
       Boolean(startNewSession),
-      Array.isArray(kitchenItemIds) ? kitchenItemIds.map((id) => String(id)) : undefined
+      Array.isArray(kitchenItemIds) ? kitchenItemIds.map((id) => String(id)) : undefined,
+      session?.role
     );
     await DatabaseEngine.flush();
     if (order.status === OrderStatus.CONFIRMED) {

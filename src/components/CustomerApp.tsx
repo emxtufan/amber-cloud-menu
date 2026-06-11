@@ -42,10 +42,17 @@ interface CustomerPopupState {
 const trackerStages = [
   { status: OrderStatus.PENDING, label: 'Asteapta ospatarul' },
   { status: OrderStatus.CONFIRMED, label: 'Confirmata' },
-  { status: OrderStatus.PREPARING, label: 'In pregatire' },
   { status: OrderStatus.READY, label: 'Gata' },
   { status: OrderStatus.DELIVERED, label: 'Livrata' },
 ];
+
+function getVisibleTrackerStatus(status: OrderStatus) {
+  if (status === OrderStatus.PREPARING) {
+    return OrderStatus.CONFIRMED;
+  }
+
+  return status;
+}
 
 const ORDER_COOKIE_TTL_MS = 2 * 60 * 60 * 1000;
 const WAITER_CALL_MARKER_TTL_MS = 10 * 60 * 1000;
@@ -130,7 +137,10 @@ function buildSelectedOptions(product: Product, selectedChoicesByGroup: Record<s
 export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true });
+  const [settings, setSettings] = useState<RestaurantSettings>({
+    customerOrderingEnabled: true,
+    roundPricesEnabled: false,
+  });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -355,6 +365,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
     });
     const unsubBill = api.subscribe('bill-update', loadData);
     const unsubDatabaseReset = api.subscribe('database-reset', loadData);
+    const unsubSessionCleared = api.subscribe('session-cleared', loadData);
 
     return () => {
       unsubOrderUpdate();
@@ -365,6 +376,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
       unsubSettings();
       unsubBill();
       unsubDatabaseReset();
+      unsubSessionCleared();
     };
   }, [tableId]);
 
@@ -430,7 +442,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
   }, [waiterCallMarker, waiterCallStorageKey]);
 
   const featuredBestsellers = useMemo(
-    () => products.filter((product) => product.isBestseller).slice(0, 4),
+    () => products.filter((product) => product.isBestseller),
     [products]
   );
 
@@ -946,7 +958,8 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
             ) : (
               <div className="mt-4 flex flex-col gap-4">
                 {sessionOrders.map((order) => {
-                  const currentStageIndex = trackerStages.findIndex((stage) => stage.status === order.status);
+                  const visibleTrackerStatus = getVisibleTrackerStatus(order.status);
+                  const currentStageIndex = trackerStages.findIndex((stage) => stage.status === visibleTrackerStatus);
                   const cancelled = order.status === OrderStatus.CANCELLED;
 
                   return (
@@ -958,7 +971,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                             {order.items.length} items • {formatCad(order.subtotal)}
                           </p>
                         </div>
-                          <span className="text-[11px] font-mono uppercase text-primary">{getOrderStatusLabel(order.status)}</span>
+                          <span className="text-[11px] font-mono uppercase text-primary">{getOrderStatusLabel(visibleTrackerStatus)}</span>
                       </div>
 
                       <div className="mt-3 space-y-2">
@@ -985,7 +998,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                         <div className="mt-5 flex flex-col gap-1">
                           {trackerStages.map((stage, index) => {
                             const reached = index <= currentStageIndex;
-                            const isCurrentStage = order.status === stage.status;
+                            const isCurrentStage = visibleTrackerStatus === stage.status;
                             const isLastStage = index === trackerStages.length - 1;
 
                             return (
@@ -1010,7 +1023,7 @@ export default function CustomerApp({ tableId, tables }: CustomerAppProps) {
                             );
                           })}
 
-                          {order.status === OrderStatus.PREPARING && order.prepTimeEstimate && (
+                          {visibleTrackerStatus === OrderStatus.CONFIRMED && order.prepTimeEstimate && (
                             <div className="rounded-xl bg-card border border-white/8 px-3 py-2 text-xs text-warning">
                               Timp estimat in bucatarie: {order.prepTimeEstimate} minute
                             </div>

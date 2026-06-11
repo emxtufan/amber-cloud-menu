@@ -142,6 +142,8 @@ export interface Order {
   readyAt?: string;
   completedAt?: string;
   cancelledAt?: string;
+  cancelledByRole?: InternalRole;
+  cancellationReason?: string;
   paymentMethod?: PaymentMethod;
   settledAt?: string;
 }
@@ -198,6 +200,7 @@ export interface WaiterRequest {
 
 export interface RestaurantSettings {
   customerOrderingEnabled: boolean;
+  roundPricesEnabled: boolean;
 }
 
 export type InternalRole = 'ADMIN' | 'WAITER' | 'KITCHEN';
@@ -225,6 +228,14 @@ export interface ResetOperationalDataResult {
     activeTableSessions: number;
   };
   preserved: string[];
+}
+
+export interface TableSessionClearResult {
+  table: Table;
+  sessionId?: string;
+  removedOrderIds: string[];
+  removedBillIds: string[];
+  removedWaiterRequestIds: string[];
 }
 
 export interface SystemStats {

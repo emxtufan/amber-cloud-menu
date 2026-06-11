@@ -1,4 +1,4 @@
-import { Table, Category, Product, Order, Bill, Review, RestaurantSettings, SystemStats, TableStatus, OrderStatus, BillStatus, OrderSource, WaiterRequest, PaymentMethod, TableSettlementResult, SelectedOrderOption, AccessControlSummary, AuthSessionInfo, InternalRole, ResetOperationalDataResult } from '../types.js';
+import { Table, Category, Product, Order, Bill, Review, RestaurantSettings, SystemStats, TableStatus, OrderStatus, BillStatus, OrderSource, WaiterRequest, PaymentMethod, TableSettlementResult, SelectedOrderOption, AccessControlSummary, AuthSessionInfo, InternalRole, ResetOperationalDataResult, TableSessionClearResult } from '../types.js';
 
 // Determine base API url dynamically
 const BASE_URL = '';
@@ -32,7 +32,7 @@ class ApiClient {
     });
 
     // Handle incoming events from SSE channel
-    const eventTypes = ['new-order', 'new-order-request', 'order-update', 'table-update', 'table-delete', 'bill-update', 'new-review', 'menu-update', 'settings-update', 'new-waiter-request', 'waiter-request-update', 'database-reset', 'ping'];
+    const eventTypes = ['new-order', 'new-order-request', 'order-update', 'table-update', 'table-delete', 'bill-update', 'new-review', 'menu-update', 'settings-update', 'new-waiter-request', 'waiter-request-update', 'database-reset', 'session-cleared', 'ping'];
     eventTypes.forEach(type => {
       this.eventSource?.addEventListener(type, (event: MessageEvent) => {
         try {
@@ -132,6 +132,12 @@ class ApiClient {
     return this.request<Table>(`/api/tables/${id}/status`, {
       method: 'POST',
       body: JSON.stringify({ status })
+    });
+  }
+
+  clearTableSession(id: string): Promise<TableSessionClearResult> {
+    return this.request<TableSessionClearResult>(`/api/tables/${id}/clear-session`, {
+      method: 'POST'
     });
   }
 

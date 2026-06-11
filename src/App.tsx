@@ -4,7 +4,8 @@ import CustomerApp from './components/CustomerApp.js';
 import KitchenApp from './components/KitchenApp.js';
 import WaiterApp from './components/WaiterApp.js';
 import { api } from './services/api.js';
-import { AuthSessionInfo, InternalRole, Table } from './types.js';
+import { AuthSessionInfo, InternalRole, RestaurantSettings, Table } from './types.js';
+import { setPriceRoundingEnabled } from './utils.js';
 
 type AppRoute = 'home' | 'customer' | 'waiter' | 'kitchen' | 'admin';
 
@@ -50,6 +51,10 @@ export default function App() {
   const [rolePin, setRolePin] = useState('');
   const [authError, setAuthError] = useState('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
+  const [, setGlobalSettings] = useState<RestaurantSettings>({
+    customerOrderingEnabled: true,
+    roundPricesEnabled: false,
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -107,6 +112,40 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadSettings = async () => {
+      try {
+        const nextSettings = await api.getSettings();
+        if (!isMounted) {
+          return;
+        }
+
+        setGlobalSettings(nextSettings);
+        setPriceRoundingEnabled(Boolean(nextSettings.roundPricesEnabled));
+      } catch (error) {
+        console.error('Nu am putut incarca setarile globale', error);
+      }
+    };
+
+    loadSettings();
+
+    const unsubSettings = api.subscribe('settings-update', (nextSettings: RestaurantSettings) => {
+      if (!isMounted) {
+        return;
+      }
+
+      setGlobalSettings(nextSettings);
+      setPriceRoundingEnabled(Boolean(nextSettings.roundPricesEnabled));
+    });
+
+    return () => {
+      isMounted = false;
+      unsubSettings();
+    };
+  }, []);
+
   const route = useMemo(() => getRoute(), []);
   const selectedTableId = useMemo(() => getRequestedTableId(tables), [tables]);
   const requiredInternalRole = route === 'admin' ? 'ADMIN' : route === 'waiter' ? 'WAITER' : route === 'kitchen' ? 'KITCHEN' : null;
@@ -140,44 +179,6 @@ export default function App() {
       isMounted = false;
     };
   }, [route]);
-
-  useEffect(() => {
-    if (route === 'customer' || !authSession.authenticated || !authSession.role) {
-      return;
-    }
-
-    const timeoutByRole: Record<InternalRole, number> = {
-      ADMIN: 15 * 60 * 1000,
-      WAITER: 5 * 60 * 1000,
-      KITCHEN: 10 * 60 * 1000,
-    };
-
-    const timeoutMs = timeoutByRole[authSession.role];
-    let timeoutId = window.setTimeout(() => {
-      void api.logout().finally(() => {
-        setAuthSession({ authenticated: false });
-        setAuthError('Sesiunea a expirat dupa inactivitate. Autentifica-te din nou.');
-      });
-    }, timeoutMs);
-
-    const resetTimer = () => {
-      window.clearTimeout(timeoutId);
-      timeoutId = window.setTimeout(() => {
-        void api.logout().finally(() => {
-          setAuthSession({ authenticated: false });
-          setAuthError('Sesiunea a expirat dupa inactivitate. Autentifica-te din nou.');
-        });
-      }, timeoutMs);
-    };
-
-    const events: Array<keyof WindowEventMap> = ['mousemove', 'mousedown', 'touchstart', 'keydown', 'scroll'];
-    events.forEach((eventName) => window.addEventListener(eventName, resetTimer, { passive: true }));
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      events.forEach((eventName) => window.removeEventListener(eventName, resetTimer));
-    };
-  }, [authSession, route]);
 
   const destinationByRole: Record<InternalRole, string> = {
     ADMIN: '/admin',

@@ -294,7 +294,18 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     };
 
     const unsubTable = api.subscribe('table-update', refresh);
-    const unsubOrder = api.subscribe('order-update', refresh);
+    const unsubOrder = api.subscribe('order-update', (order: Order) => {
+      if (order.status === OrderStatus.READY) {
+        pushAlert({
+          tableId: order.tableId,
+          title: `Comanda ${order.orderNumber} este gata`,
+          detail: `Masa ${order.tableNumber} poate fi ridicata si servita.`,
+          tone: 'order',
+        });
+        startWaiterAlertLoop();
+      }
+      refresh();
+    });
     const unsubNewOrder = api.subscribe('new-order', refresh);
     const unsubNewOrderRequest = api.subscribe('new-order-request', (order: Order) => {
       pushAlert({
@@ -330,6 +341,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     });
     const unsubWaiterRequestUpdate = api.subscribe('waiter-request-update', refresh);
     const unsubDatabaseReset = api.subscribe('database-reset', refresh);
+    const unsubSessionCleared = api.subscribe('session-cleared', refresh);
 
     return () => {
       unsubTable();
@@ -340,6 +352,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       unsubNewWaiterRequest();
       unsubWaiterRequestUpdate();
       unsubDatabaseReset();
+      unsubSessionCleared();
     };
   }, []);
 
@@ -609,12 +622,10 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       };
     }
 
-    if (order.status === OrderStatus.PREPARING) {
+    if ((order.status === OrderStatus.CONFIRMED || order.status === OrderStatus.PREPARING) && order.prepTimeEstimate) {
       return {
-        label: 'In pregatire',
-        detail: order.prepTimeEstimate
-          ? `Bucataria lucreaza acum. Timp tinta: ${order.prepTimeEstimate} min.`
-          : 'Bucataria pregateste acum aceasta comanda.',
+        label: 'Timp setat',
+        detail: `Comanda este deja in fluxul bucatariei. Estimare actuala: ${order.prepTimeEstimate} min.`,
         badgeClass: 'border-warning/20 bg-warning/10 text-warning',
       };
     }
@@ -622,7 +633,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     if (order.status === OrderStatus.CONFIRMED) {
       return {
         label: 'Trimisa in bucatarie',
-        detail: 'Comanda a fost preluata de fluxul bucatariei si asteapta pornirea gatirii.',
+        detail: 'Comanda a fost trimisa in bucatarie si asteapta estimarea de timp.',
         badgeClass: 'border-primary/20 bg-primary/10 text-primary',
       };
     }
@@ -705,7 +716,13 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
 
   const clearTable = async (tableId: string) => {
     try {
-      await api.updateTableStatus(tableId, TableStatus.AVAILABLE);
+      await api.clearTableSession(tableId);
+      setManualQueuedOrders((current) => current.filter((order) => order.tableId !== tableId));
+      if (selectedTableId === tableId) {
+        resetManualDraft();
+        resetPendingEditor();
+        setIsAddingManual(false);
+      }
       fetchAllData();
     } catch (error) {
       console.error('Nu am putut goli masa', error);
@@ -2008,13 +2025,23 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                               </div>
                             )}
 
-                            {order.status === OrderStatus.READY && (
-                              <button
-                                onClick={() => deliverOrder(order.id)}
-                                className="mt-4 w-full rounded-2xl bg-success px-4 py-3 text-sm font-semibold text-black"
-                              >
-                                Marcheaza livrata
-                              </button>
+                            {order.status !== OrderStatus.PENDING && (
+                              <div className={`mt-4 grid gap-2 ${order.status === OrderStatus.READY ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                                <button
+                                  onClick={() => cancelOrder(order.id)}
+                                  className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-semibold text-danger"
+                                >
+                                  Anuleaza comanda
+                                </button>
+                                {order.status === OrderStatus.READY && (
+                                  <button
+                                    onClick={() => deliverOrder(order.id)}
+                                    className="rounded-2xl bg-success px-4 py-3 text-sm font-semibold text-black"
+                                  >
+                                    Marcheaza livrata
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
                       ))

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BellOff, BellRing, ChefHat, CheckCircle2, Clock3, Flame, History, XCircle } from 'lucide-react';
+import { BellOff, BellRing, ChefHat, CheckCircle2, Clock3, History, XCircle } from 'lucide-react';
 import { api } from '../services/api.js';
 import { Order, OrderStatus } from '../types.js';
-import { formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, groupSelectedOptions } from '../utils.js';
+import { formatCad, formatTimeElapsed, getOrderSourceLabel, getOrderStatusLabel, groupSelectedOptions } from '../utils.js';
 
 function getKitchenItems(order: Order) {
   return order.items.filter((item) => item.sendToKitchen !== false);
@@ -10,6 +10,34 @@ function getKitchenItems(order: Order) {
 
 function hasKitchenItems(order: Order) {
   return getKitchenItems(order).length > 0;
+}
+
+function hasKitchenEstimate(order: Order) {
+  return Boolean(order.prepTimeEstimate || order.startedAt || order.status === OrderStatus.PREPARING);
+}
+
+function getKitchenSubtotal(order: Order) {
+  return getKitchenItems(order).reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+function getKitchenCancellationLabel(order: Order) {
+  if (order.cancellationReason) {
+    return order.cancellationReason;
+  }
+
+  if (order.cancelledByRole === 'WAITER') {
+    return 'Anulata de ospatar';
+  }
+
+  if (order.cancelledByRole === 'KITCHEN') {
+    return 'Anulata de bucatarie';
+  }
+
+  if (order.cancelledByRole === 'ADMIN') {
+    return 'Anulata de admin';
+  }
+
+  return 'Anulata';
 }
 
 const KITCHEN_ALERT_SOUND_URL = new URL('../../sound.mp3', import.meta.url).href;
@@ -118,12 +146,14 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
 
     const unsubOrderUpdate = api.subscribe('order-update', refreshOrder);
     const unsubDatabaseReset = api.subscribe('database-reset', fetchOrders);
+    const unsubSessionCleared = api.subscribe('session-cleared', fetchOrders);
 
     return () => {
       clearInterval(timer);
       unsubNewOrder();
       unsubOrderUpdate();
       unsubDatabaseReset();
+      unsubSessionCleared();
     };
   }, []);
 
@@ -160,12 +190,11 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
     };
   }, []);
 
-  const incomingOrders = useMemo(
-    () => orders.filter((order) => order.status === OrderStatus.CONFIRMED && hasKitchenItems(order)),
-    [orders]
-  );
-  const preparingOrders = useMemo(
-    () => orders.filter((order) => order.status === OrderStatus.PREPARING && hasKitchenItems(order)),
+  const activeKitchenOrders = useMemo(
+    () =>
+      orders.filter(
+        (order) => [OrderStatus.CONFIRMED, OrderStatus.PREPARING].includes(order.status) && hasKitchenItems(order)
+      ),
     [orders]
   );
   const readyOrders = useMemo(
@@ -191,12 +220,16 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
     }
   };
 
+  const openPrepConfigurator = (order: Order) => {
+    setSelectedOrderView('prep');
+    setSelectedOrder(order);
+    setPrepTimeInput(order.prepTimeEstimate || 15);
+  };
+
   const renderOrderCard = (
     order: Order,
     accent: string,
-    actionLabel: string,
-    action: () => void,
-    secondaryAction?: { label: string; run: () => void; danger?: boolean }
+    actions: Array<{ label: string; run: () => void; tone?: 'primary' | 'danger' | 'neutral' }>
   ) => (
     <div key={order.id} className={`rounded-[24px] border p-4 bg-card/80 ${accent}`}>
       <div className="flex items-start justify-between gap-3">
@@ -204,6 +237,9 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
           <p className="text-xs font-mono uppercase tracking-[0.25em] text-muted">Masa {order.tableNumber}</p>
           <h3 className="mt-2 text-lg font-display font-bold">{order.orderNumber}</h3>
           <p className="mt-1 text-xs text-muted">{formatTimeElapsed(order.createdAt)}</p>
+          <p className="mt-2 text-xs font-mono uppercase tracking-[0.18em] text-warning">
+            Total bucatarie {formatCad(getKitchenSubtotal(order))}
+          </p>
         </div>
         <span className="text-[11px] font-mono uppercase text-primary">{getOrderSourceLabel(order.source)}</span>
       </div>
@@ -213,6 +249,9 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
           <div key={item.id} className="flex items-start justify-between gap-3 text-sm">
             <div>
               <p className="font-semibold">{item.productName}</p>
+              <p className="mt-1 text-[11px] font-mono uppercase text-white/70">
+                {formatCad(item.price)} bucata / {formatCad(item.price * item.quantity)} total
+              </p>
               {groupSelectedOptions(item.selectedOptions).length > 0 && (
                 <div className="mt-1 space-y-1">
                   {groupSelectedOptions(item.selectedOptions).map((group) => (
@@ -235,28 +274,28 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
         </div>
       )}
 
-      {order.prepTimeEstimate && order.status === OrderStatus.PREPARING && (
+      {order.prepTimeEstimate && [OrderStatus.CONFIRMED, OrderStatus.PREPARING].includes(order.status) && (
         <div className="mt-4 rounded-2xl border border-warning/20 bg-warning/10 px-3 py-3 text-xs text-warning">
           Timp tinta de pregatire: {order.prepTimeEstimate} minute
         </div>
       )}
 
-      <div className={`mt-4 grid gap-2 ${secondaryAction ? 'grid-cols-2' : 'grid-cols-1'}`}>
-        {secondaryAction && (
+      <div className={`mt-4 grid gap-2 ${actions.length === 1 ? 'grid-cols-1' : actions.length === 2 ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
+        {actions.map((action) => (
           <button
-            onClick={secondaryAction.run}
+            key={action.label}
+            onClick={action.run}
             className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
-              secondaryAction.danger
+              action.tone === 'danger'
                 ? 'border border-danger/20 bg-danger/10 text-danger'
-                : 'border border-white/8 bg-background text-white'
+                : action.tone === 'neutral'
+                  ? 'border border-white/8 bg-background text-white'
+                  : 'bg-primary text-white'
             }`}
           >
-            {secondaryAction.label}
+            {action.label}
           </button>
-        )}
-        <button onClick={action} className="rounded-2xl bg-primary px-4 py-3 text-sm font-semibold">
-          {actionLabel}
-        </button>
+        ))}
       </div>
     </div>
   );
@@ -313,58 +352,48 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
           </div>
         </header>
 
-        <main className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <main className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <section className="rounded-[28px] border border-white/8 bg-card p-5">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
                 <Clock3 className="w-4 h-4 text-primary" />
-                <h2 className="text-lg font-display font-bold">Comenzi aprobate noi</h2>
+                <h2 className="text-lg font-display font-bold">Comenzi trimise in bucatarie</h2>
               </div>
-              <span className="text-xs font-mono uppercase text-muted">{incomingOrders.length}</span>
+              <span className="text-xs font-mono uppercase text-muted">{activeKitchenOrders.length}</span>
             </div>
 
             <div className="mt-4 space-y-4 max-h-[70vh] overflow-y-auto">
-              {incomingOrders.length === 0 ? (
-                <div className="py-12 text-center text-sm text-muted">Nu exista comenzi aprobate in asteptare.</div>
+              {activeKitchenOrders.length === 0 ? (
+                <div className="py-12 text-center text-sm text-muted">Nu exista comenzi active in bucatarie.</div>
               ) : (
-                incomingOrders.map((order) =>
-                  renderOrderCard(
-                    order,
-                    'border-primary/20',
-                    'Porneste gatirea',
-                    () => {
-                      setSelectedOrderView('prep');
-                      setSelectedOrder(order);
-                      setPrepTimeInput(order.prepTimeEstimate || 15);
-                    },
+                activeKitchenOrders.map((order) =>
+                  renderOrderCard(order, hasKitchenEstimate(order) ? 'border-warning/20' : 'border-primary/20', [
                     {
                       label: 'Anuleaza',
                       run: () => updateStatus(order.id, OrderStatus.CANCELLED),
-                      danger: true,
-                    }
-                  )
-                )
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-[28px] border border-white/8 bg-card p-5">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <div className="flex items-center gap-2">
-                <Flame className="w-4 h-4 text-warning" />
-                <h2 className="text-lg font-display font-bold">In pregatire</h2>
-              </div>
-              <span className="text-xs font-mono uppercase text-muted">{preparingOrders.length}</span>
-            </div>
-
-            <div className="mt-4 space-y-4 max-h-[70vh] overflow-y-auto">
-              {preparingOrders.length === 0 ? (
-                <div className="py-12 text-center text-sm text-muted">Nu se gateste nimic acum.</div>
-              ) : (
-                preparingOrders.map((order) =>
-                  renderOrderCard(order, 'border-warning/20', 'Marcheaza gata', () =>
-                    updateStatus(order.id, OrderStatus.READY)
-                  )
+                      tone: 'danger',
+                    },
+                    ...(hasKitchenEstimate(order)
+                      ? [
+                          {
+                            label: 'Modifica timpul',
+                            run: () => openPrepConfigurator(order),
+                            tone: 'neutral' as const,
+                          },
+                          {
+                            label: 'Marcheaza gata',
+                            run: () => updateStatus(order.id, OrderStatus.READY),
+                            tone: 'primary' as const,
+                          },
+                        ]
+                      : [
+                          {
+                            label: 'Seteaza timpul',
+                            run: () => openPrepConfigurator(order),
+                            tone: 'primary' as const,
+                          },
+                        ]),
+                  ])
                 )
               )}
             </div>
@@ -384,9 +413,13 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                 <div className="py-12 text-center text-sm text-muted">Nu exista preparate care asteapta ridicarea.</div>
               ) : (
                 readyOrders.map((order) =>
-                  renderOrderCard(order, 'border-success/20', 'Marcheaza livrata', () =>
-                    updateStatus(order.id, OrderStatus.DELIVERED)
-                  )
+                  renderOrderCard(order, 'border-success/20', [
+                    {
+                      label: 'Marcheaza livrata',
+                      run: () => updateStatus(order.id, OrderStatus.DELIVERED),
+                      tone: 'primary',
+                    },
+                  ])
                 )
               )}
             </div>
@@ -420,18 +453,24 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                       <p className="mt-2 text-xs text-white/70">
                         {getKitchenItems(order).reduce((sum, item) => sum + item.quantity, 0)} produse • {getOrderSourceLabel(order.source)}
                       </p>
+                      <p className="mt-2 text-xs font-mono uppercase tracking-[0.18em] text-warning">
+                        {formatCad(getKitchenSubtotal(order))}
+                      </p>
                     </div>
                     <span
                       className={`text-[11px] font-mono uppercase ${
                         order.status === OrderStatus.DELIVERED ? 'text-success' : 'text-danger'
                       }`}
                     >
-                      {getOrderStatusLabel(order.status)}
+                      {order.status === OrderStatus.CANCELLED ? getKitchenCancellationLabel(order) : getOrderStatusLabel(order.status)}
                     </span>
                   </div>
                   <p className="mt-3 text-xs text-muted">
                     Actualizata {new Date(order.updatedAt).toLocaleString()}
                   </p>
+                  {order.status === OrderStatus.CANCELLED && (
+                    <p className="mt-2 text-xs text-danger">{getKitchenCancellationLabel(order)}</p>
+                  )}
                   <p className="mt-2 text-[11px] font-mono uppercase tracking-[0.18em] text-primary">
                     Apasa pentru detalii
                   </p>
@@ -448,7 +487,7 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-mono uppercase tracking-[0.25em] text-primary">
-                  {selectedOrderView === 'prep' ? 'Porneste comanda' : 'Detalii istoric'}
+                  {selectedOrderView === 'prep' ? 'Seteaza timpul' : 'Detalii istoric'}
                 </p>
                 <h3 className="mt-2 text-xl font-display font-bold">{selectedOrder.orderNumber}</h3>
               </div>
@@ -507,10 +546,10 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                     Inchide
                   </button>
                   <button
-                    onClick={() => updateStatus(selectedOrder.id, OrderStatus.PREPARING, prepTimeInput)}
+                    onClick={() => updateStatus(selectedOrder.id, OrderStatus.CONFIRMED, prepTimeInput)}
                     className="flex-1 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold"
                   >
-                    Porneste gatirea - {prepTimeInput} min
+                    Salveaza timpul - {prepTimeInput} min
                   </button>
                 </div>
               </>
@@ -524,7 +563,11 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                     </div>
                     <div>
                       <p className="font-mono uppercase text-primary">Status</p>
-                      <p className="mt-2 text-sm font-semibold text-white">{getOrderStatusLabel(selectedOrder.status)}</p>
+                      <p className="mt-2 text-sm font-semibold text-white">
+                        {selectedOrder.status === OrderStatus.CANCELLED
+                          ? getKitchenCancellationLabel(selectedOrder)
+                          : getOrderStatusLabel(selectedOrder.status)}
+                      </p>
                     </div>
                     <div>
                       <p className="font-mono uppercase text-primary">Sursa</p>
@@ -533,6 +576,10 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                     <div>
                       <p className="font-mono uppercase text-primary">Actualizata</p>
                       <p className="mt-2 text-sm font-semibold text-white">{new Date(selectedOrder.updatedAt).toLocaleString()}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="font-mono uppercase text-primary">Total bucatarie</p>
+                      <p className="mt-2 text-sm font-semibold text-white">{formatCad(getKitchenSubtotal(selectedOrder))}</p>
                     </div>
                   </div>
                 </div>
@@ -544,6 +591,9 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                       <div key={item.id} className="flex items-start justify-between gap-3 rounded-2xl border border-white/8 bg-card/60 px-3 py-3 text-sm">
                         <div className="min-w-0">
                           <p className="font-semibold text-white">{item.productName}</p>
+                          <p className="mt-1 text-[11px] font-mono uppercase text-white/70">
+                            {formatCad(item.price)} bucata / {formatCad(item.price * item.quantity)} total
+                          </p>
                           {groupSelectedOptions(item.selectedOptions).length > 0 && (
                             <div className="mt-1 space-y-1">
                               {groupSelectedOptions(item.selectedOptions).map((group) => (
@@ -564,6 +614,12 @@ export default function KitchenApp({ onLogout }: { onLogout?: () => void | Promi
                 {selectedOrder.notes && (
                   <div className="mt-4 rounded-2xl border border-white/8 bg-background/60 px-4 py-3 text-xs text-muted">
                     {selectedOrder.notes}
+                  </div>
+                )}
+
+                {selectedOrder.status === OrderStatus.CANCELLED && (
+                  <div className="mt-4 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-xs text-danger">
+                    {getKitchenCancellationLabel(selectedOrder)}
                   </div>
                 )}
 

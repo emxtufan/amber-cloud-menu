@@ -1,6 +1,7 @@
 {
   "settings": {
-    "customerOrderingEnabled": true
+    "customerOrderingEnabled": true,
+    "roundPricesEnabled": true
   },
   "accessControl": {
     "adminUsername": "admin",
@@ -3488,174 +3489,126 @@
   "ingredients": [],
   "orders": [
     {
-      "id": "ord-1781185714532",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781185714532",
-      "orderNumber": "ORD-5701",
-      "status": "CANCELLED",
+      "id": "ord-1781194049812",
+      "tableId": "10",
+      "tableNumber": 10,
+      "sessionId": "session-table-10-1781190971337",
+      "orderNumber": "ORD-5265",
+      "status": "DELIVERED",
       "source": "CUSTOMER",
       "items": [
         {
-          "id": "item-1781185714532-0",
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
-          "quantity": 1,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 100,
-      "createdAt": "2026-06-11T13:48:34.532Z",
-      "updatedAt": "2026-06-11T13:49:12.832Z",
-      "cancelledAt": "2026-06-11T13:49:12.832Z"
-    },
-    {
-      "id": "ord-1781185843169",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781185860628",
-      "orderNumber": "ORD-2401",
-      "status": "CANCELLED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781185843168-0",
+          "id": "item-1781194049812-0",
           "productId": "prod-1781099658634",
           "productName": "Pizza quattro stagioni 30 cm",
           "price": 53.5,
           "quantity": 1,
           "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168934412-m1hgq",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168951212-472yn",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781194049812-1",
+          "productId": "prod-1781171779543",
+          "productName": "Tiramisu grande",
+          "price": 27,
+          "quantity": 1,
+          "sendToKitchen": true,
           "selectedOptions": []
+        },
+        {
+          "id": "item-1781194049812-2",
+          "productId": "prod-1781171682943",
+          "productName": "Mini papanasi",
+          "price": 29,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781171596213-2mc6f",
+              "groupName": "Variante",
+              "choiceId": "choice-1781171596213-t53m9",
+              "choiceName": "Mini papanasi  cu dulceata visine",
+              "priceDelta": 0
+            }
+          ]
         }
       ],
-      "subtotal": 53.5,
-      "createdAt": "2026-06-11T13:50:43.168Z",
-      "updatedAt": "2026-06-11T13:59:20.694Z",
-      "approvedAt": "2026-06-11T13:51:00.627Z",
-      "cancelledAt": "2026-06-11T13:59:20.694Z"
+      "subtotal": 109.5,
+      "createdAt": "2026-06-11T16:07:29.812Z",
+      "updatedAt": "2026-06-11T17:50:17.484Z",
+      "prepTimeEstimate": 25,
+      "approvedAt": "2026-06-11T16:07:42.562Z",
+      "startedAt": "2026-06-11T16:08:19.758Z",
+      "readyAt": "2026-06-11T16:41:23.280Z",
+      "completedAt": "2026-06-11T16:41:31.760Z",
+      "paymentMethod": "PROTOCOL",
+      "settledAt": "2026-06-11T17:50:17.484Z"
     },
     {
-      "id": "ord-1781186202275",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781185714532",
-      "orderNumber": "ORD-8125",
+      "id": "ord-1781194598972",
+      "tableId": "3",
+      "tableNumber": 3,
+      "sessionId": "session-table-3-1781194598972",
+      "orderNumber": "ORD-7301",
       "status": "CANCELLED",
       "source": "CUSTOMER",
       "items": [
         {
-          "id": "item-1781186202275-0",
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
+          "id": "item-1781194598972-0",
+          "productId": "prod-1781175727130",
+          "productName": "Limonada Clasica",
+          "price": 23,
           "quantity": 1,
+          "notes": "Cu menta, te rog",
+          "sendToKitchen": false,
           "selectedOptions": []
         }
       ],
-      "subtotal": 100,
-      "createdAt": "2026-06-11T13:56:42.274Z",
-      "updatedAt": "2026-06-11T13:56:57.380Z",
-      "cancelledAt": "2026-06-11T13:56:57.380Z"
+      "subtotal": 23,
+      "createdAt": "2026-06-11T16:16:38.972Z",
+      "updatedAt": "2026-06-11T17:53:33.501Z",
+      "approvedAt": "2026-06-11T16:16:51.864Z",
+      "cancelledAt": "2026-06-11T17:53:33.501Z"
     },
     {
-      "id": "ord-1781186564317",
+      "id": "ord-1781201090180",
       "tableId": "1",
       "tableNumber": 1,
-      "sessionId": "session-table-1-1781186564317",
-      "orderNumber": "ORD-2418",
+      "sessionId": "session-table-1-1781201090180",
+      "orderNumber": "ORD-8623",
       "status": "DELIVERED",
       "source": "CUSTOMER",
       "items": [
         {
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
+          "id": "item-1781201090180-0",
+          "productId": "prod-1781175727130",
+          "productName": "Limonada Clasica",
+          "price": 23,
           "quantity": 1,
-          "selectedOptions": [],
-          "id": "item-1781186564317-0",
-          "sendToKitchen": false
-        },
-        {
-          "productId": "prod-1781099658634",
-          "productName": "Pizza quattro stagioni 30 cm",
-          "price": 53.5,
-          "quantity": 1,
-          "selectedOptions": [],
-          "id": "item-1781186564317-1",
-          "sendToKitchen": true
+          "notes": "cu apa",
+          "sendToKitchen": false,
+          "selectedOptions": []
         }
       ],
-      "notes": "",
-      "subtotal": 153.5,
-      "createdAt": "2026-06-11T14:02:44.317Z",
-      "updatedAt": "2026-06-11T14:03:16.346Z",
-      "approvedAt": "2026-06-11T14:02:51.042Z",
-      "readyAt": "2026-06-11T14:03:15.399Z",
-      "prepTimeEstimate": 15,
-      "startedAt": "2026-06-11T14:03:12.174Z",
-      "completedAt": "2026-06-11T14:03:16.346Z"
-    },
-    {
-      "id": "ord-1781186626677",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781186626677",
-      "orderNumber": "ORD-6721",
-      "status": "DELIVERED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "productId": "prod-1781093779291",
-          "productName": "Narghilea Premium",
-          "price": 100,
-          "quantity": 1,
-          "selectedOptions": [],
-          "id": "item-1781186626677-0",
-          "sendToKitchen": false
-        }
-      ],
-      "notes": "",
-      "subtotal": 100,
-      "createdAt": "2026-06-11T14:03:46.677Z",
-      "updatedAt": "2026-06-11T14:04:19.631Z",
-      "approvedAt": "2026-06-11T14:03:57.466Z",
-      "readyAt": "2026-06-11T14:03:57.466Z",
-      "completedAt": "2026-06-11T14:04:00.966Z",
-      "paymentMethod": "PROTOCOL",
-      "settledAt": "2026-06-11T14:04:19.631Z"
+      "subtotal": 23,
+      "createdAt": "2026-06-11T18:04:50.180Z",
+      "updatedAt": "2026-06-11T18:08:53.759Z",
+      "approvedAt": "2026-06-11T18:05:28.401Z",
+      "readyAt": "2026-06-11T18:05:28.401Z",
+      "completedAt": "2026-06-11T18:05:49.060Z",
+      "paymentMethod": "CARD",
+      "settledAt": "2026-06-11T18:08:53.759Z"
     }
   ],
   "reviews": [],
-  "bills": [
-    {
-      "id": "bill-1781186604866",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781186564317",
-      "orderIds": [
-        "ord-1781186564317"
-      ],
-      "status": "PAID",
-      "subtotal": 153.5,
-      "paymentMethod": "CASH",
-      "createdAt": "2026-06-11T14:03:24.866Z",
-      "updatedAt": "2026-06-11T14:03:36.958Z"
-    },
-    {
-      "id": "bill-1781186653189",
-      "tableId": "1",
-      "tableNumber": 1,
-      "sessionId": "session-table-1-1781186626677",
-      "orderIds": [
-        "ord-1781186626677"
-      ],
-      "status": "PAID",
-      "subtotal": 100,
-      "paymentMethod": "PROTOCOL",
-      "createdAt": "2026-06-11T14:04:13.189Z",
-      "updatedAt": "2026-06-11T14:04:19.631Z"
-    }
-  ],
+  "bills": [],
   "waiterRequests": []
 }

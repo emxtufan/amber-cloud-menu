@@ -1,13 +1,20 @@
 import qrcode from 'qrcode-generator';
 import { OrderSource, OrderStatus, SelectedOrderOption, Table, TableStatus } from './types.js';
 
+let roundPricesEnabled = false;
+
+export function setPriceRoundingEnabled(enabled: boolean) {
+  roundPricesEnabled = enabled;
+}
+
 export function formatCad(amount: number): string {
+  const displayAmount = roundPricesEnabled ? Math.ceil(amount) : amount;
   return new Intl.NumberFormat('ro-RO', {
     style: 'currency',
     currency: 'RON',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount);
+  }).format(displayAmount);
 }
 
 export function formatOptionPriceDelta(priceDelta: number): string {

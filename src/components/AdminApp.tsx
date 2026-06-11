@@ -219,7 +219,10 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [settings, setSettings] = useState<RestaurantSettings>({ customerOrderingEnabled: true });
+  const [settings, setSettings] = useState<RestaurantSettings>({
+    customerOrderingEnabled: true,
+    roundPricesEnabled: false,
+  });
   const [accessControl, setAccessControl] = useState<AccessControlSummary>({
     adminUsername: 'admin',
     adminPasswordConfigured: true,
@@ -437,6 +440,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       upsertReview(review);
     });
     const unsubDatabaseReset = api.subscribe('database-reset', loadAdminDb);
+    const unsubSessionCleared = api.subscribe('session-cleared', loadAdminDb);
 
     return () => {
       unsubOrder();
@@ -448,6 +452,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
       unsubSettings();
       unsubReview();
       unsubDatabaseReset();
+      unsubSessionCleared();
     };
   }, []);
 
@@ -706,6 +711,22 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
     } catch (error) {
       console.error(error);
       showToast('Nu am putut actualiza setarea de comanda client.', 'error');
+    }
+  };
+
+  const togglePriceRounding = async () => {
+    const nextValue = !settings.roundPricesEnabled;
+    try {
+      const nextSettings = await api.updateSettings({ roundPricesEnabled: nextValue });
+      setSettings(nextSettings);
+      showToast(
+        nextSettings.roundPricesEnabled
+          ? 'Rotunjirea preturilor a fost pornita.'
+          : 'Rotunjirea preturilor a fost oprita.'
+      );
+    } catch (error) {
+      console.error(error);
+      showToast('Nu am putut actualiza setarea de rotunjire a preturilor.', 'error');
     }
   };
 
@@ -1293,7 +1314,7 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
             <div className="bg-card border border-white/5 rounded-[24px] p-4 flex flex-col gap-3 h-[340px]">
               <div>
                 <h3 className="text-sm font-display font-bold text-white uppercase tracking-wider">Timp mediu pe comanda</h3>
-                <span className="text-[10px] text-muted font-mono">Masurat din Porneste gatirea pana la Livrata</span>
+                <span className="text-[10px] text-muted font-mono">Masurat din timpul setat in bucatarie pana la Livrata</span>
               </div>
 
               <div className="flex flex-1 flex-col justify-between rounded-[22px] border border-warning/20 bg-warning/10 p-4">
@@ -2353,6 +2374,47 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
                     <span
                       className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
                         settings.customerOrderingEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[18px] border border-white/8 bg-background px-4 py-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-primary">Afisare preturi</p>
+                  <h2 className="mt-1 text-sm font-display font-bold text-white">Rotunjire preturi</h2>
+                  <p className="mt-1 text-xs leading-5 text-muted">
+                    Daca este pornita, preturile afisate se rotunjesc in sus. Exemplu: 53,50 RON devine 54,00 RON.
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-3">
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.18em] ${
+                      settings.roundPricesEnabled
+                        ? 'border border-warning/20 bg-warning/10 text-warning'
+                        : 'border border-white/8 bg-card text-muted'
+                    }`}
+                  >
+                    {settings.roundPricesEnabled ? 'Rotunjit' : 'Exact'}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={togglePriceRounding}
+                    aria-pressed={settings.roundPricesEnabled}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full border transition ${
+                      settings.roundPricesEnabled
+                        ? 'border-warning/30 bg-warning/20'
+                        : 'border-white/10 bg-white/10'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
+                        settings.roundPricesEnabled ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
