@@ -784,6 +784,51 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
     URL.revokeObjectURL(url);
   };
 
+  const downloadQrPng = async (table: Table) => {
+    const qrLabel = getTableQrLabel(table);
+    const { svgMarkup } = generateQrSvg(table.number, getAppBaseUrl(), qrLabel);
+    const svgBlob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
+    try {
+      const image = new Image();
+      image.decoding = 'async';
+
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error('Nu am putut incarca SVG-ul pentru conversia PNG.'));
+        image.src = svgUrl;
+      });
+
+      const canvas = document.createElement('canvas');
+      const exportSize = 1024;
+      canvas.width = exportSize;
+      canvas.height = exportSize;
+
+      const context = canvas.getContext('2d');
+      if (!context) {
+        throw new Error('Canvas-ul pentru export PNG nu este disponibil.');
+      }
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, exportSize, exportSize);
+      context.drawImage(image, 0, 0, exportSize, exportSize);
+
+      const pngUrl = canvas.toDataURL('image/png');
+      const trigger = document.createElement('a');
+      trigger.href = pngUrl;
+      trigger.download = `ristorante_milano_table_${qrLabel.toLowerCase()}.png`;
+      document.body.appendChild(trigger);
+      trigger.click();
+      document.body.removeChild(trigger);
+    } catch (error) {
+      console.error('Nu am putut descarca PNG-ul pentru QR', error);
+      showToast('Nu am putut genera PNG-ul pentru acest QR.', 'error');
+    } finally {
+      URL.revokeObjectURL(svgUrl);
+    }
+  };
+
   const printQrCode = (table: Table) => {
     const qrLabel = getTableQrLabel(table);
     const { svgMarkup, targetUrl } = generateQrSvg(table.number, getAppBaseUrl(), qrLabel);
@@ -2191,12 +2236,18 @@ export default function AdminApp({ onLogout }: { onLogout?: () => void | Promise
                     <p className="text-[10px] text-white/70 font-mono truncate bg-background border border-white/5 py-1.5 px-2 rounded-lg mt-1 select-all">{targetUrl}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 w-full">
+                  <div className="grid grid-cols-3 gap-2 w-full">
                     <button
                       onClick={() => downloadQrSvg(tb)}
                       className="bg-background hover:bg-black border border-white/5 text-[10px] font-mono font-bold py-2 px-2 rounded-lg cursor-pointer text-muted hover:text-white transition-all transform active:scale-95"
                     >
                       SVG
+                    </button>
+                    <button
+                      onClick={() => void downloadQrPng(tb)}
+                      className="bg-background hover:bg-black border border-white/5 text-[10px] font-mono font-bold py-2 px-2 rounded-lg cursor-pointer text-muted hover:text-white transition-all transform active:scale-95"
+                    >
+                      PNG
                     </button>
                     <button
                       onClick={() => printQrCode(tb)}

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "customerOrderingEnabled": true
+    "customerOrderingEnabled": false
   },
   "accessControl": {
     "adminUsername": "admin",
@@ -91,27 +91,6 @@
       "number": 12,
       "status": "AVAILABLE",
       "name": "Interior 7",
-      "area": "INTERIOR"
-    },
-    {
-      "id": "13",
-      "number": 13,
-      "status": "AVAILABLE",
-      "name": "Interior 8",
-      "area": "INTERIOR"
-    },
-    {
-      "id": "14",
-      "number": 14,
-      "status": "AVAILABLE",
-      "name": "Interior 9",
-      "area": "INTERIOR"
-    },
-    {
-      "id": "15",
-      "number": 15,
-      "status": "AVAILABLE",
-      "name": "Interior 10",
       "area": "INTERIOR"
     }
   ],
@@ -243,7 +222,7 @@
       "id": "prod-1781099658634",
       "name": "Pizza quattro stagioni 30 cm",
       "description": "Sos rosii, mozzarella, topping pizza, sunca, ciuperci, carnati, masline",
-      "price": 32.1,
+      "price": 53.5,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/8a7900ca25aaad7af9803e05895b81a238f3ae38.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -326,7 +305,7 @@
       "id": "prod-1781099815446",
       "name": "Pizza capriciosa 30 cm",
       "description": "Sos rosii, mozzarella, topping pizza, sunca, ciuperci, carnati, salam chorizo, ardei gras, masline\n",
-      "price": 33.6,
+      "price": 56,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/41/7ba5e9e602f0fd918f8aa6e4340d96795d3f5af9.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -409,7 +388,7 @@
       "id": "prod-1781099952253",
       "name": "Pizza diavollo 30 cm",
       "description": "Sos rosii, mozzarella, topping pizza, salam chorizo, peperoncino",
-      "price": 32.4,
+      "price": 54,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/5692e0d21d75c375fa5f3bec4ee4c6484423a17e.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -492,7 +471,7 @@
       "id": "prod-1781100035579",
       "name": "Pizza quattro formaggi 30 cm",
       "description": "Extra mozzarella, topping pizza, cașcaval afumat, blue cheese, grana padano\n\n",
-      "price": 34.5,
+      "price": 57.5,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/fdda215c035925a18778dd9f3284522849e1924b.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -575,7 +554,7 @@
       "id": "prod-1781100504057",
       "name": "Pizza primavera 30 cm",
       "description": "Sos rosii, mozzarella, topping pizza, piept de pui, ciuperci, ardei gras, porumb\n\n",
-      "price": 31.2,
+      "price": 52,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/fa7fa0c6579d63d41ba15bb83c302ad798cd9320.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -658,7 +637,7 @@
       "id": "prod-1781100599304",
       "name": "Pizza deliciosa 30 cm",
       "description": "Sos rosii, mozzarella, topping pizza, sunca, blue cheese\n\n",
-      "price": 31.2,
+      "price": 52,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/22cf60897a34f08be97f4b214e7f8d073eaaf607.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -741,7 +720,7 @@
       "id": "prod-1781100682695",
       "name": "Pizza margherita 30 cm (copii)",
       "description": "Sos rosii, mozzarella, topping pizza, oregano\n\n",
-      "price": 24.9,
+      "price": 41.5,
       "imageUrl": "https://r.presto-pizza.ro/uploads/media/frontend_product_image/0001/01/a1393546a40b73a75200b4784f2f6076ea8b3887.jpeg",
       "rating": 5,
       "reviewsCount": 12,
@@ -3583,6 +3562,51 @@
       "startedAt": "2026-06-11T11:31:33.270Z",
       "readyAt": "2026-06-11T11:31:43.526Z",
       "completedAt": "2026-06-11T11:31:47.446Z"
+    },
+    {
+      "id": "ord-1781181240804",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781181240804",
+      "orderNumber": "ORD-9293",
+      "status": "DELIVERED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781181240804-0",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781181240804-1",
+          "productId": "prod-1781099815446",
+          "productName": "Pizza capriciosa 30 cm",
+          "price": 33.6,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168545426-nifbz",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168545426-y3bmk",
+              "choiceName": "Blat Normal",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "subtotal": 133.6,
+      "createdAt": "2026-06-11T12:34:00.804Z",
+      "updatedAt": "2026-06-11T12:35:23.912Z",
+      "prepTimeEstimate": 15,
+      "approvedAt": "2026-06-11T12:34:41.986Z",
+      "startedAt": "2026-06-11T12:35:14.101Z",
+      "readyAt": "2026-06-11T12:35:20.225Z",
+      "completedAt": "2026-06-11T12:35:23.912Z"
     }
   ],
   "reviews": [
@@ -3598,6 +3622,20 @@
     }
   ],
   "bills": [
+    {
+      "id": "bill-1781181333684",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781181240804",
+      "orderIds": [
+        "ord-1781181240804"
+      ],
+      "status": "PAID",
+      "subtotal": 133.6,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-11T12:35:33.684Z",
+      "updatedAt": "2026-06-11T12:36:22.316Z"
+    },
     {
       "id": "bill-1781177560901",
       "tableId": "1",
