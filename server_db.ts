@@ -174,6 +174,23 @@ const FRONT_ONLY_KEYWORDS = [
   'red bull',
 ];
 
+const FRONT_ONLY_EXACT_KEYWORDS = new Set([
+  'apa',
+  'water',
+  'bar',
+  'vin',
+  'bere',
+  'suc',
+  'tea',
+  'gin',
+  'rom',
+  'cola',
+  'fanta',
+  'sprite',
+  'pepsi',
+  'tonic',
+]);
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -259,8 +276,23 @@ function textMatchesFrontOnlyKeywords(value?: string) {
     return false;
   }
 
-  const haystack = value.toLowerCase();
-  return FRONT_ONLY_KEYWORDS.some((keyword) => haystack.includes(keyword));
+  const haystack = value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  const tokens = haystack.split(/[^a-z0-9]+/).filter(Boolean);
+  return FRONT_ONLY_KEYWORDS.some((keyword) => {
+    const normalizedKeyword = keyword
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    if (FRONT_ONLY_EXACT_KEYWORDS.has(normalizedKeyword)) {
+      return tokens.includes(normalizedKeyword);
+    }
+
+    return haystack.includes(normalizedKeyword);
+  });
 }
 
 export class DatabaseEngine {
