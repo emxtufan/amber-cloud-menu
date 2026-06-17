@@ -13,7 +13,8 @@
     {
       "id": "1",
       "number": 1,
-      "status": "AVAILABLE",
+      "status": "PREPARING",
+      "activeSessionId": "session-table-1-1781710889872",
       "name": "Terasa 1",
       "area": "TERASA"
     },
@@ -69,7 +70,8 @@
     {
       "id": "9",
       "number": 9,
-      "status": "AVAILABLE",
+      "status": "PREPARING",
+      "activeSessionId": "session-table-9-1781710435775",
       "name": "Interior 4",
       "area": "INTERIOR"
     },
@@ -4103,6 +4105,133 @@
       "completedAt": "2026-06-17T10:11:56.152Z",
       "paymentMethod": "CASH",
       "settledAt": "2026-06-17T11:35:41.020Z"
+    },
+    {
+      "id": "ord-1781710435775",
+      "tableId": "9",
+      "tableNumber": 9,
+      "sessionId": "session-table-9-1781710435775",
+      "orderNumber": "ORD-6234",
+      "status": "CONFIRMED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781710435775-0",
+          "productId": "prod-1781171166939",
+          "productName": "Noodles cu vita",
+          "price": 40,
+          "quantity": 2,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781710435775-1",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "subtotal": 132,
+      "createdAt": "2026-06-17T15:33:55.775Z",
+      "updatedAt": "2026-06-17T15:34:25.921Z",
+      "approvedAt": "2026-06-17T15:34:25.921Z"
+    },
+    {
+      "id": "ord-1781710761580",
+      "tableId": "4",
+      "tableNumber": 4,
+      "sessionId": "session-table-4-1781710761579",
+      "orderNumber": "ORD-1850",
+      "status": "CANCELLED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781710761580-0",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781710761580-1",
+          "productId": "prod-1781171166939",
+          "productName": "Noodles cu vita",
+          "price": 40,
+          "quantity": 2,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 132,
+      "createdAt": "2026-06-17T15:39:21.579Z",
+      "updatedAt": "2026-06-17T15:39:57.414Z",
+      "approvedAt": "2026-06-17T15:39:21.579Z",
+      "cancelledAt": "2026-06-17T15:39:57.414Z",
+      "cancelledByRole": "WAITER",
+      "cancellationReason": "Anulata de ospatar"
+    },
+    {
+      "id": "ord-1781710889872",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781710889872",
+      "orderNumber": "ORD-1898",
+      "status": "CONFIRMED",
+      "source": "WAITER",
+      "items": [
+        {
+          "productId": "prod-1781171166939",
+          "productName": "Noodles cu vita",
+          "price": 40,
+          "quantity": 2,
+          "sendToKitchen": true,
+          "selectedOptions": [],
+          "id": "item-1781710889872-0"
+        },
+        {
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ],
+          "id": "item-1781710889872-1"
+        }
+      ],
+      "notes": "",
+      "subtotal": 132,
+      "createdAt": "2026-06-17T15:41:29.872Z",
+      "updatedAt": "2026-06-17T15:41:29.872Z",
+      "approvedAt": "2026-06-17T15:41:29.872Z"
     }
   ],
   "reviews": [],
