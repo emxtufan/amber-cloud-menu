@@ -260,6 +260,26 @@ async function sendWhatsappOrderAlert(order: Order, trigger: 'created' | 'confir
   }
 }
 
+function shouldNotifyWhatsappOnKitchenArrival(
+  order: Order,
+  previousStatus?: OrderStatus | null
+) {
+  if (order.status !== OrderStatus.CONFIRMED) {
+    return false;
+  }
+
+  if (
+    previousStatus === OrderStatus.CONFIRMED ||
+    previousStatus === OrderStatus.PREPARING ||
+    previousStatus === OrderStatus.READY ||
+    previousStatus === OrderStatus.DELIVERED
+  ) {
+    return false;
+  }
+
+  return order.items.some((item) => item.sendToKitchen !== false);
+}
+
 // Broadcast changes to active SSE clients
 function broadcastEvent(type: string, data: any) {
   const payload = `event: ${type}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -560,7 +580,7 @@ async function startServer() {
       broadcastEvent('table-update', table);
     }
 
-    if (order.source === OrderSource.WAITER) {
+    if (shouldNotifyWhatsappOnKitchenArrival(order)) {
       void sendWhatsappOrderAlert(order, 'confirmed');
     }
     
@@ -571,7 +591,7 @@ async function startServer() {
     const { status, prepTimeEstimate, startNewSession, kitchenItemIds } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
     const session = readAuthSession(req);
-    const previousOrder = DatabaseEngine.getOrder(req.params.id);
+    const previousStatus = DatabaseEngine.getOrder(req.params.id)?.status;
     
     const order = DatabaseEngine.updateOrderStatus(
       req.params.id,
@@ -592,11 +612,7 @@ async function startServer() {
       broadcastEvent('table-update', table);
     }
 
-    if (
-      session?.role === 'WAITER' &&
-      previousOrder?.status !== OrderStatus.CONFIRMED &&
-      order.status === OrderStatus.CONFIRMED
-    ) {
+    if (shouldNotifyWhatsappOnKitchenArrival(order, previousStatus)) {
       void sendWhatsappOrderAlert(order, 'confirmed');
     }
 
