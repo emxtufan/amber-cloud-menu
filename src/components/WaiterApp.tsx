@@ -29,6 +29,7 @@ interface ManualQueueItem {
   productName: string;
   price: number;
   quantity: number;
+  notes?: string;
   sendToKitchen: boolean;
   selectedOptions?: SelectedOrderOption[];
 }
@@ -37,6 +38,7 @@ interface ManualDraftItem {
   id: string;
   product: Product;
   quantity: number;
+  notes?: string;
   selectedOptions: SelectedOrderOption[];
 }
 
@@ -110,6 +112,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
   const [configChoices, setConfigChoices] = useState<Record<string, string[]>>({});
   const [configQuantity, setConfigQuantity] = useState(1);
   const [configContext, setConfigContext] = useState<ProductConfigContext | null>(null);
+  const [configLineNotes, setConfigLineNotes] = useState('');
   const [alerts, setAlerts] = useState<WaiterAlert[]>([]);
   const [highlightedTables, setHighlightedTables] = useState<Record<string, number>>({});
   const [approvalSelections, setApprovalSelections] = useState<Record<string, Record<string, boolean>>>({});
@@ -737,6 +740,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     setConfigChoices({});
     setConfigQuantity(1);
     setConfigContext(null);
+    setConfigLineNotes('');
   };
 
   const resetPendingEditor = () => {
@@ -747,6 +751,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     setConfigChoices({});
     setConfigQuantity(1);
     setConfigContext(null);
+    setConfigLineNotes('');
   };
 
   const openProductConfigurator = (product: Product, context: ProductConfigContext) => {
@@ -754,6 +759,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     setConfigChoices({});
     setConfigQuantity(1);
     setConfigContext(context);
+    setConfigLineNotes('');
   };
 
   const closeProductConfigurator = () => {
@@ -761,19 +767,27 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     setConfigChoices({});
     setConfigQuantity(1);
     setConfigContext(null);
+    setConfigLineNotes('');
   };
 
-  const upsertManualLine = (product: Product, quantity: number, selectedOptions: SelectedOrderOption[]) => {
+  const upsertManualLine = (
+    product: Product,
+    quantity: number,
+    selectedOptions: SelectedOrderOption[],
+    notes?: string
+  ) => {
     if (quantity <= 0) {
       return;
     }
 
     setManualCart((current) => {
       const signature = getSelectedOptionSignature(selectedOptions);
+      const normalizedNotes = notes?.trim() || undefined;
       const existingIndex = current.findIndex(
         (item) =>
           item.product.id === product.id &&
-          getSelectedOptionSignature(item.selectedOptions) === signature
+          getSelectedOptionSignature(item.selectedOptions) === signature &&
+          (item.notes?.trim() || undefined) === normalizedNotes
       );
 
       if (existingIndex >= 0) {
@@ -790,23 +804,31 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           id: createManualLineId(),
           product,
           quantity,
+          notes: normalizedNotes,
           selectedOptions,
         },
       ];
     });
   };
 
-  const upsertPendingEditorLine = (product: Product, quantity: number, selectedOptions: SelectedOrderOption[]) => {
+  const upsertPendingEditorLine = (
+    product: Product,
+    quantity: number,
+    selectedOptions: SelectedOrderOption[],
+    notes?: string
+  ) => {
     if (quantity <= 0) {
       return;
     }
 
     setPendingEditorItems((current) => {
       const signature = getSelectedOptionSignature(selectedOptions);
+      const normalizedNotes = notes?.trim() || undefined;
       const existingIndex = current.findIndex(
         (item) =>
           item.product.id === product.id &&
-          getSelectedOptionSignature(item.selectedOptions) === signature
+          getSelectedOptionSignature(item.selectedOptions) === signature &&
+          (item.notes?.trim() || undefined) === normalizedNotes
       );
 
       if (existingIndex >= 0) {
@@ -823,6 +845,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           id: createManualLineId(),
           product,
           quantity,
+          notes: normalizedNotes,
           selectedOptions,
         },
       ];
@@ -830,12 +853,12 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
   };
 
   const modifyManualQty = (product: Product, delta: number) => {
-    if (product.optionGroups?.length) {
-      if (delta > 0) {
-        openProductConfigurator(product, 'manual');
-        return;
-      }
+    if (delta > 0) {
+      openProductConfigurator(product, 'manual');
+      return;
+    }
 
+    if (product.optionGroups?.length) {
       setManualCart((current) => {
         const nextCart = [...current];
         for (let index = nextCart.length - 1; index >= 0; index -= 1) {
@@ -856,11 +879,6 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
       return;
     }
 
-    if (delta > 0) {
-      upsertManualLine(product, delta, []);
-      return;
-    }
-
     setManualCart((current) =>
       current
         .map((item) => {
@@ -876,12 +894,12 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
   };
 
   const modifyPendingEditorQty = (product: Product, delta: number) => {
-    if (product.optionGroups?.length) {
-      if (delta > 0) {
-        openProductConfigurator(product, 'pending');
-        return;
-      }
+    if (delta > 0) {
+      openProductConfigurator(product, 'pending');
+      return;
+    }
 
+    if (product.optionGroups?.length) {
       setPendingEditorItems((current) => {
         const nextItems = [...current];
         for (let index = nextItems.length - 1; index >= 0; index -= 1) {
@@ -899,11 +917,6 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
         }
         return nextItems;
       });
-      return;
-    }
-
-    if (delta > 0) {
-      upsertPendingEditorLine(product, delta, []);
       return;
     }
 
@@ -948,6 +961,32 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           return nextQuantity > 0 ? { ...item, quantity: nextQuantity } : null;
         })
         .filter(Boolean) as ManualDraftItem[]
+    );
+  };
+
+  const updateManualLineNotes = (lineId: string, notes: string) => {
+    setManualCart((current) =>
+      current.map((item) =>
+        item.id === lineId
+          ? {
+              ...item,
+              notes: notes.trim() ? notes : '',
+            }
+          : item
+      )
+    );
+  };
+
+  const updatePendingEditorLineNotes = (lineId: string, notes: string) => {
+    setPendingEditorItems((current) =>
+      current.map((item) =>
+        item.id === lineId
+          ? {
+              ...item,
+              notes: notes.trim() ? notes : '',
+            }
+          : item
+      )
     );
   };
 
@@ -1010,9 +1049,9 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
     }
 
     if (configContext === 'manual') {
-      upsertManualLine(configProduct, configQuantity, configSelectedOptions);
+      upsertManualLine(configProduct, configQuantity, configSelectedOptions, configLineNotes);
     } else {
-      upsertPendingEditorLine(configProduct, configQuantity, configSelectedOptions);
+      upsertPendingEditorLine(configProduct, configQuantity, configSelectedOptions, configLineNotes);
     }
 
     closeProductConfigurator();
@@ -1026,6 +1065,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
         productName: item.product.name,
         price: getManualLineUnitPrice(item.product, item.selectedOptions),
         quantity: item.quantity,
+        notes: item.notes?.trim() || undefined,
         sendToKitchen: manualKitchenSelections[item.id] ?? getDefaultKitchenSelection(item.product.id),
         selectedOptions: item.selectedOptions,
       })),
@@ -1092,6 +1132,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
               productName: item.productName,
               price: item.price,
               quantity: item.quantity,
+              notes: item.notes,
               sendToKitchen: item.sendToKitchen,
               selectedOptions: item.selectedOptions,
             })),
@@ -1140,6 +1181,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
           productName: item.product.name,
           price: getManualLineUnitPrice(item.product, item.selectedOptions),
           quantity: item.quantity,
+          notes: item.notes?.trim() || undefined,
           selectedOptions: item.selectedOptions,
         }))
       );
@@ -1439,6 +1481,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                 ))}
                               </div>
                             )}
+                            {item.notes ? <p className="mt-2 text-[11px] text-primary">Nota: {item.notes}</p> : null}
                             <p className="mt-1 text-[11px] text-muted">
                               {item.sendToKitchen ? 'Merge in bucatarie' : 'Ramane doar in istoric / servire'}
                             </p>
@@ -1686,7 +1729,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                       <div>
                         <h3 className="text-sm font-display font-bold">Comanda manuala ospatar</h3>
                         <p className="mt-1 text-xs text-muted">
-                          Apasa pe produse, adauga optiuni unde este cazul, apoi revizuieste toata comanda. Bauturile raman implicit in servire, nu in bucatarie.
+                          Apasa pe produse, seteaza cantitatea, optiunile si nota fiecarui produs, apoi revizuieste toata comanda. Bauturile raman implicit in servire, nu in bucatarie.
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-2 xl:min-w-[270px]">
@@ -1775,6 +1818,13 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                             </span>
                                           </div>
                                         )}
+                                        {!hasOptions && (
+                                          <div className="absolute bottom-2 right-2 z-10 lg:bottom-2.5 lg:right-2.5">
+                                            <span className="rounded-full bg-black/55 px-2 py-1 text-[10px] font-mono uppercase tracking-[0.12em] text-white/80">
+                                              Nota
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
                                       <div className="space-y-2 px-2.5 py-2.5">
                                         <p className="min-h-[2.5rem] text-[13px] font-display font-bold leading-5 text-white">
@@ -1784,11 +1834,9 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                           <p className="text-[11px] font-mono uppercase tracking-[0.14em] text-primary">
                                             {formatCad(product.price)}
                                           </p>
-                                          {hasOptions ? (
-                                            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/50">
-                                              Extra
-                                            </span>
-                                          ) : null}
+                                          <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-white/50">
+                                            {hasOptions ? 'Extra' : 'Nota'}
+                                          </span>
                                         </div>
                                       </div>
                                     </div>
@@ -1841,6 +1889,7 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                       {item.sendToKitchen ? 'Merge in bucatarie' : 'Ramane doar pentru servire / bauturi'}
                                     </p>
                                     <p className="mt-1 text-[11px] text-white/60">{formatCad(item.price * item.quantity)}</p>
+                                    {item.notes ? <p className="mt-2 text-[11px] text-primary">Nota: {item.notes}</p> : null}
                                   </div>
                                   <div className="flex shrink-0 items-start gap-3">
                                     <div className="flex items-center overflow-hidden rounded-2xl border border-white/8 bg-black/20">
@@ -1870,6 +1919,13 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                     />
                                   </div>
                                 </div>
+                                <textarea
+                                  value={item.notes || ''}
+                                  onChange={(event) => updateManualLineNotes(item.id, event.target.value)}
+                                  placeholder="Nota pentru acest produs..."
+                                  rows={2}
+                                  className="mt-3 w-full rounded-2xl border border-white/8 bg-card p-3 text-xs text-white outline-none"
+                                />
                               </div>
                             ))}
                           </div>
@@ -2151,6 +2207,13 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                     </span>
                                   </div>
                                 )}
+                                {!hasOptions && (
+                                  <div className="absolute bottom-2.5 right-2.5 z-10 md:bottom-4 md:right-4">
+                                    <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-white/80 md:px-3 md:py-1.5">
+                                      Nota
+                                    </span>
+                                  </div>
+                                )}
                               </div>
 
                               <div className="space-y-2.5 px-2.5 py-2.5 md:px-4 md:py-4">
@@ -2161,11 +2224,9 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                   <p className="text-xs font-mono uppercase tracking-[0.16em] text-primary md:text-sm md:tracking-[0.18em]">
                                     {formatCad(product.price)}
                                   </p>
-                                  {hasOptions ? (
-                                    <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
-                                      Extra
-                                    </span>
-                                  ) : null}
+                                  <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-white/50">
+                                    {hasOptions ? 'Extra' : 'Nota'}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -2209,6 +2270,13 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                                   ))}
                                 </div>
                               )}
+                              <textarea
+                                value={item.notes || ''}
+                                onChange={(event) => updatePendingEditorLineNotes(item.id, event.target.value)}
+                                placeholder="Nota pentru acest produs..."
+                                rows={2}
+                                className="mt-3 w-full rounded-2xl border border-white/8 bg-background p-3 text-xs text-white outline-none"
+                              />
                               <p className="mt-1 text-[11px] text-white/60">
                                 {formatCad(getManualLineUnitPrice(item.product, item.selectedOptions) * item.quantity)}
                               </p>
@@ -2364,6 +2432,18 @@ export default function WaiterApp({ onLogout }: { onLogout?: () => void | Promis
                     </div>
                   );
                 })}
+              </div>
+
+              <div className="mt-4 rounded-[24px] border border-white/8 bg-background/70 p-4">
+                <p className="text-xs font-mono uppercase tracking-[0.22em] text-muted">Nota produs</p>
+                <p className="mt-2 text-sm text-white/75">Adauga cerinte speciale pentru aceasta pozitie.</p>
+                <textarea
+                  value={configLineNotes}
+                  onChange={(event) => setConfigLineNotes(event.target.value)}
+                  placeholder="Ex: fara zahar pudra, extra dulceata, bine rumenit..."
+                  rows={3}
+                  className="mt-3 w-full rounded-2xl border border-white/8 bg-card p-3 text-sm text-white outline-none"
+                />
               </div>
             </div>
 

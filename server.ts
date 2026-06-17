@@ -4,11 +4,32 @@ import path from 'path';
 import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { DatabaseEngine } from './server_db.js';
-import { OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod, InternalRole, TableSessionClearResult } from './src/types.js';
+import { Order, OrderSource, OrderStatus, TableStatus, BillStatus, PaymentMethod, InternalRole, TableSessionClearResult } from './src/types.js';
 
 let sseClients: Response[] = [];
 const AUTH_COOKIE_NAME = 'restaurant_internal_session';
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const WHATSAPP_API_URL = (process.env.WHATSAPP_API_URL || '').trim().replace(/\/+$/, '');
+const WHATSAPP_GROUP_ID = (process.env.WHATSAPP_GROUP_ID || '').trim();
+const waEmoji = (...codes: number[]) => String.fromCodePoint(...codes);
+const WA_EMOJI_BULLET = '\u2022';
+const WA_EMOJI_SUB_BULLET = '\u25E6';
+const WA_EMOJI_MEMO = waEmoji(0x1f4dd);
+const WA_EMOJI_DRINK = waEmoji(0x1f964);
+const WA_EMOJI_CHECK = waEmoji(0x2705);
+const WA_EMOJI_ALERT = waEmoji(0x1f6a8);
+const WA_EMOJI_PLATE = waEmoji(0x1f37d, 0xfe0f);
+const WA_EMOJI_FIRE = waEmoji(0x1f525);
+const WA_EMOJI_WARNING = waEmoji(0x26a0, 0xfe0f);
+const WA_EMOJI_NOTICE = waEmoji(0x1f4e3);
+const WA_EMOJI_RECEIPT = waEmoji(0x1f9fe);
+const WA_EMOJI_PIN = waEmoji(0x1f4cd);
+const WA_EMOJI_STATUS = waEmoji(0x1f504);
+const WA_EMOJI_USER = waEmoji(0x1f464);
+const WA_EMOJI_MONEY = waEmoji(0x1f4b0);
+const WA_EMOJI_FOOD = waEmoji(0x1f374);
+const WA_EMOJI_NOTEBOOK = waEmoji(0x1f5d2, 0xfe0f);
+const WA_EMOJI_LINK = waEmoji(0x1f517);
 
 interface AuthSessionRecord {
   id: string;
@@ -18,6 +39,226 @@ interface AuthSessionRecord {
 }
 
 const authSessions = new Map<string, AuthSessionRecord>();
+
+function getWhatsappOrderStatusLabel(status: OrderStatus) {
+  switch (status) {
+    case OrderStatus.PENDING:
+      return 'Pending';
+    case OrderStatus.CONFIRMED:
+      return 'Confirmata';
+    case OrderStatus.PREPARING:
+      return 'In pregatire';
+    case OrderStatus.READY:
+      return 'Gata';
+    case OrderStatus.DELIVERED:
+      return 'Livrata';
+    case OrderStatus.CANCELLED:
+      return 'Anulata';
+    default:
+      return status;
+  }
+}
+
+function getWhatsappOrderSourceLabel(source: OrderSource) {
+  return source === OrderSource.WAITER ? 'Ospatar' : 'Client';
+}
+
+function formatWhatsappOrderItems(order: Order) {
+  return order.items
+    .map((item) => {
+      const optionGroups = new Map<string, string[]>();
+      (item.selectedOptions || []).forEach((option) => {
+        const current = optionGroups.get(option.groupName) || [];
+        current.push(option.choiceName);
+        optionGroups.set(option.groupName, current);
+      });
+
+      const lines = [`• ${item.quantity}x ${item.productName}`];
+      optionGroups.forEach((choices, groupName) => {
+        lines.push(`   ◦ ${groupName}: ${choices.join(', ')}`);
+      });
+      if (item.notes) {
+        lines.push(`   📝 ${item.notes}`);
+      }
+      if (item.sendToKitchen === false) {
+        lines.push('   🥤 Ramane la servire / bar');
+      }
+
+      return lines.join('\n');
+    })
+    .join('\n');
+}
+
+function buildWhatsappOrderMessage(order: Order, trigger: 'created' | 'confirmed') {
+  const title =
+    trigger === 'confirmed'
+      ? '✅ Comanda confirmata pentru bucatarie'
+      : order.status === OrderStatus.PENDING
+        ? '🚨 Comanda noua in asteptare'
+        : '🍽️ Comanda noua';
+
+  const summary =
+    trigger === 'confirmed'
+      ? '🔥 Comanda a fost aprobata de ospatar si trimisa spre bucatarie.'
+      : order.status === OrderStatus.PENDING
+        ? '⚠️ Asteapta aprobarea ospatarului.'
+        : '📣 Comanda a intrat in fluxul restaurantului.';
+
+  const messageLines = [
+    title,
+    '',
+    `🧾 Order ID: ${order.orderNumber}`,
+    `📍 Masa: ${order.tableNumber}`,
+    `🔄 Status: ${getWhatsappOrderStatusLabel(order.status)}`,
+    `👤 Sursa: ${getWhatsappOrderSourceLabel(order.source)}`,
+    `💰 Total: ${order.subtotal.toFixed(2)} RON`,
+    '',
+    '🍴 Produse:',
+    formatWhatsappOrderItems(order),
+  ];
+
+  if (order.notes) {
+    messageLines.push('', `🗒️ Nota comanda: ${order.notes}`);
+  }
+
+  messageLines.push('', summary);
+  return messageLines.join('\n');
+}
+
+function formatWhatsappOrderItemsSafe(order: Order) {
+  return order.items
+    .map((item) => {
+      const optionGroups = new Map<string, string[]>();
+      (item.selectedOptions || []).forEach((option) => {
+        const current = optionGroups.get(option.groupName) || [];
+        current.push(option.choiceName);
+        optionGroups.set(option.groupName, current);
+      });
+
+      const lines = [`${WA_EMOJI_BULLET} ${item.quantity}x ${item.productName}`];
+      optionGroups.forEach((choices, groupName) => {
+        lines.push(`   ${WA_EMOJI_SUB_BULLET} ${groupName}: ${choices.join(', ')}`);
+      });
+      if (item.notes) {
+        lines.push(`   ${WA_EMOJI_MEMO} ${item.notes}`);
+      }
+      if (item.sendToKitchen === false) {
+        lines.push(`   ${WA_EMOJI_DRINK} Ramane la servire / bar`);
+      }
+
+      return lines.join('\n');
+    })
+    .join('\n');
+}
+
+function buildWhatsappOrderMessageSafeLegacy(order: Order, trigger: 'created' | 'confirmed') {
+  const title = `${WA_EMOJI_PLATE} COMANDA NOUA`;
+  const intro =
+    order.source === OrderSource.WAITER
+      ? `${WA_EMOJI_CHECK} Comanda a fost trimisa direct de ospatar.`
+      : `${WA_EMOJI_ALERT} Comanda noua trimisa din meniu.`;
+
+  const messageLines = [
+    title,
+    'Amber Cloud Restaurant',
+    `${WA_EMOJI_PIN} Masa ${order.tableNumber} • ${order.orderNumber}`,
+    '────────────────',
+    intro,
+    `${WA_EMOJI_STATUS} Status initial: ${getWhatsappOrderStatusLabel(order.status)}`,
+    `${WA_EMOJI_USER} Sursa: ${getWhatsappOrderSourceLabel(order.source)}`,
+    `${WA_EMOJI_MONEY} Total comanda: ${order.subtotal.toFixed(2)} RON`,
+    '────────────────',
+    `${WA_EMOJI_FOOD} Produse:`,
+    formatWhatsappOrderItemsSafe(order),
+  ];
+
+  if (order.notes) {
+    messageLines.push('────────────────', `${WA_EMOJI_NOTEBOOK} Nota generala: ${order.notes}`);
+  }
+
+  messageLines.push(
+    '────────────────',
+    `${WA_EMOJI_NOTICE} Confirmarea comenzii si estimarea timpului se fac prin intermediul siteului.`
+  );
+  return messageLines.join('\n');
+}
+
+function buildWhatsappOrderMessageSafe(order: Order, trigger: 'created' | 'confirmed') {
+  const title =
+    trigger === 'confirmed'
+      ? `${WA_EMOJI_CHECK} Comanda confirmata pentru bucatarie`
+      : order.status === OrderStatus.PENDING
+        ? `${WA_EMOJI_ALERT} Comanda noua in asteptare`
+        : `${WA_EMOJI_PLATE} Comanda noua`;
+
+  const summary =
+    trigger === 'confirmed'
+      ? `${WA_EMOJI_FIRE} Comanda a fost aprobata de ospatar si trimisa spre bucatarie.`
+      : order.status === OrderStatus.PENDING
+        ? `${WA_EMOJI_WARNING} Asteapta aprobarea ospatarului.`
+        : `${WA_EMOJI_NOTICE} Comanda a intrat in fluxul restaurantului.`;
+
+  const messageLines = [
+    title,
+    '',
+    `${WA_EMOJI_RECEIPT} Order ID: ${order.orderNumber}`,
+    `${WA_EMOJI_PIN} Masa: ${order.tableNumber}`,
+    `${WA_EMOJI_STATUS} Status: ${getWhatsappOrderStatusLabel(order.status)}`,
+    `${WA_EMOJI_USER} Sursa: ${getWhatsappOrderSourceLabel(order.source)}`,
+    `${WA_EMOJI_MONEY} Total: ${order.subtotal.toFixed(2)} RON`,
+    '',
+    `${WA_EMOJI_FOOD} Produse:`,
+    formatWhatsappOrderItemsSafe(order),
+  ];
+
+  if (order.notes) {
+    messageLines.push('', `${WA_EMOJI_NOTEBOOK} Nota comanda: ${order.notes}`);
+  }
+
+  messageLines.push(
+    '',
+    summary,
+    '',
+    `${WA_EMOJI_NOTICE} Confirmarea comenzii si estimarea timpului se fac prin intermediul siteului.`,
+    `${WA_EMOJI_LINK} https://amber-cloud.vip/kitchen`
+  );
+
+  return messageLines.join('\n');
+}
+
+async function sendWhatsappOrderAlert(order: Order, trigger: 'created' | 'confirmed') {
+  if (!WHATSAPP_API_URL || !WHATSAPP_GROUP_ID) {
+    return;
+  }
+
+  const hasRelevantItems =
+    order.status === OrderStatus.PENDING ||
+    order.items.some((item) => item.sendToKitchen !== false);
+
+  if (!hasRelevantItems) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${WHATSAPP_API_URL}/send-group`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        groupId: WHATSAPP_GROUP_ID,
+        message: buildWhatsappOrderMessageSafe(order, trigger),
+      }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`WhatsApp API error: ${response.status} ${detail}`);
+    }
+  } catch (error) {
+    console.error('Nu am putut trimite alerta pe WhatsApp pentru comanda', order.orderNumber, error);
+  }
+}
 
 // Broadcast changes to active SSE clients
 function broadcastEvent(type: string, data: any) {
@@ -318,6 +559,10 @@ async function startServer() {
     if (table) {
       broadcastEvent('table-update', table);
     }
+
+    if (order.source === OrderSource.WAITER) {
+      void sendWhatsappOrderAlert(order, 'confirmed');
+    }
     
     res.status(201).json(order);
   }));
@@ -326,6 +571,7 @@ async function startServer() {
     const { status, prepTimeEstimate, startNewSession, kitchenItemIds } = req.body;
     if (!status) return res.status(400).json({ error: 'Status is required' });
     const session = readAuthSession(req);
+    const previousOrder = DatabaseEngine.getOrder(req.params.id);
     
     const order = DatabaseEngine.updateOrderStatus(
       req.params.id,
@@ -344,6 +590,14 @@ async function startServer() {
     const table = DatabaseEngine.getTable(order.tableId);
     if (table) {
       broadcastEvent('table-update', table);
+    }
+
+    if (
+      session?.role === 'WAITER' &&
+      previousOrder?.status !== OrderStatus.CONFIRMED &&
+      order.status === OrderStatus.CONFIRMED
+    ) {
+      void sendWhatsappOrderAlert(order, 'confirmed');
     }
 
     res.json(order);

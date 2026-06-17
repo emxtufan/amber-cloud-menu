@@ -3151,7 +3151,7 @@
     },
     {
       "id": "prod-1781175617478",
-      "name": "Prosecco Santinel / Sticla",
+      "name": "Prosecco Bordolin Angelo / Sticla",
       "description": "",
       "price": 129,
       "imageUrl": "https://res.cloudinary.com/duymfuehu/image/upload/q_auto/f_auto/v1781175596/6427934331057_b2ed8873_z5wmrx.jpg",
@@ -3484,6 +3484,54 @@
       "ingredients": [],
       "allergens": [],
       "optionGroups": []
+    },
+    {
+      "id": "prod-1781203400526",
+      "name": "Heineken Zero 0,33",
+      "description": "",
+      "price": 16,
+      "imageUrl": "https://thepub.ro/wp-content/uploads/2022/06/Heineken-0.0.jpg",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 12,
+      "isBestseller": false,
+      "categoryId": "cat-1781093360229",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781203663472",
+      "name": "Alaune sarate",
+      "description": "100gr",
+      "price": 10,
+      "imageUrl": "https://www.grizly.ro/arahide-prajite-sarate-img-aps1000-fd-3.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093578680",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
+    },
+    {
+      "id": "prod-1781203752242",
+      "name": "Alune Coapte",
+      "description": "100 gr",
+      "price": 10,
+      "imageUrl": "https://www.grizly.ro/arahide-prajite-sarate-in-coaja-img-grizly~~orechy~~arasidy-ve-slupce-prazene-solene~~8595678426129_1-fd-3.webp",
+      "rating": 5,
+      "reviewsCount": 12,
+      "prepTime": 5,
+      "isBestseller": false,
+      "categoryId": "cat-1781093578680",
+      "available": true,
+      "ingredients": [],
+      "allergens": [],
+      "optionGroups": []
     }
   ],
   "ingredients": [],
@@ -3553,32 +3601,6 @@
       "settledAt": "2026-06-11T17:50:17.484Z"
     },
     {
-      "id": "ord-1781194598972",
-      "tableId": "3",
-      "tableNumber": 3,
-      "sessionId": "session-table-3-1781194598972",
-      "orderNumber": "ORD-7301",
-      "status": "CANCELLED",
-      "source": "CUSTOMER",
-      "items": [
-        {
-          "id": "item-1781194598972-0",
-          "productId": "prod-1781175727130",
-          "productName": "Limonada Clasica",
-          "price": 23,
-          "quantity": 1,
-          "notes": "Cu menta, te rog",
-          "sendToKitchen": false,
-          "selectedOptions": []
-        }
-      ],
-      "subtotal": 23,
-      "createdAt": "2026-06-11T16:16:38.972Z",
-      "updatedAt": "2026-06-11T17:53:33.501Z",
-      "approvedAt": "2026-06-11T16:16:51.864Z",
-      "cancelledAt": "2026-06-11T17:53:33.501Z"
-    },
-    {
       "id": "ord-1781201090180",
       "tableId": "1",
       "tableNumber": 1,
@@ -3606,9 +3628,541 @@
       "completedAt": "2026-06-11T18:05:49.060Z",
       "paymentMethod": "CARD",
       "settledAt": "2026-06-11T18:08:53.759Z"
+    },
+    {
+      "id": "ord-1781256104815",
+      "tableId": "8",
+      "tableNumber": 8,
+      "sessionId": "session-table-8-1781256104815",
+      "orderNumber": "ORD-5103",
+      "status": "CANCELLED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781256104815-0",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 53.5,
+          "quantity": 1,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 53.5,
+      "createdAt": "2026-06-12T09:21:44.815Z",
+      "updatedAt": "2026-06-12T09:22:22.433Z",
+      "cancelledAt": "2026-06-12T09:22:22.433Z",
+      "cancelledByRole": "WAITER",
+      "cancellationReason": "Anulata de ospatar"
+    },
+    {
+      "id": "ord-1781256324753",
+      "tableId": "8",
+      "tableNumber": 8,
+      "sessionId": "session-table-8-1781256104815",
+      "orderNumber": "ORD-5134",
+      "status": "CANCELLED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781256324753-0",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 53.5,
+          "quantity": 1,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781256324753-1",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781256324753-2",
+          "productId": "prod-1781173403167",
+          "productName": "Espresso Lung",
+          "price": 14,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 167.5,
+      "createdAt": "2026-06-12T09:25:24.753Z",
+      "updatedAt": "2026-06-12T09:26:00.407Z",
+      "cancelledAt": "2026-06-12T09:26:00.407Z",
+      "cancelledByRole": "WAITER",
+      "cancellationReason": "Anulata de ospatar"
+    },
+    {
+      "id": "ord-1781256325865",
+      "tableId": "8",
+      "tableNumber": 8,
+      "sessionId": "session-table-8-1781256104815",
+      "orderNumber": "ORD-9471",
+      "status": "CANCELLED",
+      "source": "CUSTOMER",
+      "items": [
+        {
+          "id": "item-1781256325865-0",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 53.5,
+          "quantity": 1,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781256325865-1",
+          "productId": "prod-1781093779291",
+          "productName": "Narghilea Premium",
+          "price": 100,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781256325865-2",
+          "productId": "prod-1781173403167",
+          "productName": "Espresso Lung",
+          "price": 14,
+          "quantity": 1,
+          "sendToKitchen": false,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 167.5,
+      "createdAt": "2026-06-12T09:25:25.865Z",
+      "updatedAt": "2026-06-12T09:25:57.318Z",
+      "cancelledAt": "2026-06-12T09:25:57.318Z",
+      "cancelledByRole": "WAITER",
+      "cancellationReason": "Anulata de ospatar"
+    },
+    {
+      "id": "ord-1781349875208",
+      "tableId": "2",
+      "tableNumber": 2,
+      "sessionId": "session-table-2-1781349875208",
+      "orderNumber": "ORD-4741",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781349875208-0",
+          "productId": "prod-1781100682695",
+          "productName": "Pizza margherita 30 cm (copii)",
+          "price": 41.5,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168807604-zzbjv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168815769-wxwme",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781349875208-1",
+          "productId": "prod-1781171892626",
+          "productName": "Sos dulce",
+          "price": 5.5,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "notes": "Cu topping de masline va rog",
+      "subtotal": 47,
+      "createdAt": "2026-06-13T11:24:35.208Z",
+      "updatedAt": "2026-06-13T13:20:25.076Z",
+      "prepTimeEstimate": 15,
+      "approvedAt": "2026-06-13T11:24:35.208Z",
+      "startedAt": "2026-06-13T11:26:59.740Z",
+      "readyAt": "2026-06-13T11:45:48.850Z",
+      "completedAt": "2026-06-13T12:04:22.385Z",
+      "paymentMethod": "CASH",
+      "settledAt": "2026-06-13T13:20:25.076Z"
+    },
+    {
+      "id": "ord-1781370852638",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781370852638",
+      "orderNumber": "ORD-7435",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781370852638-0",
+          "productId": "prod-1781099658634",
+          "productName": "Pizza quattro stagioni 30 cm",
+          "price": 53.5,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781370852638-1",
+          "productId": "prod-1781100035579",
+          "productName": "Pizza quattro formaggi 30 cm",
+          "price": 57.5,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168906848-sxsus",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168913754-c3jy7",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781370852638-2",
+          "productId": "prod-1781171091040",
+          "productName": "Noodles cu pui",
+          "price": 36,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 147,
+      "createdAt": "2026-06-13T17:14:12.638Z",
+      "updatedAt": "2026-06-13T17:44:29.053Z",
+      "prepTimeEstimate": 15,
+      "approvedAt": "2026-06-13T17:14:12.638Z",
+      "startedAt": "2026-06-13T17:33:15.277Z",
+      "readyAt": "2026-06-13T17:43:51.468Z",
+      "completedAt": "2026-06-13T17:44:22.035Z",
+      "paymentMethod": "PROTOCOL",
+      "settledAt": "2026-06-13T17:44:29.053Z"
+    },
+    {
+      "id": "ord-1781462560099",
+      "tableId": "6",
+      "tableNumber": 6,
+      "sessionId": "session-table-6-1781462560099",
+      "orderNumber": "ORD-6848",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781462560099-0",
+          "productId": "prod-1781103635020",
+          "productName": "Cheeseburger vita",
+          "price": 61,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781103444774-xbi82",
+              "groupName": "Sos",
+              "choiceId": "choice-1781103580738-v3ipy",
+              "choiceName": "Ketchup dulce",
+              "priceDelta": 0
+            },
+            {
+              "groupId": "group-1781169990745-etymm",
+              "groupName": "Cartofi",
+              "choiceId": "choice-1781169990745-edrlz",
+              "choiceName": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781462560099-1",
+          "productId": "prod-1781103635020",
+          "productName": "Cheeseburger vita",
+          "price": 61,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781103444774-xbi82",
+              "groupName": "Sos",
+              "choiceId": "choice-1781103444774-5igtm",
+              "choiceName": "Sos maioneza cu usturoi",
+              "priceDelta": 0
+            },
+            {
+              "groupId": "group-1781169990745-etymm",
+              "groupName": "Cartofi",
+              "choiceId": "choice-1781169990745-edrlz",
+              "choiceName": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781462560099-2",
+          "productId": "prod-1781170736319",
+          "productName": "Carbonara",
+          "price": 43,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781170666917-3swhg",
+              "groupName": "Varianta",
+              "choiceId": "choice-1781170690932-tne6t",
+              "choiceName": "Spaghete carbonara",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "subtotal": 165,
+      "createdAt": "2026-06-14T18:42:40.099Z",
+      "updatedAt": "2026-06-15T11:33:38.312Z",
+      "prepTimeEstimate": 25,
+      "approvedAt": "2026-06-14T18:42:40.099Z",
+      "startedAt": "2026-06-14T19:22:57.920Z",
+      "readyAt": "2026-06-14T19:39:47.374Z",
+      "completedAt": "2026-06-14T19:39:48.361Z",
+      "paymentMethod": "CASH",
+      "settledAt": "2026-06-15T11:33:38.312Z"
+    },
+    {
+      "id": "ord-1781526639815",
+      "tableId": "11",
+      "tableNumber": 11,
+      "sessionId": "session-table-11-1781526639815",
+      "orderNumber": "ORD-7783",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781526639815-0",
+          "productId": "prod-1781169729258",
+          "productName": "Bacon Cheeseburger vita",
+          "price": 64,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781169635837-xpwhp",
+              "groupName": "Sosuri",
+              "choiceId": "choice-1781169651553-4t99o",
+              "choiceName": "Sos presto",
+              "priceDelta": 0
+            },
+            {
+              "groupId": "group-1781169843569-bvmd4",
+              "groupName": "Cartofi",
+              "choiceId": "choice-1781169843569-zj82f",
+              "choiceName": "Cartofi prajiti 130gr",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781526639815-1",
+          "productId": "prod-1781171779543",
+          "productName": "Tiramisu grande",
+          "price": 27,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        },
+        {
+          "id": "item-1781526639815-2",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "subtotal": 143,
+      "createdAt": "2026-06-15T12:30:39.815Z",
+      "updatedAt": "2026-06-15T20:05:13.442Z",
+      "prepTimeEstimate": 25,
+      "approvedAt": "2026-06-15T12:30:39.815Z",
+      "startedAt": "2026-06-15T12:31:47.684Z",
+      "readyAt": "2026-06-15T15:22:32.945Z",
+      "completedAt": "2026-06-15T15:23:44.438Z",
+      "paymentMethod": "CASH",
+      "settledAt": "2026-06-15T20:05:13.442Z"
+    },
+    {
+      "id": "ord-1781640856912",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781640856912",
+      "orderNumber": "ORD-5073",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781640856912-0",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781640856912-1",
+          "productId": "prod-1781171420359",
+          "productName": "Salata greceasca",
+          "price": 37.9,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781171363894-u5ykp",
+              "groupName": "Sosuri",
+              "choiceId": "choice-1781171388550-0elvt",
+              "choiceName": "Sos iaurt cu busuioc",
+              "priceDelta": 0
+            }
+          ]
+        }
+      ],
+      "notes": "Salata greceasca fara ceapa, va rog frumos",
+      "subtotal": 89.9,
+      "createdAt": "2026-06-16T20:14:16.912Z",
+      "updatedAt": "2026-06-17T11:35:34.191Z",
+      "prepTimeEstimate": 20,
+      "approvedAt": "2026-06-16T20:14:16.912Z",
+      "startedAt": "2026-06-16T20:14:30.418Z",
+      "readyAt": "2026-06-16T20:40:03.608Z",
+      "completedAt": "2026-06-16T20:57:14.374Z",
+      "paymentMethod": "CARD",
+      "settledAt": "2026-06-17T11:35:34.191Z"
+    },
+    {
+      "id": "ord-1781641908640",
+      "tableId": "12",
+      "tableNumber": 12,
+      "sessionId": "session-table-12-1781641908640",
+      "orderNumber": "ORD-7996",
+      "status": "DELIVERED",
+      "source": "WAITER",
+      "items": [
+        {
+          "id": "item-1781641908640-0",
+          "productId": "prod-1781100599304",
+          "productName": "Pizza deliciosa 30 cm",
+          "price": 52,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": [
+            {
+              "groupId": "group-1781168709715-7jrtv",
+              "groupName": "Blat",
+              "choiceId": "choice-1781168709715-o4xve",
+              "choiceName": "Blat normal",
+              "priceDelta": 0
+            }
+          ]
+        },
+        {
+          "id": "item-1781641908640-1",
+          "productId": "prod-1781171166939",
+          "productName": "Noodles cu vita",
+          "price": 40,
+          "quantity": 1,
+          "sendToKitchen": true,
+          "selectedOptions": []
+        }
+      ],
+      "subtotal": 92,
+      "createdAt": "2026-06-16T20:31:48.640Z",
+      "updatedAt": "2026-06-17T11:35:41.020Z",
+      "prepTimeEstimate": 20,
+      "approvedAt": "2026-06-16T20:31:48.640Z",
+      "startedAt": "2026-06-16T20:39:59.681Z",
+      "readyAt": "2026-06-16T20:57:16.191Z",
+      "completedAt": "2026-06-17T10:11:56.152Z",
+      "paymentMethod": "CASH",
+      "settledAt": "2026-06-17T11:35:41.020Z"
     }
   ],
   "reviews": [],
-  "bills": [],
+  "bills": [
+    {
+      "id": "bill-1781522829949",
+      "tableId": "4",
+      "tableNumber": 4,
+      "sessionId": "session-table-4-1781522812536",
+      "orderIds": [
+        "ord-1781522812536"
+      ],
+      "status": "PAID",
+      "subtotal": 56,
+      "paymentMethod": "CARD",
+      "createdAt": "2026-06-15T11:27:09.949Z",
+      "updatedAt": "2026-06-15T12:27:27.162Z"
+    },
+    {
+      "id": "bill-1781464618460",
+      "tableId": "4",
+      "tableNumber": 4,
+      "sessionId": "session-table-4-1781464613000",
+      "orderIds": [
+        "ord-1781464613000"
+      ],
+      "status": "PAID",
+      "subtotal": 38.9,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-14T19:16:58.460Z",
+      "updatedAt": "2026-06-15T12:27:31.305Z"
+    },
+    {
+      "id": "bill-1781464494098",
+      "tableId": "5",
+      "tableNumber": 5,
+      "sessionId": "session-table-5-1781464492840",
+      "orderIds": [
+        "ord-1781464492840"
+      ],
+      "status": "PAID",
+      "subtotal": 56,
+      "paymentMethod": "CASH",
+      "createdAt": "2026-06-14T19:14:54.098Z",
+      "updatedAt": "2026-06-15T11:31:32.131Z"
+    },
+    {
+      "id": "bill-1781460279382",
+      "tableId": "1",
+      "tableNumber": 1,
+      "sessionId": "session-table-1-1781460277529",
+      "orderIds": [
+        "ord-1781460277530"
+      ],
+      "status": "PAID",
+      "subtotal": 109.5,
+      "paymentMethod": "CARD",
+      "createdAt": "2026-06-14T18:04:39.382Z",
+      "updatedAt": "2026-06-15T11:31:26.284Z"
+    }
+  ],
   "waiterRequests": []
 }
